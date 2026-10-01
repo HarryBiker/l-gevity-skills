@@ -175,6 +175,13 @@
       "verify": "The signal is emitted on the integrated head and its alert names an actionable owner",
       "completion": ["ADD", "KEEP", "RETARGET", "DEMOTE", "DELETE"], "failure": ["UNOBSERVED"]
     },
+    "infrastructure-fit": {
+      "capability": "architecture", "stage": "companion",
+      "inputs": ["infrastructure component chosen, inherited, or questioned, with its requirements"], "outputs": ["fit record per component with tripwires and reversal cost"],
+      "parallel": "per-subject", "writes": "none", "exclusive": [],
+      "verify": "Each verdict cites a forcing requirement and counted evidence; template defaults stay INHERITED",
+      "completion": ["CHOOSE", "KEEP", "ADJUST", "WATCH", "MIGRATE"], "failure": ["DEFER"]
+    },
     "continuous-improvement": {
       "capability": "lead", "stage": "companion",
       "inputs": ["recurring mistake with evidence"], "outputs": ["skill change decision"],
