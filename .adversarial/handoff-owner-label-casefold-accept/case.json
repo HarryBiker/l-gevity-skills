@@ -1,0 +1,13 @@
+{
+  "criterion": "multi-agent-governance #80: a differently spelled owner label is the same agent",
+  "description": "P1's hand-off is sent by ' Agent-A', the owner agent-a under another spelling.",
+  "command": "handoff",
+  "args": {
+    "plan": "plan.json",
+    "handoff": "handoff.json"
+  },
+  "expect": {
+    "verdict": "ACCEPT",
+    "codes": []
+  }
+}

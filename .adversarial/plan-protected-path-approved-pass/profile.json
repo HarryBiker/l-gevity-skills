@@ -1,0 +1,7 @@
+{
+  "repository": {
+    "protected_paths": [
+      ".github/workflows/"
+    ]
+  }
+}

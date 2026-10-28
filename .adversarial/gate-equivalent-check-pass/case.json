@@ -1,0 +1,13 @@
+{
+  "criterion": "multi-agent-governance #91: a check the human accepted in place of the assigned one verifies",
+  "description": "REQ-13-AC1 is verified on E16, a vitest run the human accepted as equivalent to 'npm test -- shipments'; the recorded command differs only in whitespace.",
+  "command": "gate",
+  "args": {
+    "plan": "plan.json",
+    "ledger": "ledger.json"
+  },
+  "expect": {
+    "verdict": "PASS",
+    "codes": []
+  }
+}

@@ -1,0 +1,27 @@
+name: ALCHEMY Snapshot
+description: >-
+  Record the repository head for an ALCHEMY run and, given a base commit, write
+  the diff from that base to the working tree for reviewers that cannot run git.
+inputs:
+  base:
+    description: Commit to diff from. Empty records the head only.
+    required: false
+    default: ''
+  require_clean:
+    description: '"true" fails the step when changes outside ignored paths are not committed.'
+    required: false
+    default: 'false'
+outputs:
+  head_commit:
+    description: The commit HEAD points at.
+  branch:
+    description: The checked-out branch, or HEAD when detached.
+  dirty:
+    description: '"true" when tracked or untracked changes are not committed.'
+  changed_files:
+    description: Number of files that differ from base, untracked files included.
+  diff_file:
+    description: The diff from base to the working tree, with untracked files listed, kept under the step output directory.
+runs:
+  using: python
+  main: snapshot.py

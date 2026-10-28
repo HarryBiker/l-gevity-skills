@@ -1,0 +1,100 @@
+{
+  "schema": "alchemy-plan/1",
+  "objective": "Validate order input and paginate shipments",
+  "requirements": [
+    "REQ-12",
+    "REQ-13"
+  ],
+  "conflicts": [],
+  "base": {
+    "commit": "3f9c2e1"
+  },
+  "contracts_existing": [
+    "contract:orders-repository"
+  ],
+  "execution": {
+    "mode": "multi-agent",
+    "strategy": "dependency-aware",
+    "max_parallel_agents": 2,
+    "integration_owner": "lead",
+    "independent_review": false,
+    "merge_policy": "human-approval"
+  },
+  "packages": [
+    {
+      "id": "P1",
+      "kind": "decide",
+      "capabilities": [
+        "architecture"
+      ],
+      "skills": [
+        "architecture-guidelines"
+      ],
+      "owner": "agent-a",
+      "envelope": "analyst",
+      "risk": "medium",
+      "requirements": [
+        "REQ-13"
+      ],
+      "writes": [],
+      "reads": [
+        "src/"
+      ],
+      "depends_on": [],
+      "produces": [
+        "contract:shipment-page"
+      ],
+      "consumes": [],
+      "acceptance": [
+        {
+          "id": "P1-AC1",
+          "check": "review",
+          "question": "Does P1 meet its requirements?"
+        }
+      ],
+      "permissions": [
+        "read",
+        "test"
+      ]
+    },
+    {
+      "id": "P2",
+      "kind": "implement",
+      "capabilities": [
+        "engineering"
+      ],
+      "skills": [
+        "test-strategy"
+      ],
+      "owner": "agent-b",
+      "envelope": "implementer",
+      "risk": "medium",
+      "requirements": [
+        "REQ-13"
+      ],
+      "writes": [
+        "src/shipments/"
+      ],
+      "reads": [
+        "src/"
+      ],
+      "depends_on": [],
+      "produces": [],
+      "consumes": [
+        "contract:shipment-page"
+      ],
+      "acceptance": [
+        {
+          "id": "REQ-13-AC1",
+          "check": "command",
+          "command": "npm test -- shipments"
+        }
+      ],
+      "permissions": [
+        "read",
+        "edit",
+        "test"
+      ]
+    }
+  ]
+}

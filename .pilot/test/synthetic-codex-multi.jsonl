@@ -1,0 +1,17 @@
+{"type": "synthetic_fixture_note", "note": "SYNTHETIC: hand-written to exercise .pilot/pilot_analysis.py. It proves the stream parser only; it is not a recorded run and proves nothing about the methodology.", "_t": 0.0}
+{"_t": 0.1, "type": "thread.started", "thread_id": "th_lead"}
+{"_t": 0.2, "type": "turn.started"}
+{"_t": 1.0, "type": "item.completed", "item": {"id": "item_0", "type": "agent_message", "text": "Dispatch: ADAPTIVE\nExecution: multi-agent \u2014 independent packages"}}
+{"_t": 1.5, "type": "item.started", "item": {"id": "item_1", "type": "command_execution", "command": "cat .agents/skills/alchemy-orchestrate/SKILL.md", "status": "in_progress"}}
+{"_t": 1.6, "type": "item.completed", "item": {"id": "item_1", "type": "command_execution", "command": "cat .agents/skills/alchemy-orchestrate/SKILL.md", "exit_code": 0, "aggregated_output": "...", "status": "completed"}}
+{"_t": 2.0, "type": "item.started", "item": {"id": "item_2", "type": "collab_tool_call", "tool": "spawn_agent", "sender_thread_id": "th_lead", "receiver_thread_ids": ["th_1"], "prompt": "You are alchemy-implementer for the orders package", "status": "in_progress"}}
+{"_t": 2.1, "type": "item.completed", "item": {"id": "item_2", "type": "collab_tool_call", "tool": "spawn_agent", "receiver_thread_ids": ["th_1"], "status": "completed"}}
+{"_t": 2.5, "type": "item.started", "item": {"id": "item_3", "type": "collab_tool_call", "tool": "spawn_agent", "sender_thread_id": "th_lead", "receiver_thread_ids": ["th_2"], "prompt": "You are alchemy-implementer for the payments package", "status": "in_progress"}}
+{"_t": 2.6, "type": "item.completed", "item": {"id": "item_3", "type": "collab_tool_call", "tool": "spawn_agent", "receiver_thread_ids": ["th_2"], "status": "completed"}}
+{"_t": 3.0, "type": "item.completed", "item": {"id": "item_4", "type": "command_execution", "command": "python .agents/skills/alchemy-orchestrate/scripts/check_orchestration.py plan plan.json --profile alchemy-workspace.json", "exit_code": 0, "aggregated_output": "Plan: PASS", "status": "completed"}}
+{"_t": 4.0, "type": "item.started", "item": {"id": "item_5", "type": "collab_tool_call", "tool": "wait", "receiver_thread_ids": ["th_1", "th_2"], "status": "in_progress"}}
+{"_t": 30.0, "type": "item.completed", "item": {"id": "item_5", "type": "collab_tool_call", "tool": "wait", "receiver_thread_ids": ["th_1", "th_2"], "agents_states": {"th_1": {"status": "completed"}, "th_2": {"status": "completed"}}, "status": "completed"}}
+{"_t": 31.0, "type": "item.started", "item": {"id": "item_6", "type": "collab_tool_call", "tool": "spawn_agent", "receiver_thread_ids": ["th_3"], "prompt": "You are alchemy-analyst: independent review", "status": "in_progress"}}
+{"_t": 31.1, "type": "item.completed", "item": {"id": "item_6", "type": "collab_tool_call", "tool": "spawn_agent", "receiver_thread_ids": ["th_3"], "status": "completed"}}
+{"_t": 40.0, "type": "item.completed", "item": {"id": "item_7", "type": "collab_tool_call", "tool": "wait", "receiver_thread_ids": ["th_3"], "status": "completed"}}
+{"_t": 41.0, "type": "turn.completed", "usage": {"input_tokens": 100, "cached_input_tokens": 50, "output_tokens": 20, "reasoning_output_tokens": 5}}

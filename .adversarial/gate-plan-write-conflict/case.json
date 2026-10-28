@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #83: the gate re-runs the plan rules",
+  "description": "A ledger that would pass is gated against a plan where P1 and P2 both write src/orders/ concurrently.",
+  "command": "gate",
+  "args": {
+    "plan": "plan.json",
+    "ledger": "ledger.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "WRITE_CONFLICT"
+    ]
+  }
+}

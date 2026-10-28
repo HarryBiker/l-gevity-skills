@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #85: every evidence item the gate relies on ran at head",
+  "description": "F1's resolution and dispute X1's decision both cite E13, which passed on the base commit, not on head.",
+  "command": "gate",
+  "args": {
+    "plan": "plan.json",
+    "ledger": "ledger.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "EVIDENCE_STALE"
+    ]
+  }
+}

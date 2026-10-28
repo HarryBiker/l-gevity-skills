@@ -1,0 +1,26 @@
+{
+  "request": "Run alchemy on this: rename the function invoiceFor to buildInvoice in src/orders/billing.js and update its one caller.",
+  "skills": ["alchemy", "alchemy-orchestrate"],
+  "expect": [
+    {
+      "id": "skips-core",
+      "criterion": "execution-strategy #1: a trivial refactor stays cheap",
+      "check": "field_in",
+      "field": "Dispatch",
+      "values": ["SKIP", "DIRECT"]
+    },
+    {
+      "id": "stays-single-agent",
+      "criterion": "execution-strategy #1: a trivial refactor executes single-agent",
+      "check": "field_in",
+      "field": "Execution",
+      "values": ["single-agent"]
+    },
+    {
+      "id": "loads-no-orchestration",
+      "criterion": "execution-strategy #1: a trivial refactor pays no orchestration cost",
+      "check": "guidance_excludes",
+      "skills": ["alchemy-orchestrate"]
+    }
+  ]
+}

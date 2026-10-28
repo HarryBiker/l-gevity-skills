@@ -1,0 +1,16 @@
+{
+  "criterion": "multi-agent-governance #60: reaching the rework bound escalates instead of looping",
+  "description": "P1 has taken 3 correction rounds (bound 2) and its blocking finding F1 is still open.",
+  "command": "gate",
+  "args": {
+    "plan": "plan.json",
+    "ledger": "ledger.json"
+  },
+  "expect": {
+    "verdict": "ESCALATE",
+    "codes": [
+      "REWORK_LIMIT",
+      "UNRESOLVED_FINDING"
+    ]
+  }
+}

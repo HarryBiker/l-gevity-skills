@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #52: only the human defers a criterion",
+  "description": "REQ-13-AC2 is deferred by agent-b instead of the human.",
+  "command": "gate",
+  "args": {
+    "plan": "plan.json",
+    "ledger": "ledger.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "UNVERIFIED"
+    ]
+  }
+}

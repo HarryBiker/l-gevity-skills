@@ -1,0 +1,16 @@
+{
+  "criterion": "multi-agent-governance #31: work built on an artifact that has since moved is re-validated, not merged",
+  "description": "The repository module P1 relied on changed after P1 read it; its relied_on digest no longer matches.",
+  "command": "handoff",
+  "args": {
+    "plan": "plan.json",
+    "handoff": "handoff.json",
+    "root": "workspace"
+  },
+  "expect": {
+    "verdict": "STALE",
+    "codes": [
+      "STALE_CONTEXT"
+    ]
+  }
+}

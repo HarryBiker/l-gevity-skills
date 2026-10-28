@@ -17,6 +17,7 @@
     "scripts/",
     "!**/__pycache__/",
     "ALCHEMY-PIPELINE-DESIGN.md",
+    "ALCHEMY-MULTI-AGENT.md",
     "CONTRIBUTING.md",
     "CLAUDE.md",
     "README.md",

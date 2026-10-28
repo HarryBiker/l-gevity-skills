@@ -126,6 +126,13 @@ forgotten question can't even be found. And **narrow questions get narrow
 answers**: asking the placement question alone doesn't license a full
 traversal — scope creep in process is still scope creep.
 
+The dispatcher makes one more, separate decision: who does the work. A skip
+or a single question is always one agent. Structural work goes to several
+agents only when it has parts that can genuinely proceed independently, or a
+risky part that deserves a reviewer who did not write it — never because the
+route happens to name many skills. That decision, and how the agents are kept
+honest, is explained in [the orchestration primer](READ-alchemy-orchestrate.md).
+
 ## Resume; don't relitigate
 
 The third idea, easily overlooked: the gates produce **decision records**
@@ -190,4 +197,4 @@ decision-trail format — lives in
 gate handshakes it loads for structural work live in
 [adaptive-route.md](../.claude/skills/alchemy/references/adaptive-route.md).*
 
-<!-- skill-revision: 1dc4c3c26727 -->
+<!-- skill-revision: 461728864f11 -->

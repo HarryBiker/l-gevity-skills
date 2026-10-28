@@ -1,0 +1,14 @@
+{
+  "criterion": "multi-agent-governance #7: a contract is decided before the work that consumes it starts",
+  "description": "Architecture-dependent work: P2 consumes contract:shipment-page but does not depend on P1, which produces it.",
+  "command": "plan",
+  "args": {
+    "plan": "plan.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "CONTRACT_ORDER"
+    ]
+  }
+}

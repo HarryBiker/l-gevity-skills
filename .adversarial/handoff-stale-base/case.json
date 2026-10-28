@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #32: every hand-off starts from the plan's base commit",
+  "description": "P1 started from commit 1d0e5b7 while the plan fixes 3f9c2e1.",
+  "command": "handoff",
+  "args": {
+    "plan": "plan.json",
+    "handoff": "handoff.json"
+  },
+  "expect": {
+    "verdict": "STALE",
+    "codes": [
+      "STALE_BASE"
+    ]
+  }
+}

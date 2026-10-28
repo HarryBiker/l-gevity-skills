@@ -1,0 +1,14 @@
+{
+  "criterion": "multi-agent-governance #4: concurrent packages never write the same file",
+  "description": "Two packages with no dependency path both write src/orders/validate.js.",
+  "command": "plan",
+  "args": {
+    "plan": "plan.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "WRITE_CONFLICT"
+    ]
+  }
+}

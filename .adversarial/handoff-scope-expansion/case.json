@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #35: a hand-off claims only the requirements its package was assigned",
+  "description": "P1 was assigned REQ-12 but its hand-off claims REQ-12 and REQ-13.",
+  "command": "handoff",
+  "args": {
+    "plan": "plan.json",
+    "handoff": "handoff.json"
+  },
+  "expect": {
+    "verdict": "REJECT",
+    "codes": [
+      "SCOPE_EXPANSION"
+    ]
+  }
+}

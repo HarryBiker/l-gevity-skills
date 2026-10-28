@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #92: only the human accepts a substitute check",
+  "description": "REQ-13-AC1 names a vitest run as an equivalent check, accepted by agent-b rather than the human.",
+  "command": "gate",
+  "args": {
+    "plan": "plan.json",
+    "ledger": "ledger.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "UNSUPPORTED_VERDICT"
+    ]
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "criterion": "multi-agent-governance #8: a consumed contract is produced in the plan or already exists",
+  "description": "P1 consumes contract:billing-api, which no package produces and contracts_existing does not list.",
+  "command": "plan",
+  "args": {
+    "plan": "plan.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "UNKNOWN_CONTRACT"
+    ]
+  }
+}

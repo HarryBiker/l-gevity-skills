@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #98: when no position has passing evidence the human decides",
+  "description": "Dispute X1 was decided by the lead on E7, but neither recorded position cites any evidence.",
+  "command": "gate",
+  "args": {
+    "plan": "plan.json",
+    "ledger": "ledger.json"
+  },
+  "expect": {
+    "verdict": "ESCALATE",
+    "codes": [
+      "DISPUTE_OPEN"
+    ]
+  }
+}

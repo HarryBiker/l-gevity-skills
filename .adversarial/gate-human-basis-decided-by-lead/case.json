@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #86: basis human means the human decided",
+  "description": "Dispute X1 claims basis human but records the lead as the decider.",
+  "command": "gate",
+  "args": {
+    "plan": "plan.json",
+    "ledger": "ledger.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "VOTE_NOT_EVIDENCE"
+    ]
+  }
+}

@@ -1,15 +1,14 @@
 {
   "scenario": "dispatch-housekeeping-skip",
-  "revision": "c50d88d917af",
-  "recorded_with": "claude-code 2.1.287, model claude-opus-5",
+  "revision": "292ff7216914",
+  "recorded_with": "claude-code 2.1.293, model claude-opus-5-5",
   "skills_available": [
     "alchemy",
+    "alchemy-orchestrate",
     "architecture-as-code",
     "architecture-as-code-javascript",
     "architecture-as-code-python",
     "architecture-guidelines",
-    "artifact-capabilities",
-    "artifact-diagramming",
     "batch",
     "bring-down",
     "ci-cd-reliability-architecture",
@@ -40,7 +39,6 @@
     "run-skill-generator",
     "schedule",
     "simplify",
-    "slides",
     "structural-simplification",
     "system-optimization",
     "test-strategy",
@@ -54,9 +52,8 @@
   ],
   "files_read": [],
   "paths_searched": [
-    ".",
     "."
   ],
-  "turns": 5,
-  "output": "## What I found\n\nYou asked whether everything is pushed and whether the feature branch can be deleted. I can't answer either here: this working directory is not a git repository. There is no `.git` anywhere under `.`, and the only contents are `CLAUDE.md` plus the `.claude/skills/` library — no source code, no remote, no branches, no merge. Alchemy dispatched `SKIP` (a VCS state question asks no gate question), so the blocker is the missing repo, not a gate.\n\n## Why it matters\n\nBranch deletion is the one step here that discards information. If I guessed \"merged, so yes, delete,\" and the merge was a squash whose tip commit never reached the remote, the only copy of that work would be the branch ref. Answering from the premise instead of from the repo is exactly the partial-success-reported-as-success failure that poisons the next decision. Nothing is lost by waiting for the path.\n\n## Do this first\n\n1. Tell me the real repo path (or `cd` there), and I'll run the checks. The three that actually decide it:\n   - `git status -sb` — unpushed commits and dirty tree on the current branch\n   - `git log --branches --not --remotes --oneline` — any commit on any local branch that exists nowhere on a remote\n   - `git branch --merged <integration-branch>` — whether the feature branch's tip is genuinely an ancestor of what you merged into\n2. If the merge was a squash or rebase, `--merged` will say \"no\" even though the work landed. In that case use `git cherry -v <integration-branch> <feature-branch>`; only `-`-prefixed lines mean \"already upstream.\"\n3. Delete with `git branch -d` (not `-D`) — the lowercase form refuses when the work isn't reachable, which is the safety check doing its job.\n\n## What I did not check\n\nEverything you asked about, because the repository is absent: push state, remote tracking config, whether the merge contains the branch tip, and whether other branches or open PRs build on it. All four are closed by the commands above once I have the path.\n\n```\nDispatch:   SKIP\nCore route: None\nCompanions: None\nVerdict:    Defer\nReason:     Subject is version-control state, not a design/refactor/audit question; and the stated premises (merged fix, feature branch, remote) have no counterpart in this directory — it is not a git repository.\nNext:       Name the repository path; I run the status/log/cherry checks and give a delete-or-not answer from the refs.\n```"
+  "turns": 4,
+  "output": "```\nDispatch:   SKIP\nCore route: None\nCompanions: None\nExecution:  single-agent — local git housekeeping\nVerdict:    Defer\nReason:     Branch cleanup isn't an Alchemy question. I also couldn't check anything: this directory has no git repo (no .git found), and I have no shell to run git.\nNext:       Run the checks below in the repo where the fix lives.\n```\n\nI can't confirm the branch is pushed or safe to delete. Run these in the actual repo, replacing `main` and `feature` with your branch names:\n\n1. **Refresh remote state:** `git fetch --prune`\n2. **Check for uncommitted work:** `git status`. The output should say \"working tree clean\".\n3. **Check for commits not yet on the remote:** `git log origin/feature..feature --oneline`. Empty output means everything is pushed.\n4. **Check the branch is merged into main:**\n   - Regular merge: `git branch --merged origin/main` should list `feature`.\n   - Squash or rebase merge: that command won't list it. Run `git diff origin/main...feature --stat` instead. If the diff is empty, or only shows changes that main already contains, it's merged.\n5. **Delete the branch** once steps 2–4 pass:\n   - Local: `git branch -d feature`. The `-d` flag refuses to delete unmerged work. If it refuses after a squash merge, only switch to `-D` once step 4 has confirmed the work is on main.\n   - Remote: `git push origin --delete feature`. This deletes the branch on the shared remote and is hard to undo, so check first that no open PR or teammate still uses it.\n\nIf you paste the output of steps 2–4, I'll tell you whether it's safe to delete."
 }

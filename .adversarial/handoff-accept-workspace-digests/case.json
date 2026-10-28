@@ -1,0 +1,14 @@
+{
+  "criterion": "multi-agent-governance #28: a hand-off whose digests, evidence, and scope hold is accepted",
+  "description": "P1 returns DONE with digests that match the workspace, passing evidence for its criterion, and a cited claim.",
+  "command": "handoff",
+  "args": {
+    "plan": "plan.json",
+    "handoff": "handoff.json",
+    "root": "workspace"
+  },
+  "expect": {
+    "verdict": "ACCEPT",
+    "codes": []
+  }
+}

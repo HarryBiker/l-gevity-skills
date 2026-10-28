@@ -1,0 +1,16 @@
+{
+  "criterion": "multi-agent-governance #96: a gate with a repository root checks the real head",
+  "description": "The gate is given a root that is not the top of a git work tree, so its head cannot be confirmed.",
+  "command": "gate",
+  "args": {
+    "plan": "plan.json",
+    "ledger": "ledger.json",
+    "root": "workspace"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "WORKSPACE_MISMATCH"
+    ]
+  }
+}

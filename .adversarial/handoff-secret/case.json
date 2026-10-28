@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #39: hand-offs never carry credentials",
+  "description": "An assumption pastes an AWS access key ID (the documented AWS example value).",
+  "command": "handoff",
+  "args": {
+    "plan": "plan.json",
+    "handoff": "handoff.json"
+  },
+  "expect": {
+    "verdict": "REJECT",
+    "codes": [
+      "SECRET_IN_RECORD"
+    ]
+  }
+}

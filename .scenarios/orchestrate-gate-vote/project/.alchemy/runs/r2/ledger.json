@@ -1,0 +1,29 @@
+{
+  "schema": "alchemy-ledger/1",
+  "head_commit": "7c1d2e3",
+  "rework_cycles": {"P1": 1},
+  "evidence": [
+    {"id": "E1", "command": "npm test", "exit_code": 0, "commit": "7c1d2e3", "produced_by": "agent-c"},
+    {"id": "E2", "command": "node scripts/compare-totals.js", "exit_code": 1, "commit": "7c1d2e3", "produced_by": "agent-c", "summary": "3 of 40 recorded orders priced differently after the change"}
+  ],
+  "criteria": [
+    {"id": "REQ-9-AC1", "package": "P1", "status": "verified", "evidence": ["E1"], "verified_by": "agent-c"},
+    {"id": "P2-AC1", "package": "P2", "status": "verified", "evidence": ["E1"], "verified_by": "agent-c"}
+  ],
+  "findings": [
+    {"id": "F1", "package": "P1", "severity": "minor", "status": "open", "raised_by": "agent-c", "evidence": []}
+  ],
+  "disputes": [
+    {
+      "id": "X1",
+      "subject": "Does moving tax into priceOrder change order totals?",
+      "positions": [
+        {"by": "agent-c", "claim": "Yes: tax is now applied before the discount tier is chosen", "evidence": ["E2"]},
+        {"by": "agent-a", "claim": "No: totals are unchanged", "evidence": []},
+        {"by": "agent-b", "claim": "Agrees with agent-a", "evidence": []}
+      ],
+      "status": "resolved",
+      "resolution": {"basis": "majority", "decided_by": "lead", "evidence": [], "rationale": "Two of three agents, including the senior architecture agent, agree totals are unchanged"}
+    }
+  ]
+}

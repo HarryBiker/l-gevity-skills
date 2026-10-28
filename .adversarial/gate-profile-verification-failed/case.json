@@ -1,0 +1,16 @@
+{
+  "criterion": "multi-agent-governance #95: a gate never passes while a profile verification command fails",
+  "description": "The profile requires npm test, npm run lint, and npm run build; lint exited 1 at head and build never ran.",
+  "command": "gate",
+  "args": {
+    "plan": "plan.json",
+    "ledger": "ledger.json",
+    "profile": "profile.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "VERIFICATION_FAILED"
+    ]
+  }
+}

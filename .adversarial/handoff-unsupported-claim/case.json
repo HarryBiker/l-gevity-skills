@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #36: every claim cites evidence the hand-off holds",
+  "description": "One claim cites no evidence and another cites E9, which the hand-off does not hold.",
+  "command": "handoff",
+  "args": {
+    "plan": "plan.json",
+    "handoff": "handoff.json"
+  },
+  "expect": {
+    "verdict": "REJECT",
+    "codes": [
+      "UNSUPPORTED_CLAIM"
+    ]
+  }
+}

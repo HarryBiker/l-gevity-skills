@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #61: the gate re-checks that merge stays with the human",
+  "description": "A ledger that would pass is gated against a plan whose merge_policy is auto-merge-on-green.",
+  "command": "gate",
+  "args": {
+    "plan": "plan.json",
+    "ledger": "ledger.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "MERGE_POLICY"
+    ]
+  }
+}

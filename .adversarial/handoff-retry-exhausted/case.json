@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #42: a spent retry budget escalates instead of looping",
+  "description": "P1's second attempt failed as well; the retry budget of 1 is spent.",
+  "command": "handoff",
+  "args": {
+    "plan": "plan.json",
+    "handoff": "handoff.json"
+  },
+  "expect": {
+    "verdict": "ESCALATE",
+    "codes": [
+      "RETRY_EXHAUSTED"
+    ]
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "criterion": "multi-agent-governance #1: one owner is the default and passes with no reviewer when none is required",
+  "description": "Ordinary single-agent task: one implement package owned by the lead, medium risk, independent review off.",
+  "command": "plan",
+  "args": {
+    "plan": "plan.json"
+  },
+  "expect": {
+    "verdict": "PASS",
+    "codes": []
+  }
+}

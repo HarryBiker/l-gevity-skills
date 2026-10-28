@@ -1,0 +1,97 @@
+{
+  "schema": "alchemy-pilot-defects/1",
+  "fixture": "server-audit",
+  "note": "Ground truth for the seeded defects. Never copied into a run project. Static checks scan *.js, *.cjs, and *.mjs files under the result project's src/ directory; regular expressions are Python re syntax.",
+  "defects": [
+    {
+      "id": "D01",
+      "category": "correctness",
+      "file": "src/lib/pagination.js",
+      "description": "totalPages uses Math.floor, so a partially filled last page is not counted (5 items at pageSize 2 report 2 pages instead of 3).",
+      "scoring": { "method": "hidden-test", "test": "D01.test.js" }
+    },
+    {
+      "id": "D02",
+      "category": "correctness",
+      "file": "src/lib/money.js",
+      "description": "Order totals are summed in binary floating point, so 0.1 + 0.2 yields 0.30000000000000004 and 1.15 x 3 yields 3.4499999999999997 instead of exact cents.",
+      "scoring": { "method": "hidden-test", "test": "D02.test.js" }
+    },
+    {
+      "id": "D03",
+      "category": "correctness",
+      "file": "src/orders/service.js",
+      "description": "The status transition table allows shipped -> cancelled; the documented lifecycle forbids cancelling a shipped order.",
+      "scoring": { "method": "hidden-test", "test": "D03.test.js" }
+    },
+    {
+      "id": "D04",
+      "category": "security",
+      "file": "src/orders/routes.js",
+      "description": "GET /orders/:id calls orders.get instead of the ownership-checking orders.getOwned, so any authenticated customer can read another customer's order (IDOR).",
+      "scoring": { "method": "hidden-test", "test": "D04.test.js" }
+    },
+    {
+      "id": "D05",
+      "category": "security",
+      "file": "src/auth/tokens.js",
+      "description": "Token signatures are compared with !== instead of a constant-time comparison, leaking timing information about the expected HMAC.",
+      "scoring": {
+        "method": "static",
+        "check": { "kind": "co_occurrence", "when": "createHmac", "require": "timingSafeEqual" },
+        "explanation": "At least one source file computes an HMAC, and every source file that does also uses crypto.timingSafeEqual."
+      }
+    },
+    {
+      "id": "D06",
+      "category": "security",
+      "file": "src/reports/routes.js",
+      "description": "GET /reports/:name joins the URL-decoded name onto the report directory without containment, so ..%2F escapes it (path traversal).",
+      "scoring": { "method": "hidden-test", "test": "D06.test.js" }
+    },
+    {
+      "id": "D07",
+      "category": "dead-code",
+      "file": "src/http/respond.js",
+      "description": "parseCookies is exported but nothing uses it; the service authenticates with bearer tokens only.",
+      "scoring": {
+        "method": "static",
+        "check": { "kind": "absent", "pattern": "\\bparseCookies\\b" },
+        "explanation": "No source file defines or references parseCookies."
+      }
+    },
+    {
+      "id": "D08",
+      "category": "dead-code",
+      "file": "src/payments/providers.js",
+      "description": "A payment-provider registry (registerProvider/getProvider plus the paymentProvider app option) exists for exactly one implementation, the manual provider: speculative generality.",
+      "scoring": {
+        "method": "static",
+        "check": { "kind": "absent", "pattern": "\\b(registerProvider|getProvider)\\b" },
+        "explanation": "No source file defines or references registerProvider or getProvider."
+      }
+    },
+    {
+      "id": "D09",
+      "category": "architecture",
+      "file": "src/users/routes.js",
+      "description": "GET /users reads the store directly (store.list('users')) instead of going through the user service; the composition root passes the store into the route layer.",
+      "scoring": {
+        "method": "static",
+        "check": { "kind": "absent_in_paths", "path_pattern": "(?i)route", "pattern": "\\bstore\\b" },
+        "explanation": "No source file whose path contains 'route' mentions the identifier store."
+      }
+    },
+    {
+      "id": "D10",
+      "category": "duplication",
+      "file": "src/payments/service.js",
+      "description": "The payment service re-derives the order total from line items (orderTotalCents) instead of using the order's total or the shared money module; a second copy of the pricing rule.",
+      "scoring": {
+        "method": "static",
+        "check": { "kind": "absent_in_paths", "path_pattern": "(?i)payment", "pattern": "\\bunitPrice\\b" },
+        "explanation": "No source file whose path contains 'payment' references unitPrice."
+      }
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "criterion": "multi-agent-governance #3: a shared write set is legal once a dependency edge serializes it",
+  "description": "Two implement packages write the same directory, but P2 depends on P1, so they never run concurrently.",
+  "command": "plan",
+  "args": {
+    "plan": "plan.json"
+  },
+  "expect": {
+    "verdict": "PASS",
+    "codes": []
+  }
+}

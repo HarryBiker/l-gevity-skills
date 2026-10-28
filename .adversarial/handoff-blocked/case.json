@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #73: a blocked package is escalated, not accepted",
+  "description": "P1 reports BLOCKED on a migration only a DBA can run.",
+  "command": "handoff",
+  "args": {
+    "plan": "plan.json",
+    "handoff": "handoff.json"
+  },
+  "expect": {
+    "verdict": "REJECT",
+    "codes": [
+      "NOT_DONE"
+    ]
+  }
+}

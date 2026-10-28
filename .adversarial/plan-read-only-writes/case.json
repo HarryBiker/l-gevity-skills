@@ -1,0 +1,14 @@
+{
+  "criterion": "multi-agent-governance #21: verify, decide, and analyze packages and analyst envelopes never write",
+  "description": "The verify package P2 declares a write set and asks for edit.",
+  "command": "plan",
+  "args": {
+    "plan": "plan.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "READ_ONLY_WRITES"
+    ]
+  }
+}

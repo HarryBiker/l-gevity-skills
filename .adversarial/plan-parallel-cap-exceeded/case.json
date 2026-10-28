@@ -1,0 +1,14 @@
+{
+  "criterion": "multi-agent-governance #15: declared parallelism stays within the profile cap",
+  "description": "The plan declares max_parallel_agents 4 against the default cap of 3.",
+  "command": "plan",
+  "args": {
+    "plan": "plan.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "CAP_EXCEEDED"
+    ]
+  }
+}

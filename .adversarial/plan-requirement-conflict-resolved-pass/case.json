@@ -1,0 +1,12 @@
+{
+  "criterion": "multi-agent-governance #27: a requirement conflict the human resolved no longer blocks",
+  "description": "The same conflict carries a resolution with basis human, decided by the human.",
+  "command": "plan",
+  "args": {
+    "plan": "plan.json"
+  },
+  "expect": {
+    "verdict": "PASS",
+    "codes": []
+  }
+}

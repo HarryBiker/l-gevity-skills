@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #58: agent disagreement is settled on evidence, not by vote",
+  "description": "Dispute X1 is resolved for the repository position because two of three agents preferred it.",
+  "command": "gate",
+  "args": {
+    "plan": "plan.json",
+    "ledger": "ledger.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "VOTE_NOT_EVIDENCE"
+    ]
+  }
+}

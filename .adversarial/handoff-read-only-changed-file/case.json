@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #34: a read-only package returns no changed files",
+  "description": "The verify package P3 (analyst envelope) returns a hand-off that changed src/orders/validate.js.",
+  "command": "handoff",
+  "args": {
+    "plan": "plan.json",
+    "handoff": "handoff.json"
+  },
+  "expect": {
+    "verdict": "REJECT",
+    "codes": [
+      "SCOPE_VIOLATION"
+    ]
+  }
+}

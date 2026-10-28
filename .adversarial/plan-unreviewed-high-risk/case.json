@@ -1,0 +1,14 @@
+{
+  "criterion": "multi-agent-governance #12: a high-risk change has a reviewer that did not write it",
+  "description": "Single-agent plan with one high-risk implement package and no verify package by another owner.",
+  "command": "plan",
+  "args": {
+    "plan": "plan.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "UNREVIEWED_CHANGE"
+    ]
+  }
+}

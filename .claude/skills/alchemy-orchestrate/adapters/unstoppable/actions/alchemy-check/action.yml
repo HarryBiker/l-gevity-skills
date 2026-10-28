@@ -1,0 +1,84 @@
+name: ALCHEMY Check
+description: >-
+  Run alchemy-orchestrate check_orchestration.py on a plan, hand-off, or gate
+  ledger, keep its JSON report, and fail the step unless the verdict is PASS or
+  ACCEPT.
+inputs:
+  mode:
+    description: plan, handoff, or gate.
+    required: true
+  plan:
+    description: >-
+      Path to the alchemy-plan/1 file, or with plan_field set, a JSON file whose
+      field of that name holds the plan as an object or as JSON text. Relative
+      paths resolve against the repository root.
+    required: true
+  record:
+    description: >-
+      handoff mode, an alchemy-handoff/1 file or a directory whose *.json files
+      are each checked; gate mode, the alchemy-ledger/1 file. Ignored in plan mode.
+    required: false
+    default: ''
+  profile:
+    description: >-
+      Project alchemy-workspace.json overriding the skill defaults. Empty uses
+      alchemy-workspace.json at the repository root when it exists.
+    required: false
+    default: ''
+  root:
+    description: >-
+      handoff mode, the workspace whose files the hand-off digests are checked
+      against. Empty uses the repository root.
+    required: false
+    default: ''
+  digests:
+    description: >-
+      handoff mode, "false" skips the digest checks against root and runs the
+      structural checks only, for hand-offs checked after later waves have
+      legitimately changed the files they relied on or changed.
+    required: false
+    default: 'true'
+  integrated:
+    description: >-
+      Commit IDs the lead integrated a wave at, separated by commas or spaces.
+      They are added to the checked copy of the plan's base.integrated, so a
+      hand-off based on one of them is not stale. The input file is not changed.
+    required: false
+    default: ''
+  plan_field:
+    description: The field of the plan input that holds the plan; empty when the input is the plan.
+    required: false
+    default: ''
+  publish:
+    description: >-
+      plan mode, "true" copies the checked plan to
+      <state_dir>/<run id>/plan.json, creating <state_dir>/.gitignore with "*"
+      when it is missing.
+    required: false
+    default: 'false'
+  expect_base:
+    description: plan mode, a commit the plan's base.commit must equal.
+    required: false
+    default: ''
+  enforce:
+    description: >-
+      "true" fails the step on any verdict other than PASS or ACCEPT; "false"
+      only reports it. Unreadable input fails the step either way.
+    required: false
+    default: 'true'
+outputs:
+  verdict:
+    description: PASS, ACCEPT, FAIL, REJECT, STALE, RETRY, or ESCALATE.
+  summary:
+    description: One-line summary of the report; in gate mode, the gate block of alchemy-orchestrate section 6.
+  report_file:
+    description: The JSON report, kept under the step output directory.
+  plan_file:
+    description: The plan that was checked; in plan mode with publish, the published copy.
+  base_commit:
+    description: plan mode, the plan's base.commit.
+  run_dir:
+    description: plan mode with publish, the run directory holding plan.json.
+runs:
+  using: python
+  main: check.py

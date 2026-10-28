@@ -1,0 +1,11 @@
+{
+  "repository": {
+    "verification": [
+      {
+        "id": "V1",
+        "command": "npm test"
+      },
+      "npm run lint"
+    ]
+  }
+}

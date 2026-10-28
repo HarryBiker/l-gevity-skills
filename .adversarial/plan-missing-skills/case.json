@@ -1,0 +1,14 @@
+{
+  "criterion": "multi-agent-governance #66: every assignment names the skills its agent loads",
+  "description": "P1 names an empty skills list, so its agent would work from pasted text or memory.",
+  "command": "plan",
+  "args": {
+    "plan": "plan.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "MISSING_TRACE"
+    ]
+  }
+}

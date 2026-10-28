@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #18: a protected path needs approved_by: human",
+  "description": "The project profile protects .github/workflows/; P1 writes .github/workflows/ci.yml without human approval.",
+  "command": "plan",
+  "args": {
+    "plan": "plan.json",
+    "profile": "profile.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "PROTECTED_PATH"
+    ]
+  }
+}

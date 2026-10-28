@@ -1,0 +1,14 @@
+{
+  "criterion": "multi-agent-governance #20: merge needs human approval",
+  "description": "The plan declares merge_policy auto-merge-on-green.",
+  "command": "plan",
+  "args": {
+    "plan": "plan.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "MERGE_POLICY"
+    ]
+  }
+}

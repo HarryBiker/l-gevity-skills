@@ -1,0 +1,14 @@
+{
+  "criterion": "multi-agent-governance #5: a directory write set overlaps every file beneath it",
+  "description": "P1 owns src/ while a concurrent P2 writes ./src/orders/x.js; the prefix overlap must be caught after normalization.",
+  "command": "plan",
+  "args": {
+    "plan": "plan.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "WRITE_CONFLICT"
+    ]
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #84: a gate never passes on a plan with nothing to verify",
+  "description": "The plan's only package declares no acceptance criterion, and the ledger records none.",
+  "command": "gate",
+  "args": {
+    "plan": "plan.json",
+    "ledger": "ledger.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "MISSING_TRACE"
+    ]
+  }
+}

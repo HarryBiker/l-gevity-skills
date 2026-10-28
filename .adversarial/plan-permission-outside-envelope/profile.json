@@ -1,0 +1,11 @@
+{
+  "envelopes": {
+    "implementer": {
+      "permissions": [
+        "read",
+        "edit",
+        "test"
+      ]
+    }
+  }
+}

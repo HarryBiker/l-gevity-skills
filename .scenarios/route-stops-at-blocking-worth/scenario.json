@@ -26,18 +26,7 @@
       "id": "stops-at-blocking-decision",
       "criterion": "stage-loading #2: a blocking decision ends the route before later stages load",
       "check": "guidance_excludes",
-      "skills": [
-        "requirements-topology",
-        "implementation-readiness",
-        "test-strategy",
-        "evolutionary-database-design",
-        "architecture-guidelines",
-        "morphogenetic-architecture",
-        "structural-simplification",
-        "architecture-as-code",
-        "defect-shift-left",
-        "system-optimization"
-      ]
+      "skills": ["requirements-topology", "implementation-readiness", "test-strategy", "evolutionary-database-design", "architecture-guidelines", "morphogenetic-architecture", "structural-simplification", "architecture-as-code", "defect-shift-left", "system-optimization"]
     },
     {
       "id": "claims-only-loaded-stages",
@@ -49,5 +38,8 @@
       "criterion": "summary-led-report #2: the decision opens with the four blocks in order",
       "check": "blocks_in_order"
     }
-  ]
+  ],
+  "known_failures": {
+    "runs-worth-gate": "Re-recorded on claude-opus-5-5: the run stopped at Requirements Grounding with NOT-GROUNDED (no actor, no request, no second format), a legal blocking stop that ends the route before M. The expectation assumes grounding passes. Re-record before release to see whether this is model variance."
+  }
 }

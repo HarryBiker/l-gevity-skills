@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #48: a blocking review finding must be closed before the gate",
+  "description": "The verifier's blocking finding F1 on P1 is still open.",
+  "command": "gate",
+  "args": {
+    "plan": "plan.json",
+    "ledger": "ledger.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "UNRESOLVED_FINDING"
+    ]
+  }
+}

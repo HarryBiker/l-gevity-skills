@@ -1,0 +1,14 @@
+{
+  "criterion": "multi-agent-governance #71: only the human resolves a requirement conflict on basis human",
+  "description": "The REQ-12/REQ-13 conflict claims basis human, but agent-a decided it.",
+  "command": "plan",
+  "args": {
+    "plan": "plan.json"
+  },
+  "expect": {
+    "verdict": "ESCALATE",
+    "codes": [
+      "REQUIREMENT_CONFLICT"
+    ]
+  }
+}

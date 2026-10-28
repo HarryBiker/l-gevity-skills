@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #49: every plan criterion appears in the ledger",
+  "description": "REQ-13-AC1 is missing from the ledger: it was skipped without a record.",
+  "command": "gate",
+  "args": {
+    "plan": "plan.json",
+    "ledger": "ledger.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "SILENT_SKIP"
+    ]
+  }
+}

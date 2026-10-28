@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #51: an unverified criterion fails the gate",
+  "description": "REQ-13-AC1 is recorded as unverified.",
+  "command": "gate",
+  "args": {
+    "plan": "plan.json",
+    "ledger": "ledger.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "UNVERIFIED"
+    ]
+  }
+}

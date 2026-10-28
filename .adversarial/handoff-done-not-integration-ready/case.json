@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #75: an implement package is accepted only when it can be integrated",
+  "description": "P1 reports DONE with passing evidence but marks itself not integration-ready.",
+  "command": "handoff",
+  "args": {
+    "plan": "plan.json",
+    "handoff": "handoff.json"
+  },
+  "expect": {
+    "verdict": "REJECT",
+    "codes": [
+      "NOT_DONE"
+    ]
+  }
+}

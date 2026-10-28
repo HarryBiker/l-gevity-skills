@@ -1,0 +1,9 @@
+# Rendered by alchemy-orchestrate scripts/init_workspace.py from envelopes.implementer in alchemy-workspace.json.
+# Codex custom agents cannot set sandbox_mode or approval_policy; this agent inherits the parent session's.
+name = "alchemy-implementer"
+description = {{ envelopes.implementer.description | quote }}
+developer_instructions = """
+{{ envelopes.implementer.instructions | toml_ml }}
+
+Before acting, read `SKILL.md` of alchemy-orchestrate and of every skill your assignment names, in that skill's directory under {{ skills.roots | code_list | toml_ml }}, then the references they link that your package needs.
+"""

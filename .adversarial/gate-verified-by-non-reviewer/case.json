@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #81: under independent review only a planned reviewer verifies",
+  "description": "REQ-12-AC1 is verified by the lead, who neither wrote P1 nor owns a verify package that reviews it.",
+  "command": "gate",
+  "args": {
+    "plan": "plan.json",
+    "ledger": "ledger.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "REVIEW_NOT_INDEPENDENT"
+    ]
+  }
+}

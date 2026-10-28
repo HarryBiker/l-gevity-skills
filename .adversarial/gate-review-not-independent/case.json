@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #55: under independent review the writer does not verify its own package",
+  "description": "REQ-12-AC1 belongs to agent-a's package P1 and is verified by agent-a.",
+  "command": "gate",
+  "args": {
+    "plan": "plan.json",
+    "ledger": "ledger.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "REVIEW_NOT_INDEPENDENT"
+    ]
+  }
+}

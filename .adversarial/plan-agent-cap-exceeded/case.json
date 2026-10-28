@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #16: distinct owners, lead included, stay within the profile",
+  "description": "Three package owners plus the lead are four agents against a project max_agents of 3.",
+  "command": "plan",
+  "args": {
+    "plan": "plan.json",
+    "profile": "profile.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "CAP_EXCEEDED"
+    ]
+  }
+}

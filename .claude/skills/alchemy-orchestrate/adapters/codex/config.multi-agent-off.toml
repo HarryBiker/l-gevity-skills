@@ -1,0 +1,4 @@
+
+# execution.multi_agent is "off": Codex sub-agent tools are disabled for this whole project.
+[features]
+multi_agent = false
