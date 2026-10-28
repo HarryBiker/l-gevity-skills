@@ -26,7 +26,7 @@ losing that discipline:
 
 | Layer | What it decides | Where it lives |
 |:--|:--|:--|
-| **Method** | Is this worth building, is it well-designed, is it in the right place, is it as simple as it can be, are the rules enforced as code, are defects caught early, is the flow optimized | 24 composable skills and the seven A.L.C.H.E.M.Y. gates |
+| **Method** | Is this worth building, is it well-designed, is it in the right place, is it as simple as it can be, are the rules enforced as code, are defects caught early, is the flow optimized | 25 composable skills and the seven A.L.C.H.E.M.Y. gates |
 | **Routing** | Which of those questions this change must answer, at which intensity | the [`alchemy`](./.agents/skills/alchemy/SKILL.md) router: `SKIP`, `DIRECT`, `ADAPTIVE`, `FULL` |
 | **Orchestration** | Who answers them: one agent or several, which packages, in which order, and what evidence makes an answer acceptable | [`alchemy-orchestrate`](./.agents/skills/alchemy-orchestrate/SKILL.md) and its deterministic checker |
 | **Runtime** | How agents are actually launched, isolated, and bounded | adapters for Claude Code, Codex, and Unstoppable |
@@ -366,6 +366,7 @@ it works.
 | Moving recurring toil out of human memory and replacing bespoke code with reusable capabilities | [`push-out`](./.agents/skills/push-out/SKILL.md), [`bring-down`](./.agents/skills/bring-down/SKILL.md) |
 | Deciding which artifact owns a fact, decision, or document, and sweeping a tree for the documents no longer worth keeping | [`zero-copy-requirements`](./.agents/skills/zero-copy-requirements/SKILL.md) |
 | Deciding what to do about a dependency already in the tree when an advisory, drift, abandonment, or an end-of-life date names it | [`dependency-lifecycle`](./.agents/skills/dependency-lifecycle/SKILL.md) |
+| Choosing a datastore, identity provider, compute model, or region from the requirements instead of a template default, and re-checking that it still fits as they change | [`infrastructure-fit`](./.agents/skills/infrastructure-fit/SKILL.md) |
 | Designing what a change must emit to be detectable in production, and pruning the alerts and telemetry that no longer earn their keep | [`observability-design`](./.agents/skills/observability-design/SKILL.md) |
 | Finding bottlenecks, waste, and flow improvements across the software value stream | [`system-optimization`](./.agents/skills/system-optimization/SKILL.md) |
 | Improving the skill library itself when recurring agent mistakes expose a systemic gap | [`continuous-improvement`](./.agents/skills/continuous-improvement/SKILL.md) |
@@ -584,7 +585,7 @@ Gate H.
 <details>
 <summary><strong>What is included</strong></summary>
 
-The library contains 24 composable skills. Each has an operational `SKILL.md`
+The library contains 25 composable skills. Each has an operational `SKILL.md`
 and a primer: a standalone concept explainer that teaches the underlying
 engineering idea to developers, independent of the skill machinery.
 
@@ -614,6 +615,7 @@ engineering idea to developers, independent of the skill machinery.
 | [`zero-copy-requirements`](./.claude/skills/zero-copy-requirements/SKILL.md) | [Read](./.documentation/READ-zero-copy-requirements.md) |
 | [`dependency-lifecycle`](./.claude/skills/dependency-lifecycle/SKILL.md) | [Read](./.documentation/READ-dependency-lifecycle.md) |
 | [`observability-design`](./.claude/skills/observability-design/SKILL.md) | [Read](./.documentation/READ-observability-design.md) |
+| [`infrastructure-fit`](./.claude/skills/infrastructure-fit/SKILL.md) | [Read](./.documentation/READ-infrastructure-fit.md) |
 
 Grounding keeps **decision-relevant outcome hypotheses** separate from
 acceptance criteria, avoiding **confusing impact with completion**. Traceability
