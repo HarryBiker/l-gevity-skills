@@ -16,6 +16,7 @@ import datetime
 import hashlib
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -31,6 +32,7 @@ PASSING = ("PASS", "ACCEPT")
 # Verdict precedence from references/contracts.md: ESCALATE over REJECT/FAIL
 # over STALE over RETRY over a pass.
 RANK = {"PASS": 0, "ACCEPT": 0, "RETRY": 1, "STALE": 2, "FAIL": 3, "REJECT": 3, "ESCALATE": 4}
+HEAD_RE = re.compile(r"^[0-9a-fA-F]{7,64}$")
 
 
 class InputError(Exception):
@@ -88,18 +90,52 @@ def deep_merge(base: dict, override: dict) -> dict:
     return merged
 
 
-def state_dir(skill: Path, profile: Path | None) -> str:
+def inside(value: Any, label: str, root: Path) -> str:
+    """A '/'-separated path strictly inside root, refused by Windows or POSIX rules alike."""
+    if not isinstance(value, str):
+        raise InputError(f"{label} must be a string, not {value!r}")
+    text = value.strip()
+    parts = text.replace("\\", "/").split("/")
+    problem = ""
+    if not text:
+        problem = "is empty"
+    elif text[0] in "/\\":
+        problem = "is absolute (a leading slash, backslash, or UNC prefix)"
+    elif ":" in text:
+        problem = "contains ':' (a drive letter such as C: or D:x, or a stream name)"
+    elif ".." in parts:
+        problem = "contains a '..' segment"
+    elif not [part for part in parts if part not in ("", ".")]:
+        problem = "names the root itself"
+    else:
+        base = root.resolve()
+        target = (base / "/".join(parts)).resolve()
+        if base not in target.parents:
+            problem = "does not resolve strictly inside the repository"
+    if problem:
+        raise InputError(f"{label} {value!r} {problem}")
+    return "/".join(part for part in parts if part not in ("", "."))
+
+
+def state_dir(skill: Path, profile: Path | None, root: Path) -> str:
     merged = read_json(skill / "assets" / PROFILE_NAME)
     if profile is not None:
         overlay = read_json(profile)
         if not isinstance(overlay, dict):
             raise InputError(f"{profile}: a profile must be a JSON object")
         merged = deep_merge(merged, overlay)
-    value = (merged.get("repository") or {}).get("state_dir", ".alchemy/runs/")
-    parts = Path(str(value)).parts
-    if not isinstance(value, str) or not value.strip() or Path(value).is_absolute() or ".." in parts:
-        raise InputError(f"repository.state_dir must be a relative path inside the repository, not {value!r}")
-    return value
+    repository = merged.get("repository") if isinstance(merged.get("repository"), dict) else {}
+    return inside(repository.get("state_dir", ".alchemy/runs/"), "repository.state_dir", root)
+
+
+def integrated_heads() -> list[str]:
+    """Heads the lead integrated a wave at, from comma- or space-separated input."""
+    heads = [token for token in re.split(r"[\s,]+", option("integrated")) if token]
+    bad = [token for token in heads if not HEAD_RE.match(token)]
+    if bad:
+        raise InputError(f"input integrated holds non-commit values {', '.join(bad)}; "
+                         "expected hex commit IDs of 7 to 64 characters")
+    return heads
 
 
 def output_dir() -> Path:
@@ -121,8 +157,12 @@ def write_json(path: Path, value: Any) -> None:
 
 
 def same_commit(left: str, right: str) -> bool:
+    """Equal commits; an abbreviation must be hex and at least 7 characters on both sides."""
     left, right = left.strip().lower(), right.strip().lower()
-    return bool(left and right) and (left.startswith(right) or right.startswith(left))
+    if not (HEAD_RE.match(left) and HEAD_RE.match(right)):
+        return False
+    short, full = sorted((left, right), key=len)
+    return full.startswith(short)
 
 
 def prepare_plan(mode: str, root: Path, skill: Path, profile: Path | None, out: Path) -> dict[str, str]:
@@ -146,8 +186,15 @@ def prepare_plan(mode: str, root: Path, skill: Path, profile: Path | None, out: 
         data = value
     if not isinstance(data, dict):
         raise InputError(f"{source}: a plan must be a JSON object")
+    heads = integrated_heads()
+    if heads:
+        if not isinstance(data.get("base"), dict):
+            raise InputError(f"{source}: the plan has no base object to add integrated heads to")
+        known = data["base"].get("integrated")
+        known = list(known) if isinstance(known, list) else []
+        data["base"]["integrated"] = known + [head for head in heads if head not in known]
     if mode != "plan":
-        if not field:
+        if not field and not heads:
             return {"plan_file": str(source)}
         plan_file = out / f"alchemy-plan-{uuid.uuid4().hex[:8]}.json"
         write_json(plan_file, data)
@@ -165,7 +212,7 @@ def prepare_plan(mode: str, root: Path, skill: Path, profile: Path | None, out: 
     if flag("publish", "false"):
         canonical = (json.dumps(data, indent=2, ensure_ascii=False) + "\n").encode("utf-8")
         stamp = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-        state = root / state_dir(skill, profile)
+        state = root / state_dir(skill, profile, root)
         ignore = state / ".gitignore"
         if not ignore.exists():
             state.mkdir(parents=True, exist_ok=True)
@@ -175,7 +222,7 @@ def prepare_plan(mode: str, root: Path, skill: Path, profile: Path | None, out: 
         plan_file = run / "plan.json"
         write_json(plan_file, data)
         outputs["run_dir"] = str(run)
-    elif field:
+    elif field or heads:
         plan_file = out / f"alchemy-plan-{uuid.uuid4().hex[:8]}.json"
         write_json(plan_file, data)
     outputs["plan_file"] = str(plan_file)
@@ -243,8 +290,12 @@ def check(mode: str, root: Path, checker: Path, profile: Path | None, plan_file:
         if not record.is_file():
             raise InputError(f"ledger not found: {record}")
         return run_checker(checker, ["gate", str(record), "--plan", plan_file, *common])
-    workspace = resolve(option("root"), root) if option("root") else root
-    extra = ["--plan", plan_file, "--root", str(workspace), *common]
+    extra = ["--plan", plan_file, *common]
+    if flag("digests", "true"):
+        workspace = resolve(option("root"), root) if option("root") else root
+        if not workspace.is_dir():
+            raise InputError(f"root is not a directory: {workspace}")
+        extra += ["--root", str(workspace)]
     if record.is_dir():
         files = sorted(path for path in record.glob("*.json") if path.is_file())
         if not files:

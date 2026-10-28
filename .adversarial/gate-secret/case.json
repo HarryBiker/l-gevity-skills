@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #87: ledgers never carry credentials",
+  "description": "An evidence command embeds a deploy password in its URL.",
+  "command": "gate",
+  "args": {
+    "plan": "plan.json",
+    "ledger": "ledger.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "SECRET_IN_RECORD"
+    ]
+  }
+}

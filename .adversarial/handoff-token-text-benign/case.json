@@ -1,0 +1,13 @@
+{
+  "criterion": "multi-agent-governance #78: prose about tokens is not a credential",
+  "description": "An assumption says the session token refreshes every 3600s; no letter-and-digit value follows the colon.",
+  "command": "handoff",
+  "args": {
+    "plan": "plan.json",
+    "handoff": "handoff.json"
+  },
+  "expect": {
+    "verdict": "ACCEPT",
+    "codes": []
+  }
+}

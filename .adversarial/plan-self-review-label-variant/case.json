@@ -1,0 +1,14 @@
+{
+  "criterion": "multi-agent-governance #67: owner labels compare trimmed and case-insensitively",
+  "description": "P1 is owned by agent-a and its reviewer by ' Agent-A ', the same agent under another spelling.",
+  "command": "plan",
+  "args": {
+    "plan": "plan.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "SELF_REVIEW"
+    ]
+  }
+}

@@ -39,7 +39,8 @@ model reputation, role title, and stated confidence are not evidence.
    the gate (`VOTE_NOT_EVIDENCE`).
 
 Rework is bounded: at most `max_rework_cycles` correction rounds per package
-(`REWORK_LIMIT`), and one re-entry per dispute. Reaching a bound escalates with
+(`REWORK_LIMIT`), and one re-entry per dispute (judgment: the ledger records
+it, no check counts it). Reaching a bound escalates with
 both positions and the evidence; it never restarts the loop.
 
 ## 3. Shared State

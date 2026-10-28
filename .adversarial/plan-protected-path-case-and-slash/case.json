@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #69: a protected entry guards everything under it, in any case",
+  "description": "The profile protects .github without a trailing slash; P1 writes .GitHub/workflows/ci.yml without human approval.",
+  "command": "plan",
+  "args": {
+    "plan": "plan.json",
+    "profile": "profile.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "PROTECTED_PATH"
+    ]
+  }
+}

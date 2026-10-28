@@ -52,8 +52,8 @@ owner; it specializes **Increment**. One orchestrated run realizes one
 
 `alchemy` loads this skill when its Execution Strategy selects `multi-agent`;
 a direct request for independent review or a hand-off check loads it too. Its
-dispatch and route are inputs here, unchanged. `SKIP` and `DIRECT` work stays
-single-agent unless the user asked for independent review. Confirm the mode
+dispatch and route are inputs here, unchanged; `SKIP` and `DIRECT` work never
+reaches this skill through the router. Confirm the mode
 from facts the plan check computes, not from the number of skills the route
 names:
 
@@ -106,10 +106,12 @@ skills are `per-subject` and the write sets are disjoint, and serialize every
 package that touches an `exclusive` file. The fewest agents that cover the
 packages win; one agent may hold several capabilities.
 
-Rules the plan check enforces: a verifier never reviews a package it owns; a
-read-only capability returns no changed files; an assignment names its skills
-and the agent loads them from the library, never from text pasted into its
-prompt.
+Rules the plan check enforces: every package names its skills; a verifier
+never reviews a package it owns and waits for every package it reviews; a
+package asks for no permission its envelope lacks. The hand-off check rejects a
+read-only package that returns changed files. Agents load their skills from
+the library, never from text pasted into their prompt (judgment, reviewed from
+the runtime transcript).
 
 ## 4. Procedure
 

@@ -129,18 +129,18 @@ hard-code project-specific companion names into this generic skill.
 
 Execution is a second decision after dispatch, never a fifth dispatch: it
 decides whether one agent or several carry out the selected route, and the
-user never names agents. `SKIP` and `DIRECT` run `single-agent` and load
-nothing more. `ADAPTIVE`, `FULL`, and `audit` select `multi-agent` only when
+user never names agents. `SKIP` and `DIRECT` run `single-agent` and never load
+orchestration. `ADAPTIVE`, `FULL`, and `audit` select `multi-agent` only when
 the work changes or audits code and at least two parts are independent —
 different subsystems, disjoint files, no ordering between them — or a
-high-risk change (security, public contract, persisted shape, irreversible
-step) needs a reviewer that did not write it. The number of gates or skills on
-the route is never a reason. Stay `single-agent` and say why when neither
+high-risk change (security, public contract, persisted shape) needs a
+reviewer that did not write it. Count every agent: one writer and one
+independent reviewer is `multi-agent`. The number of gates or skills on the
+route is never a reason. Stay `single-agent` and say why when neither
 holds, when the project's `alchemy-workspace.json` sets
 `execution.multi_agent` to `off`, or when the runtime cannot launch agents.
 On `multi-agent`, load `alchemy-orchestrate` before the first stage that
-changes or audits code; it plans, launches, coordinates, verifies, and gates
-the agents, and each agent loads only the skills its package names.
+changes or audits code; it plans, launches, verifies, and gates the agents.
 
 ### Change Primitives
 

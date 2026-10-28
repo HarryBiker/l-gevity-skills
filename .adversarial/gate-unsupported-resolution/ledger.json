@@ -32,6 +32,13 @@
       "exit_code": 1,
       "commit": "3f9c2e1",
       "produced_by": "agent-c"
+    },
+    {
+      "id": "E12",
+      "command": "npm test -- shipments --grep page-size",
+      "exit_code": 1,
+      "commit": "c47e9aa",
+      "produced_by": "agent-b"
     }
   ],
   "criteria": [
@@ -105,7 +112,7 @@
       "resolution": {
         "by": "agent-b",
         "evidence": [
-          "E5"
+          "E12"
         ]
       }
     }

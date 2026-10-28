@@ -1,0 +1,13 @@
+{
+  "criterion": "multi-agent-governance #79: describing a test selection is not an instruction to skip review",
+  "description": "An assumption says the suite skips tests that need network access.",
+  "command": "handoff",
+  "args": {
+    "plan": "plan.json",
+    "handoff": "handoff.json"
+  },
+  "expect": {
+    "verdict": "ACCEPT",
+    "codes": []
+  }
+}

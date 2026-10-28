@@ -37,8 +37,8 @@
     {
       "id": "loads-no-orchestration",
       "criterion": "execution-strategy #1: SKIP and DIRECT never load orchestration",
-      "check": "reads_exclude",
-      "paths": [".claude/skills/alchemy-orchestrate/SKILL.md"]
+      "check": "guidance_excludes",
+      "skills": ["alchemy-orchestrate"]
     }
   ]
 }

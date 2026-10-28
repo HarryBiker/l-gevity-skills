@@ -13,6 +13,7 @@
       ],
       "resolution": {
         "basis": "human",
+        "decided_by": "human",
         "evidence": [
           "issue #42"
         ],

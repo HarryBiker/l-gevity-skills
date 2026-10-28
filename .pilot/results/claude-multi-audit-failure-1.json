@@ -1,0 +1,704 @@
+{
+  "schema": "alchemy-pilot-result/1",
+  "fixture": "server-audit",
+  "arm": "multi",
+  "runtime": "claude",
+  "runtime_version": "claude-code 2.1.293",
+  "model_requested": "claude-opus-5",
+  "model_reported": "claude-opus-5",
+  "objective": {
+    "name": "audit",
+    "prompt": "/alchemy Audit this backend and fix what you find: correctness bugs, security defects, dead code, and architectural simplification. Keep the visible tests passing. Verify your changes, then write a pull request description to PR.md with what changed, the evidence (commands and results), and what you did not verify. Do not push or open a real pull request."
+  },
+  "workspace": {
+    "multi_agent": "auto",
+    "multi_agent_written_by_init": "auto",
+    "init_workspace_created": [
+      ".alchemy/runs/.gitignore",
+      ".claude/agents/alchemy-analyst.md",
+      ".claude/agents/alchemy-implementer.md",
+      ".claude/settings.json",
+      "alchemy-workspace.json"
+    ],
+    "failure_hook": {
+      "settings": ".claude/settings.json",
+      "hook": {
+        "matcher": "Agent|Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python .alchemy/fail_first_agent.py"
+          }
+        ]
+      },
+      "script": ".alchemy/fail_first_agent.py"
+    }
+  },
+  "command": [
+    "claude",
+    "-p",
+    "/alchemy Audit this backend and fix what you find: correctness bugs, security defects, dead code, and architectural simplification. Keep the visible tests passing. Verify your changes, then write a pull request description to PR.md with what changed, the evidence (commands and results), and what you did not verify. Do not push or open a real pull request.",
+    "--output-format",
+    "stream-json",
+    "--verbose",
+    "--setting-sources",
+    "project",
+    "--strict-mcp-config",
+    "--no-session-persistence",
+    "--permission-mode",
+    "bypassPermissions",
+    "--forward-subagent-text",
+    "--model",
+    "claude-opus-5"
+  ],
+  "started_at": "2026-10-28T18:52:43+00:00",
+  "finished_at": "2026-10-28T19:35:03+00:00",
+  "wall_clock_seconds": 2540.2,
+  "exit_code": 0,
+  "timed_out": false,
+  "result_event": true,
+  "metrics": {
+    "subtype": "success",
+    "is_error": false,
+    "duration_ms": 883747,
+    "duration_api_ms": 3178271,
+    "num_turns": 30,
+    "total_cost_usd": 21.217692499999995,
+    "usage": {
+      "input_tokens": 60,
+      "cache_creation_input_tokens": 87463,
+      "cache_read_input_tokens": 7476364,
+      "output_tokens": 65083,
+      "output_tokens_details": {
+        "thinking_tokens": 25636
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 87463,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "global",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 2706,
+          "cache_read_input_tokens": 283908,
+          "cache_creation_input_tokens": 658,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 658
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard",
+      "fallback_credit": null
+    },
+    "modelUsage": {
+      "claude-opus-5": {
+        "inputTokens": 328,
+        "outputTokens": 250420,
+        "cacheReadInputTokens": 21598695,
+        "cacheCreationInputTokens": 501722,
+        "webSearchRequests": 0,
+        "costUSD": 21.217692499999995,
+        "contextWindow": 1000000,
+        "maxOutputTokens": 64000,
+        "thinkingTokens": 106895,
+        "canonicalModel": "claude-opus-5",
+        "provider": "firstParty",
+        "costBasis": "list"
+      }
+    }
+  },
+  "tools_available": [
+    "Task",
+    "Bash",
+    "CronCreate",
+    "CronDelete",
+    "CronList",
+    "DesignSync",
+    "Edit",
+    "EnterWorktree",
+    "ExitWorktree",
+    "Glob",
+    "Grep",
+    "ListAgents",
+    "Monitor",
+    "NotebookEdit",
+    "PushNotification",
+    "Read",
+    "RemoteTrigger",
+    "ReportFindings",
+    "ScheduleWakeup",
+    "SendMessage",
+    "Skill",
+    "TaskStop",
+    "ToolSearch",
+    "WebSearch",
+    "Workflow",
+    "Write"
+  ],
+  "skills_available": [
+    "alchemy",
+    "alchemy-orchestrate",
+    "architecture-as-code",
+    "architecture-as-code-javascript",
+    "architecture-as-code-python",
+    "architecture-guidelines",
+    "bring-down",
+    "ci-cd-reliability-architecture",
+    "continuous-improvement",
+    "defect-shift-left",
+    "dependency-lifecycle",
+    "evolutionary-database-design",
+    "functionality-complexity-tradeoff",
+    "implementation-readiness",
+    "morphogenetic-architecture",
+    "observability-design",
+    "push-out",
+    "requirements-grounding",
+    "requirements-topology",
+    "requirements-traceability",
+    "structural-simplification",
+    "system-optimization",
+    "test-strategy",
+    "zero-copy-requirements",
+    "deep-research",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring"
+  ],
+  "tool_calls": {
+    "lead": {
+      "Bash": 92,
+      "Agent": 3,
+      "ListAgents": 2,
+      "Write": 1
+    },
+    "subagents": {
+      "Skill": 6,
+      "Read": 43,
+      "Bash": 42,
+      "Write": 1
+    }
+  },
+  "acceptance": {
+    "agent_launches": [
+      {
+        "tool_use_id": "toolu_01NDBU8358DfXBB4zhQiYvAJ",
+        "order": 0,
+        "subagent_type": "alchemy-analyst",
+        "role": "analyst",
+        "description": "Security verification of P1",
+        "launched_by": "lead",
+        "background": false,
+        "blocked": true,
+        "is_error": true,
+        "launch_index": 666,
+        "finish_index": 667,
+        "launched_at": 1039.54,
+        "finished_at": 1039.731,
+        "subagent_events": 0
+      },
+      {
+        "tool_use_id": "toolu_01Pp5oyLpTMLb8kGPmLWDPnX",
+        "order": 1,
+        "subagent_type": "alchemy-analyst",
+        "role": "analyst",
+        "description": "Security verification of P1",
+        "launched_by": "lead",
+        "background": true,
+        "blocked": false,
+        "is_error": false,
+        "launch_index": 672,
+        "finish_index": 1161,
+        "launched_at": 1055.072,
+        "finished_at": 1806.837,
+        "subagent_events": 165
+      },
+      {
+        "tool_use_id": "toolu_011mQnsZEyE3F43MtNbXh6ux",
+        "order": 2,
+        "subagent_type": "alchemy-analyst",
+        "role": "analyst",
+        "description": "Correctness verification of P1",
+        "launched_by": "lead",
+        "background": true,
+        "blocked": false,
+        "is_error": false,
+        "launch_index": 704,
+        "finish_index": 1050,
+        "launched_at": 1076.036,
+        "finished_at": 1656.126,
+        "subagent_events": 179
+      }
+    ],
+    "agent_launch_count": 2,
+    "parallel_overlap": true,
+    "review_after_implementation": false,
+    "review_launches": [],
+    "correction_after_review": false,
+    "correction_launches": [],
+    "skills_loaded_by_lead": [
+      "alchemy-orchestrate",
+      "architecture-as-code",
+      "architecture-guidelines",
+      "defect-shift-left",
+      "functionality-complexity-tradeoff",
+      "implementation-readiness",
+      "structural-simplification",
+      "test-strategy",
+      "zero-copy-requirements"
+    ],
+    "skills_loaded_by_subagents": {
+      "toolu_011mQnsZEyE3F43MtNbXh6ux": [
+        "alchemy-orchestrate",
+        "structural-simplification",
+        "test-strategy"
+      ],
+      "toolu_01NDBU8358DfXBB4zhQiYvAJ": [],
+      "toolu_01Pp5oyLpTMLb8kGPmLWDPnX": [
+        "alchemy-orchestrate",
+        "architecture-guidelines",
+        "defect-shift-left"
+      ]
+    },
+    "subagent_events_observed": 344,
+    "execution_line": "multi-agent — IDOR + path-traversal fixes are security changes that need a reviewer that did not write them",
+    "execution_lines": [
+      "multi-agent — IDOR + path-traversal fixes are security changes that need a reviewer that did not write them",
+      "multi-agent — parallel-review, 3 owners, 1 rework cycle of 2"
+    ],
+    "execution_mode": "multi-agent",
+    "dispatch": "ADAPTIVE",
+    "orchestration_checks": [
+      {
+        "kind": "plan",
+        "command": "cat > .alchemy/runs/audit-2026-10-28/plan.json <<'EOF'\n{\n  \"schema\": \"alchemy-plan/1\",\n  \"objective\": \"Remediate correctness, security, dead-code, and layering defects in orders-service against README.md Rules\",\n  \"requirements\": [\"R-OWN\", \"R-LIFE\", \"R-MONEY\", \"R-PAY\", \"R-PAGE\", \"R-DIR\", \"R-ERR\"],\n  \"conflicts\": [],\n  \"base\": {\"commit\": \"f4f8aee\"},\n  \"contracts_existing\": [\"contract:money-cents\", \"contract:order-service-interface\"],\n  \"execution\": {\n    \"mode\": \"multi-agent\",\n    \"strategy\": \"parallel-review\",\n    \"max_parallel_agents\": 2,\n    \"integration_owner\": \"lead\",\n    \"independent_review\": true,\n    \"merge_policy\": \"human-approval\"\n  },\n  \"packages\": [\n    {\n      \"id\": \"P1\",\n      \"kind\": \"implement\",\n      \"capabilities\": [\"engineering\"],\n      \"skills\": [\"test-strategy\", \"defect-shift-left\"],\n      \"owner\": \"lead\",\n      \"envelope\": \"implementer\",\n      \"risk\": \"high\",\n      \"requirements\": [\"R-OWN\", \"R-LIFE\", \"R-MONEY\", \"R-PAY\", \"R-PAGE\", \"R-DIR\", \"R-ERR\"],\n      \"writes\": [\"src/\", \"test/\", \"PR.md\"],\n      \"reads\": [\"src/\", \"test/\", \"README.md\"],\n      \"depends_on\": [],\n      \"produces\": [\"contract:money-cents\", \"contract:order-service-interface\"],\n      \"consumes\": [],\n      \"acceptance\": [\n        {\"id\": \"P1-AC1\", \"check\": \"command\", \"command\": \"npm test\"},\n        {\"id\": \"P1-AC2\", \"check\": \"command\", \"command\": \"node probe/probe.js\"}\n      ],\n      \"permissions\": [\"read\", \"edit\", \"test\"],\n      \"budget\": {\"max_turns\": 60}\n    },\n    {\n      \"id\": \"P2\",\n      \"kind\": \"verify\",\n      \"capabilities\": [\"verification\", \"security\"],\n      \"skills\": [\"defect-shift-left\", \"architecture-guidelines\"],\n      \"owner\": \"agent-security\",\n      \"envelope\": \"analyst\",\n      \"risk\": \"low\",\n      \"requirements\": [\"R-OWN\", \"R-DIR\", \"R-ERR\"],\n      \"writes\": [],\n      \"reads\": [\"src/\", \"test/\", \"README.md\"],\n      \"depends_on\": [\"P1\"],\n      \"reviews\": [\"P1\"],\n      \"consumes\": [\"contract:order-service-interface\"],\n      \"acceptance\": [\n        {\"id\": \"P2-AC1\", \"check\": \"review\", \"question\": \"Can any authenticated non-owner still read another customer's order or payment, can any crafted report name escape REPORT_DIR, and does every error path still return the status README.md Rules names?\"}\n      ],\n      \"permissions\": [\"read\", \"test\"]\n    },\n    {\n      \"id\": \"P3\",\n      \"kind\": \"verify\",\n      \"capabilities\": [\"verification\"],\n      \"skills\": [\"test-strategy\", \"structural-simplification\"],\n      \"owner\": \"agent-correctness\",\n      \"envelope\": \"analyst\",\n      \"risk\": \"low\",\n      \"requirements\": [\"R-LIFE\", \"R-MONEY\", \"R-PAY\", \"R-PAGE\"],\n      \"writes\": [],\n      \"reads\": [\"src/\", \"test/\", \"README.md\"],\n      \"depends_on\": [\"P1\"],\n      \"reviews\": [\"P1\"],\n      \"consumes\": [\"contract:money-cents\"],\n      \"acceptance\": [\n        {\"id\": \"P3-AC1\", \"check\": \"review\", \"question\": \"Are order totals exact to the cent, is totalPages the count of pages needed to show every item, is the cancel window exactly pending-or-paid, and do the new tests actually fail against the pre-fix code?\"}\n      ],\n      \"permissions\": [\"read\", \"test\"]\n    }\n  ]\n}\nEOF\npython .claude/skills/alchemy-orchestrate/scripts/check_orchestration.py plan .alchemy/runs/audit-2026-10-28/plan.json --profile alchemy-workspace.json",
+        "run_by": "lead",
+        "exit_status": 0,
+        "verdict": "PASS",
+        "at": 552.461
+      },
+      {
+        "kind": "plan",
+        "command": "python - <<'EOF'\nimport json, pathlib\np = pathlib.Path('.alchemy/runs/audit-2026-10-28/plan.json')\nplan = json.loads(p.read_text())\nfor pkg in plan['packages']:\n    if pkg['id'] == 'P1':\n        pkg['acceptance'][1] = {\n            \"id\": \"P1-AC2\",\n            \"check\": \"command\",\n            \"command\": \"bash .alchemy/runs/audit-2026-10-28/tests-fail-at-base.sh\"\n        }\np.write_text(json.dumps(plan, indent=2) + \"\\n\")\nprint(\"updated\")\nEOF\ncat > .alchemy/runs/audit-2026-10-28/tests-fail-at-base.sh <<'EOF'\n#!/usr/bin/env bash\n# Exits 0 when the post-fix test suite FAILS against the pre-fix tree, proving\n# the new regression tests are not hollow. Exits 1 if they pass at base.\nset -u\nroot=\"$(git rev-parse --show-toplevel)\"\nbase=\"${1:-f4f8aee}\"\nwork=\"$(mktemp -d)/base\"\ngit -C \"$root\" worktree add --quiet --detach \"$work\" \"$base\"\ncp \"$root\"/test/*.js \"$work/test/\"\nif (cd \"$work\" && node --test >\"$work/out.txt\" 2>&1); then\n  echo \"FAIL: new tests passed against base $base - they prove nothing\"\n  status=1\nelse\n  echo \"OK: new tests fail against base $base\"\n  grep -E '^# (pass|fail)' \"$work/out.txt\" || true\n  grep -oE 'not ok [0-9]+ - .*' \"$work/out.txt\" | sed 's/^/  /' || true\n  status=0\nfi\ngit -C \"$root\" worktree remove --force \"$work\" >/dev/null 2>&1 || true\nexit $status\nEOF\npython .claude/skills/alchemy-orchestrate/scripts/check_orchestration.py plan .alchemy/runs/audit-2026-10-28/plan.json --profile alchemy-workspace.json | head -5",
+        "run_by": "lead",
+        "exit_status": 0,
+        "verdict": "PASS",
+        "at": 583.061
+      },
+      {
+        "kind": "gate",
+        "command": "cat > .alchemy/runs/audit-2026-10-28/ledger.json <<'EOF'\n{\n  \"schema\": \"alchemy-ledger/1\",\n  \"head_commit\": \"2a92c69\",\n  \"rework_cycles\": {\"P1\": 1},\n  \"evidence\": [\n    {\"id\": \"E7\", \"command\": \"npm test\", \"exit_code\": 0, \"commit\": \"2a92c69\", \"produced_by\": \"lead\"},\n    {\"id\": \"E8\", \"command\": \"bash .alchemy/runs/audit-2026-10-28/tests-fail-at-base.sh f4f8aee\", \"exit_code\": 0, \"commit\": \"2a92c69\", \"produced_by\": \"lead\"},\n    {\"id\": \"E9\", \"command\": \"node --test test/architecture.test.js (per-violation mutation matrix in a copy outside the repo)\", \"exit_code\": 0, \"commit\": \"2a92c69\", \"produced_by\": \"lead\"},\n    {\"id\": \"E10\", \"command\": \"git worktree add --detach <tmp> HEAD && node --test\", \"exit_code\": 0, \"commit\": \"2a92c69\", \"produced_by\": \"lead\"},\n    {\"id\": \"E11\", \"command\": \"node /tmp/dos/dos.js\", \"exit_code\": 0, \"commit\": \"2a92c69\", \"produced_by\": \"lead\"},\n    {\"id\": \"E12\", \"command\": \"node /tmp/e2e/e2e.js\", \"exit_code\": 0, \"commit\": \"2a92c69\", \"produced_by\": \"lead\"},\n    {\"id\": \"E13\", \"command\": \"node /tmp/probe/probe.js\", \"exit_code\": 0, \"commit\": \"2a92c69\", \"produced_by\": \"lead\"}\n  ],\n  \"criteria\": [\n    {\"id\": \"P1-AC1\", \"package\": \"P1\", \"status\": \"verified\", \"evidence\": [\"E7\", \"E10\"], \"verified_by\": \"agent-security\"},\n    {\"id\": \"P1-AC2\", \"package\": \"P1\", \"status\": \"verified\", \"evidence\": [\"E8\"], \"verified_by\": \"agent-correctness\"},\n    {\"id\": \"P2-AC1\", \"package\": \"P2\", \"status\": \"verified\", \"evidence\": [\"E7\", \"E13\"], \"verified_by\": \"agent-security\"},\n    {\"id\": \"P3-AC1\", \"package\": \"P3\", \"status\": \"verified\", \"evidence\": [\"E8\", \"E12\"], \"verified_by\": \"agent-correctness\"}\n  ],\n  \"findings\": [\n    {\"id\": \"F-P3-1\", \"package\": \"P1\", \"severity\": \"blocking\", \"status\": \"resolved\", \"raised_by\": \"agent-correctness\", \"evidence\": [\"E12\"], \"resolution\": {\"by\": \"lead\", \"evidence\": [\"E7\", \"E12\"]}},\n    {\"id\": \"F-P3-2\", \"package\": \"P1\", \"severity\": \"blocking\", \"status\": \"resolved\", \"raised_by\": \"agent-correctness\", \"evidence\": [\"E12\"], \"resolution\": {\"by\": \"lead\", \"evidence\": [\"E7\", \"E12\"]}},\n    {\"id\": \"F-P3-5\", \"package\": \"P1\", \"severity\": \"blocking\", \"status\": \"resolved\", \"raised_by\": \"agent-correctness\", \"evidence\": [\"E8\"], \"resolution\": {\"by\": \"lead\", \"evidence\": [\"E8\"]}},\n    {\"id\": \"F-P3-3\", \"package\": \"P1\", \"severity\": \"major\", \"status\": \"resolved\", \"raised_by\": \"agent-correctness\", \"evidence\": [\"E7\"], \"resolution\": {\"by\": \"lead\", \"evidence\": [\"E7\"]}},\n    {\"id\": \"F-P3-4\", \"package\": \"P1\", \"severity\": \"major\", \"status\": \"resolved\", \"raised_by\": \"agent-correctness\", \"evidence\": [\"E12\"], \"resolution\": {\"by\": \"lead\", \"evidence\": [\"E7\", \"E12\"]}},\n    {\"id\": \"F-P3-6\", \"package\": \"P1\", \"severity\": \"major\", \"status\": \"resolved\", \"raised_by\": \"agent-correctness\", \"evidence\": [\"E9\"], \"resolution\": {\"by\": \"lead\", \"evidence\": [\"E9\"]}},\n    {\"id\": \"F-P3-7\", \"package\": \"P1\", \"severity\": \"major\", \"status\": \"resolved\", \"raised_by\": \"agent-correctness\", \"evidence\": [\"E9\"], \"resolution\": {\"by\": \"lead\", \"evidence\": [\"E9\"]}},\n    {\"id\": \"F-P2-1\", \"package\": \"P1\", \"severity\": \"major\", \"status\": \"resolved\", \"raised_by\": \"agent-security\", \"evidence\": [\"E7\"], \"resolution\": {\"by\": \"lead\", \"evidence\": [\"E7\"]}},\n    {\"id\": \"F-P2-3\", \"package\": \"P1\", \"severity\": \"major\", \"status\": \"resolved\", \"raised_by\": \"agent-security\", \"evidence\": [\"E11\"], \"resolution\": {\"by\": \"lead\", \"evidence\": [\"E11\", \"E7\"]}},\n    {\"id\": \"F-P2-4\", \"package\": \"P1\", \"severity\": \"major\", \"status\": \"resolved\", \"raised_by\": \"agent-security\", \"evidence\": [\"E12\"], \"resolution\": {\"by\": \"lead\", \"evidence\": [\"E12\", \"E7\"]}},\n    {\"id\": \"F-P2-7\", \"package\": \"P1\", \"severity\": \"minor\", \"status\": \"resolved\", \"raised_by\": \"agent-security\", \"evidence\": [\"E9\"], \"resolution\": {\"by\": \"lead\", \"evidence\": [\"E9\"]}},\n    {\"id\": \"F-P3-8\", \"package\": \"P1\", \"severity\": \"minor\", \"status\": \"resolved\", \"raised_by\": \"agent-correctness\", \"evidence\": [\"E7\"], \"resolution\": {\"by\": \"lead\", \"evidence\": [\"E7\"]}},\n    {\"id\": \"F-P3-9\", \"package\": \"P1\", \"severity\": \"minor\", \"status\": \"resolved\", \"raised_by\": \"agent-correctness\", \"evidence\": [\"E12\"], \"resolution\": {\"by\": \"lead\", \"evidence\": [\"E12\"]}},\n    {\"id\": \"F-P3-10\", \"package\": \"P1\", \"severity\": \"minor\", \"status\": \"resolved\", \"raised_by\": \"agent-correctness\", \"evidence\": [\"E7\"], \"resolution\": {\"by\": \"lead\", \"evidence\": [\"E7\"]}},\n    {\"id\": \"F-P2-2\", \"package\": \"P1\", \"severity\": \"major\", \"status\": \"open\", \"raised_by\": \"agent-security\", \"evidence\": [\"E13\"]},\n    {\"id\": \"F-P3-11\", \"package\": \"P1\", \"severity\": \"minor\", \"status\": \"open\", \"raised_by\": \"agent-correctness\", \"evidence\": [\"E13\"]},\n    {\"id\": \"F-P3-12\", \"package\": \"P1\", \"severity\": \"minor\", \"status\": \"open\", \"raised_by\": \"agent-correctness\", \"evidence\": [\"E8\"]},\n    {\"id\": \"F-P2-5\", \"package\": \"P1\", \"severity\": \"minor\", \"status\": \"open\", \"raised_by\": \"agent-security\", \"evidence\": [\"E13\"]},\n    {\"id\": \"F-P2-6\", \"package\": \"P1\", \"severity\": \"minor\", \"status\": \"open\", \"raised_by\": \"agent-security\", \"evidence\": [\"E13\"]}\n  ],\n  \"disputes\": []\n}\nEOF\npython .claude/skills/alchemy-orchestrate/scripts/check_orchestration.py gate .alchemy/runs/audit-2026-10-28/ledger.json --plan .alchemy/runs/audit-2026-10-28/plan.json",
+        "run_by": "lead",
+        "exit_status": 1,
+        "verdict": "FAIL",
+        "at": 2356.37
+      },
+      {
+        "kind": "plan",
+        "command": "cat > PR.md <<'MARKDOWN'\n# Audit remediation: order access control, money exactness, and enforceable boundaries\n\nBranch `audit/orders-service-remediation` — `f4f8aee..2a92c69` (3 commits).\nNothing pushed; no pull request opened.\n\n`README.md` §Rules is the authoritative spec for this change. Every defect\nbelow is code contradicting a rule already written there, so no requirement\ntext changed and `README.md` is not edited. The per-change rationale lives in\nthe three commit messages; this file compiles the evidence and the gaps.\n\n## Gate result\n\n```\nGate:       FAIL  (1 major finding open, pending one human decision)\nVerified:   P1-AC1, P1-AC2, P2-AC1, P3-AC1  (4/4)\nOpen:       F-P2-2 (major), F-P3-11, F-P3-12, F-P2-5, F-P2-6 (minor)\nMerge:      human approval required\n```\n\nThe gate does not pass, and the one thing blocking it is not code — see\n[One decision needed](#one-decision-needed-before-merge).\n\n## What changed\n\nNine defects, each contradicting a stated rule. `(base)` marks a defect that\npredates this branch; `(mine)` marks one this branch introduced and then fixed.\n\n| # | Defect | Rule | Fix |\n|:--|:--|:--|:--|\n| 1 | Any authenticated customer could read **any** customer's order via `GET /orders/:id` | ownership | Route reads through `getOwned`; the unguarded read left the order service's public surface, so transport cannot reach it again |\n| 2 | A `shipped` or `delivered` order could still be cancelled | lifecycle | `TRANSITIONS.shipped` no longer lists `cancelled` |\n| 3 | `GET /reports/:name` joined an unvalidated name onto `REPORT_DIR`; an encoded traversal read any file the process could read | exports served from `REPORT_DIR` | Name validated against the generated shape, in a new report **service** |\n| 4 | Totals accumulated in binary float — `0.1 × 3` was served as `0.30000000000000004` | totals exact to the cent | All summation runs through integer cents |\n| 5 | `totalPages` used `floor`, so the last partial page was unreachable | `totalPages` covers every item | `ceil` |\n| 6 | `isAmount` used a fixed `1e-6` tolerance, below double spacing past `~1e8`. It **rejected totals the service itself computed** (an order of `19.99 × 6714245` was created, then could never be paid or shipped) and **accepted `49.000000001`** as payment for a total of `49`, storing it verbatim. `unitPrice: 1e306` overflowed a total to `Infinity` (JSON `null`, CSV `Infinity`) | totals exact to the cent; payment equals total | `isAmount` is exact (`Number(v.toFixed(2)) === v`, safe-cent bound); `fromCents` refuses any total that cannot round-trip, so such an order is a `400` |\n| 7 | `gateway.charge()` was neither awaited nor checked: a gateway returning `declined` still marked the order **paid**; an async gateway stored `status: undefined` | payment marks the order paid | Awaited; a non-captured charge is a `409`. A payment is attributed to the **order's owner**, so the owner no longer gets `404` on a payment against their own order |\n| 8 | `crypto.scryptSync` ran on the event loop for every unauthenticated `POST /sessions` | — (availability) | Key derivation is async; `createApp` stays synchronous (the admin bootstrap is awaited in `listen()`) |\n| 9 | `.gitignore` said `reports/` unanchored, so it also matched `src/reports/`. **The entire reports subsystem was untracked**: a fresh clone could not start (`Cannot find module './reports/routes'`) | — (packaging) | Rule anchored to `/reports/`; file committed |\n\nAlso removed: the unused cookie parser, and a single-entry payment-provider\nregistry that held process-global mutable state (the gateway is now injected).\nThe user service owns listing and pagination, so transport no longer reaches\ninto the store. Totals are logged instead of discarded on a `500`.\n\n**Architecture rules now ship as code** in `test/architecture.test.js`,\ndependency-free so the zero-dependency promise holds: transport must not\nimport persistence, transport must not reach `node:fs`, `src/lib/**` imports\nnothing internal, currency conversion and formatting live only in\n`lib/money.js`, every source file belongs to a declared subsystem, and every\nsource file is tracked by git. That last rule exists because defect 9 passed\nevery other rule — they read the working tree, which was fine, while the\ncommitted tree could not boot.\n\nFiles: 23 changed, +578 / −84. `src/payments/providers.js` deleted,\n`src/reports/service.js` added.\n\n## Evidence\n\nAll commands run at `2a92c69` on Node v24.19.0, Windows.\n\n| Command | Exit | Result |\n|:--|:--|:--|\n| `npm test` | 0 | **50 tests, 50 pass, 0 fail** (20 at base) |\n| `git worktree add --detach <tmp> HEAD && node --test` | 0 | 50/50 in a clean checkout — impossible before defect 9 was fixed |\n| `bash .alchemy/runs/audit-2026-10-28/tests-fail-at-base.sh f4f8aee` | 0 | **17 named regression tests each fail against the pre-fix tree** |\n| `node --test test/architecture.test.js` (mutation matrix, in a copy outside the repo) | 0 | Each of 6 rules fails when its violation is injected; 4 previously-evadable variants (double-quoted `require`, `/ 100`, `node:fs` from transport, `toFixed()`) now caught; no false positive on a comment |\n| `node /tmp/e2e/e2e.js` | 0 | `19.99 × 6714245` → `201`, pays `201`, ships `200` (was: unpayable, stuck `pending`). `1e306 × 10` → `400`. CSV reads `134217757.55` |\n| `node /tmp/dos/dos.js` | 0 | `GET /users/me` **1.5 ms idle → 2.7 ms** under 20 concurrent logins (was 0.7 ms → 421.5 ms) |\n| `node /tmp/probe/probe.js` | 0 | Non-owner order read `404`; cancel a shipped order `409`; `totalPages` 3; total `0.3`; traversal `404` |\n| `python .../check_orchestration.py plan …` | 0 | `PASS` — waves `[P1]`, `[P2, P3]`, mode multi-agent |\n| `python .../check_orchestration.py gate …` | 1 | `FAIL` — `UNRESOLVED_FINDING: F-P2-2`; criteria 4/4 verified |\n\nTwo independent read-only reviewers re-ran their own checks against\n`f4f8aee..c7e2b52`:\n\n- **Security review** — 76 adversarial HTTP checks: 4 cross-tenant order and\n  payment paths all `404`; 33 crafted report names and raw paths (single and\n  double percent-encoding, backslashes, `C:\\`, UNC, NUL, trailing dot and\n  space, NTFS `::$DATA`, full-width unicode, bare dot segments) with no\n  escape from `REPORT_DIR`; 9 token-forgery and expiry variants all `401`.\n  Found defects 7 and 8 above, plus the `isAmount` overflow.\n- **Correctness review** — found defect 6 and proved my own base-check script\n  was passing on a module-load crash (below).\n\nTheir findings drove one rework cycle (of a budget of 2): 3 blocking and 6\nmajor findings resolved, each with a test that fails at base.\n\n## What I did not verify\n\n- **`src/reports/` has no pre-fix baseline.** It was never committed before\n  this branch, so the traversal fix (defect 3) has no reviewable diff and\n  cannot be tested against base. The base-check copies `src/reports/` from\n  `HEAD` purely so other tests can load, and makes no claim about reports\n  behaviour at base. Its own rule (`no transport file reaches durable storage\n  directly`) is therefore excluded from the base-failure list and proven by\n  mutation instead.\n- **My first base-check was invalid, and a reviewer caught it.** It treated a\n  non-zero exit as proof the new tests were not hollow. At base, 5 of 7 test\n  files died on the missing reports module and only 6 of 17 tests ran — yet it\n  exited 0. It now rejects a load crash and asserts 17 tests by name. One\n  earlier test (`an amount one cent off the total is rejected`) turned out to\n  pass at base and so proves nothing; it is not in the list.\n- **Timing-attack resistance of the token compare is not tested.** The\n  constant-time compare has no functionally observable oracle; only\n  accept/reject behaviour is asserted. Residual risk, recorded not closed.\n- **No concurrency or race testing.** The store is an in-process `Map` and\n  capture was synchronous; now that `charge` is awaited, a check-then-act\n  window exists between `order.status !== 'pending'` and `markPaid`. Close it\n  with concurrent `POST /payments` for one order against a slow gateway.\n- **No rate limiting on `POST /sessions`.** Async key derivation removed the\n  event-loop stall, not the ability to force unbounded scrypt work. Rate\n  limiting is a new capability and out of this scope.\n- **Symlink escape from `REPORT_DIR` untested.** It needs filesystem access\n  rather than an HTTP request. Close by creating a symlink named\n  `orders-<digits>-<hex>.csv` inside `REPORT_DIR` and re-running the download.\n- **`APP_SECRET` strength, TLS, and secret management** — only emptiness is\n  rejected.\n- **Not load-tested, not run against a real payment provider, no migration\n  concern** (the store is per-process and in memory).\n- **Gate Y (flow optimisation) deliberately not run.** It belongs in the\n  iteration after this ships, from a measured baseline: `npm test` wall-clock\n  (`ℹ duration_ms`, ~1.1 s for 50 tests) and the one-stage pipeline count.\n  Iteration 2 opens on the next cycle after merge, or when the suite passes\n  ~10 s. The new base-check adds a git worktree create/remove outside\n  `npm test`.\n\n## One decision needed before merge\n\n**May an admin change a customer's order?** Both reviewers independently read\n`README.md` §Rules — \"Customers read and change only their own orders and\npayments. **Admins read all of them**\" — as granting admins read but not\nwrite. Today `getOwned` is the single gate for both, so an admin can cancel\nand pay a customer's order. The API table lists these routes' caller as\n`customer`.\n\nI did **not** change this. It is a requirements question, not a defect: the\nanswer changes the required behaviour, and silently picking one would bake my\nreading of an ambiguous spec into an authorization rule. The data-integrity\nhalf of the finding **is** fixed — a payment is attributed to the order's\nowner either way, so the owner can always read a payment against their own\norder (`test/payments.test.js` admits `201`, `403`, or `404` and asserts\nattribution in the `201` case).\n\n- **If admins may not write**: split `getOwned` into a read gate and an\n  owner-only write gate in `src/orders/service.js`, and the test's admitted\n  statuses narrow to `403`.\n- **If admins may write**: record it in `README.md` §Rules so the next audit\n  does not reopen it.\n\nFour minor findings are also left open by choice, each with its reason:\n`405` and pre-auth `400` statuses are not in the README's list but are\nstandard HTTP (`F-P2-5`); the `POST /sessions` timing oracle is already\ndefeated by the README-mandated `409` on duplicate registration, so closing\nonly the timing channel buys nothing (`F-P2-6`); `GET /orders?page=99` returns\nan empty page rather than `404`, which the README does not forbid; and\n`src/reports/` has no pre-fix baseline (`F-P3-12`).\nMARKDOWN\ngit add PR.md && echo \"PR.md written: $(wc -l < PR.md) lines\"",
+        "run_by": "lead",
+        "exit_status": 2,
+        "verdict": null,
+        "at": 2424.774
+      }
+    ],
+    "injected_failure": {
+      "blocked_launches": 1,
+      "retried": true,
+      "retry_same_subagent_type": true,
+      "retry_tool_use_id": "toolu_01Pp5oyLpTMLb8kGPmLWDPnX"
+    }
+  },
+  "injection": {
+    "blocked_launches": 1,
+    "retried": true,
+    "retry_same_subagent_type": true,
+    "retry_tool_use_id": "toolu_01Pp5oyLpTMLb8kGPmLWDPnX",
+    "hook_invocations": 3,
+    "hook_blocked": 1
+  },
+  "score": {
+    "schema": "alchemy-pilot-score/1",
+    "fixture": "server-audit",
+    "node": "v24.19.0",
+    "visible_tests_pass": true,
+    "visible_tests": {
+      "pass": true,
+      "exit": 0,
+      "timed_out": false,
+      "counts": {
+        "tests": 19,
+        "pass": 19,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "failing": []
+    },
+    "project_tests_pass": false,
+    "project_tests": {
+      "pass": false,
+      "exit": 1,
+      "timed_out": false,
+      "counts": {
+        "tests": 50,
+        "pass": 49,
+        "fail": 1,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "failing": [
+        "every source file is tracked by git"
+      ]
+    },
+    "defects": [
+      {
+        "id": "D01",
+        "category": "correctness",
+        "file": "src/lib/pagination.js",
+        "method": "hidden-test",
+        "fixed": true,
+        "evidence": "D01.test.js: exit 0"
+      },
+      {
+        "id": "D02",
+        "category": "correctness",
+        "file": "src/lib/money.js",
+        "method": "hidden-test",
+        "fixed": true,
+        "evidence": "D02.test.js: exit 0"
+      },
+      {
+        "id": "D03",
+        "category": "correctness",
+        "file": "src/orders/service.js",
+        "method": "hidden-test",
+        "fixed": true,
+        "evidence": "D03.test.js: exit 0"
+      },
+      {
+        "id": "D04",
+        "category": "security",
+        "file": "src/orders/routes.js",
+        "method": "hidden-test",
+        "fixed": true,
+        "evidence": "D04.test.js: exit 0"
+      },
+      {
+        "id": "D05",
+        "category": "security",
+        "file": "src/auth/tokens.js",
+        "method": "static",
+        "fixed": true,
+        "evidence": "all of ['src/auth/tokens.js'] also match 'timingSafeEqual'"
+      },
+      {
+        "id": "D06",
+        "category": "security",
+        "file": "src/reports/routes.js",
+        "method": "hidden-test",
+        "fixed": true,
+        "evidence": "D06.test.js: exit 0"
+      },
+      {
+        "id": "D07",
+        "category": "dead-code",
+        "file": "src/http/respond.js",
+        "method": "static",
+        "fixed": true,
+        "evidence": "no match in 17 source files"
+      },
+      {
+        "id": "D08",
+        "category": "dead-code",
+        "file": "src/payments/providers.js",
+        "method": "static",
+        "fixed": true,
+        "evidence": "no match in 17 source files"
+      },
+      {
+        "id": "D09",
+        "category": "architecture",
+        "file": "src/users/routes.js",
+        "method": "static",
+        "fixed": true,
+        "evidence": "no match in 5 files whose path matches '(?i)route'"
+      },
+      {
+        "id": "D10",
+        "category": "duplication",
+        "file": "src/payments/service.js",
+        "method": "static",
+        "fixed": true,
+        "evidence": "no match in 2 files whose path matches '(?i)payment'"
+      }
+    ],
+    "by_category": {
+      "correctness": {
+        "fixed": 3,
+        "total": 3
+      },
+      "security": {
+        "fixed": 3,
+        "total": 3
+      },
+      "dead-code": {
+        "fixed": 2,
+        "total": 2
+      },
+      "architecture": {
+        "fixed": 1,
+        "total": 1
+      },
+      "duplication": {
+        "fixed": 1,
+        "total": 1
+      }
+    },
+    "defects_fixed": 10,
+    "defects_total": 10,
+    "result_unmodified": true
+  },
+  "objective_checks": [],
+  "git": {
+    "fixture_commit": "d1b35ca03f282f24e4991663d016c38469222c5d",
+    "base_commit": "f4f8aeee0ff4aa776ad4f30927a6cede4a60e8b3",
+    "agent_commits": 4,
+    "files_changed": [
+      {
+        "path": ".gitignore",
+        "added": "1",
+        "deleted": "1",
+        "status": "tracked"
+      },
+      {
+        "path": "PR.md",
+        "added": "159",
+        "deleted": "0",
+        "status": "tracked"
+      },
+      {
+        "path": "src/app.js",
+        "added": "13",
+        "deleted": "5",
+        "status": "tracked"
+      },
+      {
+        "path": "src/auth/tokens.js",
+        "added": "7",
+        "deleted": "1",
+        "status": "tracked"
+      },
+      {
+        "path": "src/http/respond.js",
+        "added": "1",
+        "deleted": "11",
+        "status": "tracked"
+      },
+      {
+        "path": "src/http/router.js",
+        "added": "1",
+        "deleted": "0",
+        "status": "tracked"
+      },
+      {
+        "path": "src/lib/money.js",
+        "added": "28",
+        "deleted": "6",
+        "status": "tracked"
+      },
+      {
+        "path": "src/lib/pagination.js",
+        "added": "5",
+        "deleted": "2",
+        "status": "tracked"
+      },
+      {
+        "path": "src/orders/routes.js",
+        "added": "2",
+        "deleted": "2",
+        "status": "tracked"
+      },
+      {
+        "path": "src/orders/service.js",
+        "added": "5",
+        "deleted": "4",
+        "status": "tracked"
+      },
+      {
+        "path": "src/payments/providers.js",
+        "added": "0",
+        "deleted": "26",
+        "status": "tracked"
+      },
+      {
+        "path": "src/payments/routes.js",
+        "added": "1",
+        "deleted": "1",
+        "status": "tracked"
+      },
+      {
+        "path": "src/payments/service.js",
+        "added": "17",
+        "deleted": "12",
+        "status": "tracked"
+      },
+      {
+        "path": "src/reports/routes.js",
+        "added": "16",
+        "deleted": "0",
+        "status": "tracked"
+      },
+      {
+        "path": "src/reports/service.js",
+        "added": "39",
+        "deleted": "0",
+        "status": "tracked"
+      },
+      {
+        "path": "src/users/routes.js",
+        "added": "4",
+        "deleted": "5",
+        "status": "tracked"
+      },
+      {
+        "path": "src/users/service.js",
+        "added": "16",
+        "deleted": "7",
+        "status": "tracked"
+      },
+      {
+        "path": "test/architecture.test.js",
+        "added": "138",
+        "deleted": "0",
+        "status": "tracked"
+      },
+      {
+        "path": "test/money.test.js",
+        "added": "67",
+        "deleted": "0",
+        "status": "tracked"
+      },
+      {
+        "path": "test/orders.test.js",
+        "added": "63",
+        "deleted": "1",
+        "status": "tracked"
+      },
+      {
+        "path": "test/pagination.test.js",
+        "added": "42",
+        "deleted": "0",
+        "status": "tracked"
+      },
+      {
+        "path": "test/payments.test.js",
+        "added": "67",
+        "deleted": "0",
+        "status": "tracked"
+      },
+      {
+        "path": "test/reports.test.js",
+        "added": "22",
+        "deleted": "0",
+        "status": "tracked"
+      },
+      {
+        "path": "test/users.test.js",
+        "added": "23",
+        "deleted": "0",
+        "status": "tracked"
+      }
+    ],
+    "fixture_files_changed": [
+      ".gitignore",
+      "src/app.js",
+      "src/auth/tokens.js",
+      "src/http/respond.js",
+      "src/http/router.js",
+      "src/lib/money.js",
+      "src/lib/pagination.js",
+      "src/orders/routes.js",
+      "src/orders/service.js",
+      "src/payments/providers.js",
+      "src/payments/routes.js",
+      "src/payments/service.js",
+      "src/reports/routes.js",
+      "src/reports/service.js",
+      "src/users/routes.js",
+      "src/users/service.js",
+      "test/architecture.test.js",
+      "test/money.test.js",
+      "test/orders.test.js",
+      "test/pagination.test.js",
+      "test/payments.test.js",
+      "test/reports.test.js",
+      "test/users.test.js"
+    ],
+    "fixture_files_changed_count": 23
+  },
+  "pr_md": {
+    "exists": true,
+    "bytes": 10832,
+    "mentions_test_command": true,
+    "mentions_results": true,
+    "mentions_unverified": true,
+    "text": "# Audit remediation: order access control, money exactness, and enforceable boundaries\n\nBranch `audit/orders-service-remediation` — `f4f8aee..HEAD` (3 code commits plus this description).\nNothing pushed; no pull request opened.\n\n`README.md` §Rules is the authoritative spec for this change. Every defect\nbelow is code contradicting a rule already written there, so no requirement\ntext changed and `README.md` is not edited. The per-change rationale lives in\nthe three commit messages; this file compiles the evidence and the gaps.\n\n## Gate result\n\n```\nGate:       FAIL  (1 major finding open, pending one human decision)\nVerified:   P1-AC1, P1-AC2, P2-AC1, P3-AC1  (4/4)\nOpen:       F-P2-2 (major), F-P3-11, F-P3-12, F-P2-5, F-P2-6 (minor)\nMerge:      human approval required\n```\n\nThe gate does not pass, and the one thing blocking it is not code — see\n[One decision needed](#one-decision-needed-before-merge).\n\n## What changed\n\nNine defects, each contradicting a stated rule.\n\n| # | Defect | Rule | Fix |\n|:--|:--|:--|:--|\n| 1 | Any authenticated customer could read **any** customer's order via `GET /orders/:id` | ownership | Route reads through `getOwned`; the unguarded read left the order service's public surface, so transport cannot reach it again |\n| 2 | A `shipped` or `delivered` order could still be cancelled | lifecycle | `TRANSITIONS.shipped` no longer lists `cancelled` |\n| 3 | `GET /reports/:name` joined an unvalidated name onto `REPORT_DIR`; an encoded traversal read any file the process could read | exports served from `REPORT_DIR` | Name validated against the generated shape, in a new report **service** |\n| 4 | Totals accumulated in binary float — `0.1 × 3` was served as `0.30000000000000004` | totals exact to the cent | All summation runs through integer cents |\n| 5 | `totalPages` used `floor`, so the last partial page was unreachable | `totalPages` covers every item | `ceil` |\n| 6 | `isAmount` used a fixed `1e-6` tolerance, below double spacing past `~1e8`. It **rejected totals the service itself computed** (an order of `19.99 × 6714245` was created, then could never be paid or shipped) and **accepted `49.000000001`** as payment for a total of `49`, storing it verbatim. A `unitPrice` of `1e306` overflowed a total to `Infinity` (JSON `null`, CSV `Infinity`) | totals exact to the cent; payment equals total | `isAmount` is exact (`Number(v.toFixed(2)) === v`, safe-cent bound); `fromCents` refuses any total that cannot round-trip, so such an order is a `400` |\n| 7 | `gateway.charge()` was neither awaited nor checked: a gateway returning `declined` still marked the order **paid**; an async gateway stored `status: undefined` | payment marks the order paid | Awaited; a non-captured charge is a `409`. A payment is attributed to the **order's owner**, so the owner no longer gets `404` on a payment against their own order |\n| 8 | `crypto.scryptSync` ran on the event loop for every unauthenticated `POST /sessions` | — (availability) | Key derivation is async; `createApp` stays synchronous (the admin bootstrap is awaited in `listen()`) |\n| 9 | `.gitignore` said `reports/` unanchored, so it also matched `src/reports/`. **The entire reports subsystem was untracked**: a fresh clone could not start (`Cannot find module './reports/routes'`) | — (packaging) | Rule anchored to `/reports/`; file committed |\n\nDefects 1–5 and 9 were found by the audit; 6, 7 and 8 were found by\nindependent review of the first two commits.\n\nAlso removed: the unused cookie parser, and a single-entry payment-provider\nregistry that held process-global mutable state (the gateway is now injected).\nThe user service owns listing and pagination, so transport no longer reaches\ninto the store. An unexpected `500` is logged instead of discarded.\n\n**Architecture rules now ship as code** in `test/architecture.test.js`,\ndependency-free so the zero-dependency promise holds: transport must not\nimport persistence, transport must not reach `node:fs`, `src/lib/**` imports\nnothing internal, currency conversion and formatting live only in\n`lib/money.js`, every source file belongs to a declared subsystem, and every\nsource file is tracked by git. That last rule exists because defect 9 passed\nevery other rule — they read the working tree, which was fine, while the\ncommitted tree could not boot.\n\nFiles: 23 source and test files changed, +578 / −84. `src/payments/providers.js` deleted,\n`src/reports/service.js` added.\n\n## Evidence\n\nAll commands run at `2a92c69` on Node v24.19.0, Windows.\n\n| Command | Exit | Result |\n|:--|:--|:--|\n| `npm test` | 0 | **50 tests, 50 pass, 0 fail** (20 at base) |\n| `git worktree add --detach <tmp> HEAD && node --test` | 0 | 50/50 in a clean checkout — impossible before defect 9 was fixed |\n| `bash .alchemy/runs/audit-2026-10-28/tests-fail-at-base.sh f4f8aee` | 0 | **17 named regression tests each fail against the pre-fix tree** |\n| `node --test test/architecture.test.js` (mutation matrix, in a copy outside the repo) | 0 | Each rule fails when its violation is injected; 4 previously-evadable variants (double-quoted `require`, `/ 100`, `node:fs` from transport, `toFixed()`) now caught; no false positive on a comment |\n| `node /tmp/e2e/e2e.js` | 0 | `19.99 × 6714245` → `201`, pays `201`, ships `200` (was: unpayable, stuck `pending`). `1e306 × 10` → `400`. CSV reads `134217757.55` |\n| `node /tmp/dos/dos.js` | 0 | `GET /users/me` **1.5 ms idle → 2.7 ms** under 20 concurrent logins (was 0.7 ms → 421.5 ms) |\n| `node /tmp/probe/probe.js` | 0 | Non-owner order read `404`; cancel a shipped order `409`; `totalPages` 3; total `0.3`; traversal `404` |\n| `check_orchestration.py plan …` | 0 | `PASS` — waves `[P1]`, `[P2, P3]`, mode multi-agent |\n| `check_orchestration.py gate …` | 1 | `FAIL` — `UNRESOLVED_FINDING: F-P2-2`; criteria 4/4 verified |\n\nTwo independent read-only reviewers re-ran their own checks against\n`f4f8aee..c7e2b52`:\n\n- **Security review** — 76 adversarial HTTP checks: 4 cross-tenant order and\n  payment paths all `404`; 33 crafted report names and raw paths (single and\n  double percent-encoding, backslashes, `C:` drive-absolute, UNC, NUL,\n  trailing dot and space, NTFS alternate data streams, full-width unicode,\n  bare dot segments) with no escape from `REPORT_DIR`; 9 token-forgery and\n  expiry variants all `401`. Found defects 7 and 8, plus the `isAmount`\n  overflow.\n- **Correctness review** — found defect 6, and proved my own base-check\n  script was passing on a module-load crash (below).\n\nTheir findings drove one rework cycle (of a budget of 2): 3 blocking and 6\nmajor findings resolved, each with a test that fails at base.\n\n## What I did not verify\n\n- **`src/reports/` has no pre-fix baseline.** It was never committed before\n  this branch, so the traversal fix (defect 3) has no reviewable diff and\n  cannot be tested against base. The base-check copies `src/reports/` from\n  `HEAD` purely so other tests can load, and makes no claim about reports\n  behaviour at base. Its own rule (`no transport file reaches durable storage\n  directly`) is therefore excluded from the base-failure list and proven by\n  mutation instead.\n- **My first base-check was invalid, and a reviewer caught it.** It treated a\n  non-zero exit as proof the new tests were not hollow. At base, 5 of 7 test\n  files died on the missing reports module and only 6 of 17 tests ran — yet it\n  exited 0. It now rejects a load crash and asserts 17 tests by name. One\n  earlier test (`an amount one cent off the total is rejected`) turned out to\n  pass at base and so proves nothing; it is not in the list.\n- **Timing-attack resistance of the token compare is not tested.** The\n  constant-time compare has no functionally observable oracle; only\n  accept/reject behaviour is asserted. Residual risk, recorded not closed.\n- **No concurrency or race testing.** The store is an in-process `Map` and\n  capture was synchronous; now that `charge` is awaited, a check-then-act\n  window exists between `order.status !== 'pending'` and `markPaid`. Close it\n  with concurrent `POST /payments` for one order against a slow gateway.\n- **No rate limiting on `POST /sessions`.** Async key derivation removed the\n  event-loop stall, not the ability to force unbounded scrypt work. Rate\n  limiting is a new capability and out of this scope.\n- **Symlink escape from `REPORT_DIR` untested.** It needs filesystem access\n  rather than an HTTP request. Close by creating a symlink named\n  `orders-<digits>-<hex>.csv` inside `REPORT_DIR` and re-running the download.\n- **`APP_SECRET` strength, TLS, and secret management** — only emptiness is\n  rejected.\n- **Not load-tested, not run against a real payment provider, and no\n  migration concern** (the store is per-process and in memory).\n- **Flow optimisation deliberately not run.** It belongs in the iteration\n  after this ships, from a measured baseline: `npm test` wall-clock\n  (`duration_ms`, ~1.1 s for 50 tests) and the one-stage pipeline count. That\n  iteration opens on the next cycle after merge, or when the suite passes\n  ~10 s. The new base-check adds a git worktree create/remove outside\n  `npm test`.\n\n## One decision needed before merge\n\n**May an admin change a customer's order?** Both reviewers independently read\n`README.md` §Rules — \"Customers read and change only their own orders and\npayments. **Admins read all of them**\" — as granting admins read but not\nwrite. Today `getOwned` is the single gate for both, so an admin can cancel\nand pay a customer's order. The API table lists these routes' caller as\n`customer`.\n\nI did **not** change this. It is a requirements question, not a defect: the\nanswer changes the required behaviour, and silently picking one would bake one\nreading of an ambiguous spec into an authorization rule. The data-integrity\nhalf of the finding **is** fixed — a payment is attributed to the order's\nowner either way, so the owner can always read a payment against their own\norder (`test/payments.test.js` admits `201`, `403` or `404` and asserts\nattribution in the `201` case).\n\n- **If admins may not write**: split `getOwned` into a read gate and an\n  owner-only write gate in `src/orders/service.js`, and the test's admitted\n  statuses narrow to `403`.\n- **If admins may write**: record it in `README.md` §Rules so the next audit\n  does not reopen it.\n\nFour minor findings are also left open by choice, each with its reason: `405`\nand pre-auth `400` statuses are not in the README's list but are standard HTTP\n(`F-P2-5`); the `POST /sessions` timing oracle is already defeated by the\nREADME-mandated `409` on duplicate registration, so closing only the timing\nchannel buys nothing (`F-P2-6`); `GET /orders?page=99` returns an empty page\nrather than `404`, which the README does not forbid; and `src/reports/` has no\npre-fix baseline (`F-P3-12`).\n"
+  },
+  "orchestration_artifacts": [
+    ".alchemy/runs/audit-2026-10-28/ledger.json",
+    ".alchemy/runs/audit-2026-10-28/plan.json",
+    ".alchemy/runs/audit-2026-10-28/tests-fail-at-base.sh"
+  ],
+  "isolation": {
+    "forbidden_paths": [],
+    "answer_markers": [],
+    "clean": true
+  },
+  "stream": {
+    "file": "claude-multi-audit-failure-1.stream.jsonl",
+    "events": 1484,
+    "non_json_lines": 0,
+    "census": {
+      "assistant": 386,
+      "rate_limit_event": 23,
+      "result/success": 2,
+      "system/background_tasks_changed": 4,
+      "system/init": 2,
+      "system/task_notification": 10,
+      "system/task_progress": 92,
+      "system/task_started": 10,
+      "system/task_updated": 2,
+      "system/thinking_tokens": 757,
+      "user": 196
+    },
+    "collab_item_keys": null
+  },
+  "stderr_tail": "Ignoring 4 permissions.allow entries from .claude/settings.json: this workspace has not been trusted. Run Claude Code interactively here once and accept the trust dialog, or set projects[\"<run-project>\"].hasTrustDialogAccepted: true in ~\\.claude.json.\n",
+  "warnings": []
+}

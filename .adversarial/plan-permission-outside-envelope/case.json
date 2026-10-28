@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #70: a package asks only for what its envelope grants",
+  "description": "The project implementer envelope grants read, edit, and test; P1 also asks for commit.",
+  "command": "plan",
+  "args": {
+    "plan": "plan.json",
+    "profile": "profile.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "PERMISSION_EXCEEDS"
+    ]
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "criterion": "multi-agent-governance #72: plans never carry credentials",
+  "description": "P1's budget block carries an api_key value for the orders sandbox.",
+  "command": "plan",
+  "args": {
+    "plan": "plan.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "SECRET_IN_RECORD"
+    ]
+  }
+}

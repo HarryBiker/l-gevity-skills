@@ -1,13 +1,13 @@
 {
-  "request": "Run alchemy on this: two independent changes, implement and verify both. In src/orders, validate that every order line has a positive integer quantity before pricing. Separately, in src/shipping, compute the label weight from the line quantities instead of the number of lines. Both need tests.",
+  "request": "Run alchemy audit on src/orders and src/shipping: they are independent subsystems with no shared files between their changes. Find over-engineering, dead code, and correctness defects in each, fix them, and have every change verified.",
   "skills": ["alchemy", "alchemy-orchestrate"],
   "expect": [
     {
       "id": "routes-adaptive",
-      "criterion": "execution-strategy #2: independent multi-subsystem work routes adaptively",
+      "criterion": "execution-strategy #2: an audit across independent subsystems routes adaptively",
       "check": "field_in",
       "field": "Dispatch",
-      "values": ["ADAPTIVE", "DIRECT"]
+      "values": ["ADAPTIVE", "FULL"]
     },
     {
       "id": "reports-execution",

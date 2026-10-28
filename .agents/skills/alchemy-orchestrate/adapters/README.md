@@ -28,7 +28,14 @@ It also writes `alchemy-workspace.json` from the defaults when the root has
 none. It writes `<state_dir>/.gitignore` containing `*`, so run records are
 never committed and your own `.gitignore` is left alone. A second run reports
 `unchanged` for every file. Exit 0, or 2 on bad arguments or an unusable
-profile.
+profile. The profile is unusable if `execution.max_parallel_agents` is not a
+positive integer. It is also unusable if a `skills.roots` entry is not a
+relative path made of letters, digits, `.`, `_`, `-`, and `/` without `..`;
+these entries are written into permission rules. `repository.state_dir` must
+resolve strictly inside the project by both Windows and POSIX rules. It is
+refused when empty, `.`, absolute, rooted, UNC, drive-prefixed (`C:\x`,
+`D:x`), or when it contains `..` or `:`. The `alchemy-check` action applies
+the same state_dir rule.
 
 ## Execution categories
 
@@ -37,7 +44,7 @@ profile.
 | Native autonomous agent spawning | Agent tool with `subagent_type` `alchemy-implementer` or `alchemy-analyst`, from `.claude/agents/`. Verified: `claude -p` in a project holding only these definitions named both. | `spawn_agent` and `wait_agent`, with the custom agents in `.codex/agents/`. Verified with `codex exec` (codex-cli 0.159.0) in a fresh project, trusted and untrusted alike: asked to list spawnable agent types it named `alchemy-analyst` and `alchemy-implementer`, spawned `alchemy-analyst`, waited, and the agent answered with an `alchemy-handoff/1` record rendered from its envelope instructions. | A chat runs a Claude Code or Codex harness, so native spawning in a chat is that harness's mechanism, as in the two columns to the left. Observed: a Claude-harness chat exposes the Agent tool. |
 | Delegation through supported runtime interfaces | `claude -p --agent alchemy-implementer` runs one whole session as that agent. The flag is in `claude --help`; not exercised. | `codex exec` runs one non-interactive session. Not exercised for delegation. | Chat tools observed in a Claude-harness chat: `DispatchAction` `chat.create` and `projects.create_task`, `StartForkedAgent`, `StartBranchedAgent`. Not exercised. |
 | Preconfigured workflow execution | None shipped | None shipped | The `alchemy-multi-agent` pipeline, described below |
-| Unsupported → explicit single-agent fallback | When the Agent tool is unavailable or the alchemy agents are denied (`execution.multi_agent: off`), the lead runs every package and reports that independent review was not performed. | When the spawn tools are unavailable, the same fallback applies. | The `execute` step tells the lead to run every package itself, and to state that fallback, when its harness cannot launch sub-agents. |
+| Unsupported → explicit single-agent fallback | When the Agent tool is unavailable or the alchemy agents are denied (`execution.multi_agent: off`), the lead runs every package and reports that independent review was not performed. | When the spawn tools are unavailable, the same fallback applies. | The `execute` step tells the lead not to carry out another owner's package under that owner's label when its harness cannot launch sub-agents. It returns `BLOCKED` and reports that the plan must be re-planned as `single-agent`, which section 4 step 5 of the skill requires. |
 
 `execution.multi_agent` (`auto` or `off`) is rendered where a runtime has a
 setting for it. For Claude Code, `off` adds `Agent(alchemy-analyst)` and
@@ -73,7 +80,7 @@ and the plan check fails a multi-agent plan under `off` with `MODE_MISMATCH`.
 | `.claude/settings.json` | Depth 1, the concurrency cap, `worktree.baseRef: head`, and the ask, deny, and allow rules |
 | `.codex/agents/alchemy-analyst.toml`, `alchemy-implementer.toml` | The same two envelopes as Codex custom agents |
 | `.codex/config.toml` | The concurrency cap, plus `[features] multi_agent = false` under `off` |
-| `.unstoppable-code/actions/alchemy-check/` | Runs `check_orchestration.py` from the skills tree in `plan`, `handoff` (one file or a directory), or `gate` mode. Keeps the JSON report and outputs `verdict`, `summary`, and `report_file`. Fails unless the verdict is PASS or ACCEPT; `enforce: 'false'` only reports. In plan mode it can extract the plan from a structured-output file (`plan_field`), require its base (`expect_base`), and publish it to `<state_dir>/<run id>/plan.json` (`publish`). |
+| `.unstoppable-code/actions/alchemy-check/` | Runs `check_orchestration.py` from the skills tree in `plan`, `handoff` (one file or a directory), or `gate` mode. Keeps the JSON report and outputs `verdict`, `summary`, and `report_file`. Fails unless the verdict is PASS or ACCEPT; `enforce: 'false'` only reports. It can extract the plan from a structured-output file (`plan_field`). `integrated` adds wave heads to the checked copy's `base.integrated`. `digests: 'false'` checks hand-offs structurally, without `--root`. In plan mode it can also require the plan's base (`expect_base`) and publish the plan to `<state_dir>/<run id>/plan.json` (`publish`). Commit prefixes match only when both sides have at least 7 hex characters. |
 | `.unstoppable-code/actions/alchemy-snapshot/` | Outputs the head commit. Given a base, it writes the diff from that base to the working tree for reviewers that cannot run git. `require_clean` fails on uncommitted changes. |
 | `.unstoppable-code/pipelines/alchemy-multi-agent.yaml` | The preconfigured workflow below |
 | `.unstoppable-code/review-tracks/alchemy-independent-review.md` | Cross-provider review track for the bundled multi-provider review pipeline |
@@ -90,10 +97,15 @@ Dispatch it with an `objective`. The `lead`, `reviewer_claude`, and
    recorded head, and publishes it to the run directory.
 4. `approve_plan` asks the human: continue or stop.
 5. `execute` has the lead run the packages through native sub-agents. It saves
-   each hand-off to `handoffs/<package>.json` and integrates and commits the
-   accepted packages.
-6. `handoff_check` checks every hand-off against the integrated workspace and
-   snapshots the diff from the base.
+   each hand-off to `handoffs/<package>.json` and checks it on receipt, digests
+   included. It integrates and commits the accepted packages, records each
+   wave's head in the run plan's `base.integrated`, and returns those heads as
+   `integrated_heads`.
+6. `handoff_check` re-checks every hand-off structurally and snapshots the
+   diff from the base. It passes the returned heads as `integrated` and does
+   not check digests, because later waves legitimately change files that
+   earlier hand-offs relied on or changed. `rereview` repeats this check after
+   the correction pass, adding that pass's heads.
 7. `review` runs two read-only reviewers on different providers, in parallel.
    They see the plan, the diff, and the test commands, not the hand-offs.
 8. `consolidate` has the lead re-run the checks and build `ledger.json`.
@@ -107,7 +119,11 @@ Dispatch it with an `objective`. The `lead`, `reviewer_claude`, and
     pull request or stop. `create_pr` then opens it.
 
 Every check after planning re-extracts the plan from the planning step's own
-output, not from the copy the agents read. A job with its own `if:` runs
+output, not from the copy the agents read, and adds the returned
+`integrated_heads` (execute and correction) as `base.integrated`. A job output
+the run never produced interpolates as an empty string, and `join()` turns the
+head list into one input; both rules were read from the CLI's expression
+evaluator. A job with its own `if:` runs
 whether or not the jobs it needs succeeded, so each such condition tests
 `needs.<job>.result`. This rule was read from the CLI's scheduler.
 

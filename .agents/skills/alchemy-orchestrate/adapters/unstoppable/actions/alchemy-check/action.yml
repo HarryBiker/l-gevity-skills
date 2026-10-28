@@ -31,6 +31,20 @@ inputs:
       against. Empty uses the repository root.
     required: false
     default: ''
+  digests:
+    description: >-
+      handoff mode, "false" skips the digest checks against root and runs the
+      structural checks only, for hand-offs checked after later waves have
+      legitimately changed the files they relied on or changed.
+    required: false
+    default: 'true'
+  integrated:
+    description: >-
+      Commit IDs the lead integrated a wave at, separated by commas or spaces.
+      They are added to the checked copy of the plan's base.integrated, so a
+      hand-off based on one of them is not stale. The input file is not changed.
+    required: false
+    default: ''
   plan_field:
     description: The field of the plan input that holds the plan; empty when the input is the plan.
     required: false

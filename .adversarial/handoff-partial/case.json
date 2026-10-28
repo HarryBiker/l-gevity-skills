@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #74: a partial package returns to its owner, not into integration",
+  "description": "P1 reports PARTIAL: validation is done, the error messages are not.",
+  "command": "handoff",
+  "args": {
+    "plan": "plan.json",
+    "handoff": "handoff.json"
+  },
+  "expect": {
+    "verdict": "REJECT",
+    "codes": [
+      "NOT_DONE"
+    ]
+  }
+}

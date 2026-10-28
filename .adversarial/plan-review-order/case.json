@@ -1,0 +1,14 @@
+{
+  "criterion": "multi-agent-governance #65: a verifier runs after every package it reviews",
+  "description": "Verify package P3 reviews P1 and P2 but depends only on P1, so it could review P2 before P2 exists.",
+  "command": "plan",
+  "args": {
+    "plan": "plan.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "REVIEW_ORDER"
+    ]
+  }
+}

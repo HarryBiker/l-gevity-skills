@@ -39,9 +39,11 @@ PROFILE_SCHEMA = "alchemy-workspace/1"
 DEFAULT_PROFILE = Path(__file__).resolve().parent.parent / "assets" / "alchemy-workspace.json"
 
 # Code -> verdict class, verbatim from the Check Codes table in contracts.md.
-# SCHEMA renders as REJECT in a hand-off check and FAIL in a plan or gate check.
+# "FAIL / REJECT" renders as REJECT in a hand-off check and FAIL in a plan or
+# gate check.
 CODES = {
     "SCHEMA": "FAIL / REJECT",
+    "SECRET_IN_RECORD": "FAIL / REJECT",
     "MISSING_TRACE": "FAIL",
     "CYCLE": "FAIL",
     "UNKNOWN_DEPENDENCY": "FAIL",
@@ -51,6 +53,7 @@ CODES = {
     "CONTRACT_ORDER": "FAIL",
     "UNKNOWN_CONTRACT": "FAIL",
     "SELF_REVIEW": "FAIL",
+    "REVIEW_ORDER": "FAIL",
     "UNREVIEWED_CHANGE": "FAIL",
     "DELEGATION": "FAIL",
     "CAP_EXCEEDED": "FAIL",
@@ -61,6 +64,7 @@ CODES = {
     "REQUIREMENT_CONFLICT": "ESCALATE",
     "UNKNOWN_PACKAGE": "REJECT",
     "OWNER_MISMATCH": "REJECT",
+    "NOT_DONE": "REJECT",
     "SCOPE_VIOLATION": "REJECT",
     "SCOPE_EXPANSION": "REJECT",
     "CLAIM_CONTRADICTS_WORKSPACE": "REJECT",
@@ -68,7 +72,6 @@ CODES = {
     "UNSUPPORTED_CLAIM": "REJECT",
     "UNEVIDENCED_CRITERION": "REJECT",
     "BLOCKER_IGNORED": "REJECT",
-    "SECRET_IN_HANDOFF": "REJECT",
     "UNTRUSTED_INSTRUCTION": "REJECT",
     "STALE_BASE": "STALE",
     "STALE_CONTEXT": "STALE",
@@ -109,12 +112,14 @@ DISPUTE_STATUSES = {"open", "escalated", "resolved"}
 DISPUTE_BASES = {"evidence", "human"}
 
 SHA256_RE = re.compile(r"^[0-9a-fA-F]{64}$")
-HEX_RE = re.compile(r"^[0-9a-f]+$")
+COMMIT_RE = re.compile(r"^[0-9a-fA-F]{7,64}$")
 WILDCARD_RE = re.compile(r"[*?\[]")
 DRIVE_RE = re.compile(r"^[A-Za-z]:")
 
-# Credential shapes. A match is reported by location and pattern only; the
-# value itself is never echoed into the report.
+# Credential shapes, scanned in every record a check reads. A match is
+# reported by location and pattern only, and every detected value is redacted
+# from the whole report before output. A `value` group, when present, is the
+# part that is secret.
 SECRET_PATTERNS = (
     ("AWS access key", re.compile(r"\b(?:AKIA|ASIA)[0-9A-Z]{16}\b")),
     ("private key block", re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----")),
@@ -122,10 +127,20 @@ SECRET_PATTERNS = (
     ("Slack token", re.compile(r"(?<![A-Za-z0-9])xox[baprs]-[A-Za-z0-9-]{10,}")),
     ("API secret key", re.compile(r"(?<![A-Za-z0-9])sk-(?:ant-)?[A-Za-z0-9_-]{20,}")),
     (
+        "URL credentials",
+        re.compile(r"[A-Za-z][A-Za-z0-9+.-]*://[^\s/:@]+:(?P<value>[^\s/@]+)@[^\s/]+"),
+    ),
+    (
         "credential assignment",
-        re.compile(r"(?i)(?:password|passwd|secret|api[_-]?key|token)\s*[:=]\s*\S{8,}"),
+        re.compile(
+            r"(?i)(?:password|passwd|secret|api[_-]?key|token|credential)\s*[:=]\s*"
+            r"(?P<value>(?=\S*[A-Za-z])(?=\S*[0-9])\S{8,})"
+        ),
     ),
 )
+# A JSON key naming a credential: any non-empty string under it is a secret.
+SECRET_KEY_RE = re.compile(r"(?i)password|passwd|secret|api[_-]?key|token|credential")
+REDACTED = "[REDACTED]"
 
 # Tripwire for instructions aimed at agents. It is not a proof of absence;
 # verifiers still read primary artifacts (governance.md section 5).
@@ -144,7 +159,7 @@ INSTRUCTION_PATTERNS = tuple(
         ),
         ("role reassignment", r"\byou\s+are\s+now\b"),
         ("system prompt", r"\bnew\s+system\s+prompt\b|\bsystem\s+prompt\s*:"),
-        ("skip verification", r"\bskip\s+(?:the\s+)?(?:review|tests?|gate|verification)\b"),
+        ("skip verification", r"\bskip\s+(?:the\s+)?(?:review|gate|verification)\b"),
         ("hook bypass", r"--no-verify\b"),
         ("bypass checks", r"\bbypass\s+(?:the\s+)?(?:review|checks?|hooks?|gate)\b"),
         (
@@ -170,6 +185,7 @@ class Report:
     def __init__(self, check: str) -> None:
         self.check = check
         self.errors: list[dict[str, Any]] = []
+        self.secrets: set[str] = set()
 
     def add(self, code: str, message: str, subject: str | None = None) -> None:
         self.errors.append({"code": code, "message": message, "subject": subject})
@@ -199,6 +215,14 @@ _SHAPES = {
     "strs": (
         lambda v: isinstance(v, list) and all(_text(item) for item in v),
         "an array of non-empty strings",
+    ),
+    "commit": (
+        lambda v: isinstance(v, str) and bool(COMMIT_RE.match(v)),
+        "a hex commit of 7 to 64 characters",
+    ),
+    "commits": (
+        lambda v: isinstance(v, list) and all(isinstance(i, str) and COMMIT_RE.match(i) for i in v),
+        "an array of hex commits of 7 to 64 characters",
     ),
 }
 
@@ -254,14 +278,20 @@ def _check_schema(record: dict[str, Any], expected: str, report: Report, where: 
 
 
 def _same_commit(left: Any, right: Any) -> bool:
-    """Equal commits, allowing an abbreviated hex SHA of at least 7 characters."""
-    if not (_text(left) and _text(right)):
+    """Equal commits, allowing an abbreviated SHA; only valid hex commits ever match."""
+    if not all(isinstance(value, str) and COMMIT_RE.match(value) for value in (left, right)):
         return False
-    if left == right:
-        return True
-    a, b = left.lower(), right.lower()
-    short, full = sorted((a, b), key=len)
-    return len(short) >= 7 and bool(HEX_RE.match(a)) and bool(HEX_RE.match(b)) and full.startswith(short)
+    short, full = sorted((left.lower(), right.lower()), key=len)
+    return full.startswith(short)
+
+
+def _label(value: Any) -> str | None:
+    """An agent label as compared: trimmed and case-folded."""
+    return value.strip().casefold() if isinstance(value, str) and value.strip() else None
+
+
+def _is_human(value: Any) -> bool:
+    return _label(value) == "human"
 
 
 # ------------------------------------------------------------------- paths
@@ -300,10 +330,22 @@ def _normalize_file(raw: str) -> str | None:
 
 
 def _overlaps(a: str, b: str) -> bool:
-    """Two write entries overlap when equal or one is a directory prefix of the other."""
+    """Two write entries overlap when equal or one is a directory prefix of the
+    other, compared case-insensitively so a case-insensitive filesystem cannot
+    hide a conflict."""
+    a, b = a.casefold(), b.casefold()
     if a.rstrip("/") == b.rstrip("/"):
         return True
     return (a.endswith("/") and b.startswith(a)) or (b.endswith("/") and a.startswith(b))
+
+
+def _protects(guarded: str, entry: str) -> bool:
+    """A protected entry guards itself and everything under it, with or without
+    a trailing '/', case-insensitively; a write directory above it reaches it."""
+    root, path = guarded.rstrip("/").casefold(), entry.casefold()
+    if path.rstrip("/") == root or path.startswith(root + "/"):
+        return True
+    return path.endswith("/") and (root + "/").startswith(path)
 
 
 def _inside(path: str, entries: list[str]) -> bool:
@@ -418,20 +460,25 @@ def _parse_conflicts(raw: list[Any], report: Report, where: str) -> list[dict[st
             continue
         between = _get(item, "between", "strs", report, label, default=[])
         resolution = item.get("resolution")
-        resolved = False
+        problem = "has no resolution"
         if isinstance(resolution, dict):
             evidence = resolution.get("evidence")
             basis = resolution.get("basis")
             if basis == "human":
-                resolved = True
-            elif basis == "evidence" and _SHAPES["strs"][0](evidence) and evidence:
-                resolved = True
+                decided_by = resolution.get("decided_by")
+                problem = None if _is_human(decided_by) else (
+                    f"claims basis human but was decided by {decided_by if _text(decided_by) else 'nobody named'}"
+                )
+            elif basis == "evidence":
+                problem = None if _SHAPES["strs"][0](evidence) and evidence else "has basis evidence but cites none"
+            else:
+                problem = "has no human or evidence basis"
         elif resolution is not None:
             report.add("SCHEMA", f"{label}.resolution must be null or an object")
         conflicts.append({
             "id": item.get("id") if _text(item.get("id")) else None,
             "between": between,
-            "resolved": resolved,
+            "problem": problem,
         })
     return conflicts
 
@@ -466,6 +513,7 @@ def _parse_package(raw: Any, index: int, profile: dict[str, Any], report: Report
     pkg: dict[str, Any] = {"id": pid}
     pkg["kind"] = _enum(raw, "kind", KINDS, report, label, pid)
     pkg["owner"] = _get(raw, "owner", "str", report, label, pid)
+    pkg["owner_key"] = _label(pkg["owner"])
     envelope = _get(raw, "envelope", "str", report, label, pid)
     if envelope is not None and profile["envelopes"] and envelope not in profile["envelopes"]:
         report.add("SCHEMA", f"{label}.envelope '{envelope}' is not a profile envelope", pid)
@@ -476,8 +524,11 @@ def _parse_package(raw: Any, index: int, profile: dict[str, Any], report: Report
     pkg["writes"] = _get(raw, "writes", "strs", report, label, pid, default=[])
     pkg["depends_on"] = _get(raw, "depends_on", "strs", report, label, pid, default=[])
     pkg["permissions"] = _get(raw, "permissions", "strs", report, label, pid, default=[])
-    for key in ("capabilities", "skills", "reads"):
+    for key in ("capabilities", "reads"):
         _get(raw, key, "strs", report, label, pid, required=False)
+    # Absent or empty names no skill (MISSING_TRACE); a mistyped list is SCHEMA only.
+    pkg["skills"] = (_get(raw, "skills", "strs", report, label, pid)
+                     if raw.get("skills") is not None else [])
     _get(raw, "budget", "dict", report, label, pid, required=False)
     pkg["produces"] = _get(raw, "produces", "strs", report, label, pid, required=False, default=[])
     pkg["consumes"] = _get(raw, "consumes", "strs", report, label, pid, required=False, default=[])
@@ -506,9 +557,9 @@ def _parse_plan(plan: Any, profile: dict[str, Any], report: Report, where: str =
     parsed["conflicts"] = _parse_conflicts(conflicts, report, where)
     base = _get(plan, "base", "dict", report, where)
     if base is not None:
-        parsed["base_commit"] = _get(base, "commit", "str", report, f"{where}.base")
+        parsed["base_commit"] = _get(base, "commit", "commit", report, f"{where}.base")
         # Heads the lead integrated a wave at; a later wave starts from one.
-        parsed["integrated"] = _get(base, "integrated", "strs", report, f"{where}.base",
+        parsed["integrated"] = _get(base, "integrated", "commits", report, f"{where}.base",
                                     required=False, default=[])
     parsed["contracts_existing"] = set(
         _get(plan, "contracts_existing", "strs", report, where, required=False, default=[])
@@ -519,8 +570,8 @@ def _parse_plan(plan: Any, profile: dict[str, Any], report: Report, where: str =
         parsed["execution"] = {
             "mode": _enum(execution, "mode", MODES, report, label),
             "max_parallel_agents": _get(execution, "max_parallel_agents", "positive", report, label),
-            "integration_owner": _get(execution, "integration_owner", "str", report, label,
-                                      required=False, default="lead"),
+            "integration_owner": _label(_get(execution, "integration_owner", "str", report, label,
+                                             required=False, default="lead")),
             "independent_review": _get(execution, "independent_review", "bool", report, label,
                                        default=False),
             "merge_policy": _get(execution, "merge_policy", "str", report, label),
@@ -602,11 +653,15 @@ def _plan_graph(parsed: dict[str, Any]) -> tuple[dict[str, list[str]], dict[str,
 
 
 def _rule_trace_and_references(packages: dict[str, Any], report: Report) -> None:
+    if packages and not any(pkg["acceptance"] for pkg in packages.values()):
+        report.add("MISSING_TRACE", "the plan holds no acceptance criterion, so no gate can verify it")
     for pid, pkg in packages.items():
         if not pkg["requirements"]:
             report.add("MISSING_TRACE", f"{pid} names no requirement ID", pid)
         if pkg["acceptance_declared"] == 0:
             report.add("MISSING_TRACE", f"{pid} declares no acceptance criterion", pid)
+        if pkg["skills"] == []:
+            report.add("MISSING_TRACE", f"{pid} names no skill for its agent to load", pid)
         for dep in pkg["depends_on"]:
             if dep not in packages:
                 report.add("UNKNOWN_DEPENDENCY", f"{pid} depends on unknown package {dep}", pid)
@@ -674,10 +729,10 @@ def _rule_write_conflicts(writes: dict[str, list[str]], reach: dict[str, set[str
 def _rule_protected(packages: dict[str, Any], writes: dict[str, list[str]], profile: dict[str, Any],
                     report: Report) -> None:
     for pid, entries in writes.items():
-        if packages[pid]["approved_by"] == "human":
+        if _is_human(packages[pid]["approved_by"]):
             continue
         hits = sorted({entry for entry in entries for guarded in profile["protected_paths"]
-                       if _overlaps(entry, guarded)})
+                       if _protects(guarded, entry)})
         if hits:
             report.add("PROTECTED_PATH", f"{pid} writes protected {', '.join(hits)} without "
                        "approved_by: human", pid)
@@ -701,24 +756,35 @@ def _rule_contracts(packages: dict[str, Any], existing: set[str], reach: dict[st
                            "and contracts_existing does not list", pid)
 
 
-def _rule_review(packages: dict[str, Any], independent: bool, report: Report) -> None:
+def _reviewer_owners(packages: dict[str, Any], pid: str) -> set[str]:
+    """Owners of verify packages that review `pid` and do not own it."""
+    owner = packages[pid]["owner_key"]
+    return {
+        verifier["owner_key"] for verifier in packages.values()
+        if verifier["kind"] == "verify" and pid in verifier["reviews"]
+        and verifier["owner_key"] and verifier["owner_key"] != owner
+    }
+
+
+def _rule_review(packages: dict[str, Any], independent: bool, reach: dict[str, set[str]],
+                 report: Report) -> None:
     for vid, verifier in packages.items():
-        if verifier["kind"] != "verify" or not verifier["owner"]:
+        if verifier["kind"] != "verify":
             continue
         for target in verifier["reviews"]:
             reviewed = packages.get(target)
-            if reviewed is not None and reviewed["owner"] == verifier["owner"]:
+            if reviewed is None:
+                continue
+            if verifier["owner_key"] and reviewed["owner_key"] == verifier["owner_key"]:
                 report.add("SELF_REVIEW", f"{vid} reviews {target}, which its owner "
                            f"{verifier['owner']} also owns", vid)
+            if target != vid and target not in reach[vid]:
+                report.add("REVIEW_ORDER", f"{vid} reviews {target} without depending on it, so it "
+                           "could run before the work it reviews exists", vid)
     for pid, pkg in packages.items():
         if pkg["kind"] != "implement" or not (independent or pkg["risk"] == "high"):
             continue
-        reviewers = [
-            vid for vid, verifier in packages.items()
-            if verifier["kind"] == "verify" and pid in verifier["reviews"]
-            and verifier["owner"] and verifier["owner"] != pkg["owner"]
-        ]
-        if not reviewers:
+        if not _reviewer_owners(packages, pid):
             why = "risk is high" if pkg["risk"] == "high" else "independent_review is true"
             report.add("UNREVIEWED_CHANGE", f"{pid} has no verify package owned by another agent "
                        f"reviewing it, and {why}", pid)
@@ -735,16 +801,27 @@ def _rule_bounds(parsed: dict[str, Any], owners: list[str], profile: dict[str, A
     cap = profile["max_parallel_agents"]
     if declared is not None and cap is not None and declared > cap:
         report.add("CAP_EXCEEDED", f"execution.max_parallel_agents {declared} exceeds the profile cap {cap}")
-    agents = set(owners) | {parsed["execution"]["integration_owner"]}
+    agents = _agents(parsed, owners)
     limit = profile["max_agents"]
     if limit is not None and len(agents) > limit:
         report.add("CAP_EXCEEDED", f"{len(agents)} distinct owners, lead included, exceed the profile "
                    f"max_agents {limit}")
     for pid, pkg in parsed["packages"].items():
-        extra = sorted(set(pkg["permissions"]) - ALLOWED_PERMISSIONS)
-        if extra:
-            report.add("PERMISSION_EXCEEDS", f"{pid} asks for {', '.join(extra)}; a plan grants only "
-                       "read, test, edit, commit", pid)
+        asked = set(pkg["permissions"])
+        reasons = []
+        unknown = sorted(asked - ALLOWED_PERMISSIONS)
+        if unknown:
+            reasons.append(f"{', '.join(unknown)}, which a plan never grants")
+        granted = profile["envelopes"].get(pkg["envelope"]) if pkg["envelope"] else None
+        if granted is not None:
+            # A read-only package asking for a write permission is READ_ONLY_WRITES.
+            beyond = asked - granted - set(unknown)
+            if _read_only(pkg, profile):
+                beyond -= WRITE_PERMISSIONS
+            if beyond:
+                reasons.append(f"{', '.join(sorted(beyond))}, outside its {pkg['envelope']} envelope")
+        if reasons:
+            report.add("PERMISSION_EXCEEDS", f"{pid} asks for {'; and '.join(reasons)}", pid)
 
 
 def _rule_merge_policy(parsed: dict[str, Any], report: Report) -> None:
@@ -774,10 +851,10 @@ def _rule_mode(parsed: dict[str, Any], owners: list[str], profile: dict[str, Any
 
 def _rule_conflicts(parsed: dict[str, Any], report: Report) -> None:
     for conflict in parsed["conflicts"]:
-        if not conflict["resolved"]:
+        if conflict["problem"]:
             names = ", ".join(conflict["between"]) or "unnamed requirements"
-            report.add("REQUIREMENT_CONFLICT", f"conflict between {names} has no human or evidence "
-                       "resolution", conflict["id"])
+            report.add("REQUIREMENT_CONFLICT", f"conflict between {names} {conflict['problem']}; "
+                       "the human resolves it", conflict["id"])
 
 
 def _plan_facts(parsed: dict[str, Any], graph: dict[str, list[str]], owners: list[str],
@@ -810,20 +887,80 @@ def _verdict(check: str, errors: list[dict[str, Any]]) -> str:
     return {1: "RETRY", 2: "STALE", 4: "ESCALATE"}[rank]
 
 
+_STRUCTURAL_KEYS = {"code", "check", "verdict"}
+
+
+def _redact(value: Any, secrets: list[str]) -> Any:
+    """Replace every detected secret in every string of the report."""
+    if isinstance(value, str):
+        for secret in secrets:
+            value = value.replace(secret, REDACTED)
+        return value
+    if isinstance(value, list):
+        return [_redact(item, secrets) for item in value]
+    if isinstance(value, dict):
+        return {key: item if key in _STRUCTURAL_KEYS else _redact(item, secrets) for key, item in value.items()}
+    return value
+
+
 def _result(report: Report, facts: dict[str, Any]) -> dict[str, Any]:
     result = {"check": report.check, "verdict": _verdict(report.check, report.errors), "errors": report.errors}
     result.update(facts)
-    return result
+    secrets = sorted((secret for secret in report.secrets if secret), key=len, reverse=True)
+    return _redact(result, secrets) if secrets else result
 
 
-def check_plan(plan: Any, profile: Any) -> dict[str, Any]:
-    """Decide whether a plan may run; report waves and the derived execution mode."""
-    report = Report("plan")
-    view = _profile_view(profile, report)
-    parsed = _parse_plan(plan, view, report)
+def _walk(value: Any, root: str) -> list[tuple[str, Any, Any]]:
+    """(path, holding key, node) for every node of a JSON value, in document order."""
+    nodes = []
+    stack: list[tuple[str, Any, Any]] = [(root, None, value)]
+    while stack:
+        path, key, item = stack.pop()
+        nodes.append((path, key, item))
+        if isinstance(item, dict):
+            stack.extend(reversed([(f"{path}.{name}", name, child) for name, child in item.items()]))
+        elif isinstance(item, list):
+            stack.extend(reversed([(f"{path}[{index}]", None, child) for index, child in enumerate(item)]))
+    return nodes
+
+
+def _texts(value: Any, root: str) -> list[tuple[str, Any, str]]:
+    """Every string in a JSON value, dict keys included, as (path, holding key, text)."""
+    texts = []
+    for path, key, item in _walk(value, root):
+        if isinstance(item, dict):
+            texts.extend((f"{path} key '{name}'", None, str(name)) for name in item)
+        elif isinstance(item, str):
+            texts.append((path, key, item))
+    return texts
+
+
+SECRET_NAME_RE = re.compile(r"[A-Z][A-Z0-9_]*")
+
+
+def _rule_secrets(record: Any, root: str, report: Report, subject: str | None) -> None:
+    """SECRET_IN_RECORD for credential-shaped values; remember each for redaction."""
+    for path, key, text in _texts(record, root):
+        found = None
+        for label, pattern in SECRET_PATTERNS:
+            for match in pattern.finditer(text):
+                secret = match.groupdict().get("value") or match.group(0)
+                report.secrets.update({secret, match.group(0)})
+                found = found or label
+        # A credential key holding a variable name such as DB_PASSWORD refers
+        # to a secret by name, which governance allows; only a value is flagged.
+        if isinstance(key, str) and SECRET_KEY_RE.search(key) and text.strip()                 and not SECRET_NAME_RE.fullmatch(text.strip()):
+            report.secrets.update({text, text.strip()})
+            found = found or "credential key"
+        if found:
+            report.add("SECRET_IN_RECORD", f"{path} matches the {found} pattern; value withheld", subject)
+
+
+def _plan_rules(parsed: dict[str, Any], view: dict[str, Any], report: Report) -> dict[str, Any]:
+    """Every plan rule; the plan check and the gate both run them."""
     packages = parsed["packages"]
     graph, reach = _plan_graph(parsed)
-    owners = sorted({pkg["owner"] for pkg in packages.values() if pkg["owner"]})
+    owners = sorted({pkg["owner_key"] for pkg in packages.values() if pkg["owner_key"]})
 
     _rule_trace_and_references(packages, report)
     _rule_cycles(graph, reach, report)
@@ -832,12 +969,22 @@ def check_plan(plan: Any, profile: Any) -> dict[str, Any]:
     _rule_write_conflicts(writes, reach, report)
     _rule_protected(packages, writes, view, report)
     _rule_contracts(packages, parsed["contracts_existing"], reach, report)
-    _rule_review(packages, parsed["execution"]["independent_review"], report)
+    _rule_review(packages, parsed["execution"]["independent_review"], reach, report)
     _rule_bounds(parsed, owners, view, report)
     _rule_merge_policy(parsed, report)
     _rule_mode(parsed, owners, view, report)
     _rule_conflicts(parsed, report)
-    return _result(report, _plan_facts(parsed, graph, owners, view))
+    return {"graph": graph, "owners": owners}
+
+
+def check_plan(plan: Any, profile: Any) -> dict[str, Any]:
+    """Decide whether a plan may run; report waves and the derived execution mode."""
+    report = Report("plan")
+    view = _profile_view(profile, report)
+    parsed = _parse_plan(plan, view, report)
+    _rule_secrets(plan, "plan", report, None)
+    shape = _plan_rules(parsed, view, report)
+    return _result(report, _plan_facts(parsed, shape["graph"], shape["owners"], view))
 
 
 # ----------------------------------------------------------------- hand-off
@@ -872,7 +1019,7 @@ def _parse_evidence(raw: list[Any], report: Report, where: str, subject: str | N
             "id": eid,
             "command": _get(item, "command", "str", report, label, subject),
             "exit_code": _get(item, "exit_code", "int", report, label, subject),
-            "commit": _get(item, "commit", "str", report, label, subject),
+            "commit": _get(item, "commit", "commit", report, label, subject),
             "criterion": _get(item, "criterion", "str", report, label, subject, required=False),
         }
         if eid is None:
@@ -899,8 +1046,8 @@ def _parse_handoff(handoff: Any, report: Report) -> dict[str, Any]:
     parsed["owner"] = _get(handoff, "owner", "str", report, where, pid)
     parsed["status"] = _enum(handoff, "status", HANDOFF_STATUSES, report, where, pid)
     parsed["attempt"] = _get(handoff, "attempt", "positive", report, where, pid)
-    parsed["base_commit"] = _get(handoff, "base_commit", "str", report, where, pid)
-    _get(handoff, "head_commit", "str", report, where, pid, required=False)
+    parsed["base_commit"] = _get(handoff, "base_commit", "commit", report, where, pid)
+    _get(handoff, "head_commit", "commit", report, where, pid, required=False)
     parsed["requirements"] = _get(handoff, "requirements", "strs", report, where, pid, default=[])
     _get(handoff, "decisions", "list", report, where, pid, required=False)
     _get(handoff, "assumptions", "strs", report, where, pid, required=False)
@@ -929,31 +1076,8 @@ def _parse_handoff(handoff: Any, report: Report) -> dict[str, Any]:
     return parsed
 
 
-def _strings(value: Any) -> list[tuple[str, str]]:
-    """Every string in a JSON value, keys included, with its JSON path, in document order."""
-    found = []
-    stack: list[tuple[str, Any]] = [("$", value)]
-    while stack:
-        path, item = stack.pop()
-        if isinstance(item, str):
-            found.append((path, item))
-        elif isinstance(item, dict):
-            children = []
-            for key, child in item.items():
-                found.append((f"{path} key '{key}'", str(key)))
-                children.append((f"{path}.{key}", child))
-            stack.extend(reversed(children))
-        elif isinstance(item, list):
-            stack.extend(reversed([(f"{path}[{index}]", child) for index, child in enumerate(item)]))
-    return found
-
-
 def _rule_untrusted_text(handoff: Any, report: Report, subject: str | None) -> None:
-    for path, text in _strings(handoff):
-        for label, pattern in SECRET_PATTERNS:
-            if pattern.search(text):
-                report.add("SECRET_IN_HANDOFF", f"{path} matches the {label} pattern; value withheld", subject)
-                break
+    for path, _key, text in _texts(handoff, "handoff"):
         for label, pattern in INSTRUCTION_PATTERNS:
             if pattern.search(text):
                 report.add("UNTRUSTED_INSTRUCTION", f"{path} carries an instruction aimed at agents "
@@ -993,13 +1117,15 @@ def check_handoff(handoff: Any, plan: Any, profile: Any, root: str | Path | None
     parsed_plan = _parse_plan(plan, view, report)
     h = _parse_handoff(handoff, report)
     pid = h["package"]
+    _rule_secrets(handoff, "handoff", report, pid)
+    _rule_secrets(plan, "plan", report, None)
     _rule_untrusted_text(handoff, report, pid)
 
     pkg = parsed_plan["packages"].get(pid) if pid else None
     if pid and pkg is None:
         report.add("UNKNOWN_PACKAGE", f"the plan holds no package {pid}", pid)
     if pkg is not None:
-        if h["owner"] and pkg["owner"] and h["owner"] != pkg["owner"]:
+        if _label(h["owner"]) and pkg["owner_key"] and _label(h["owner"]) != pkg["owner_key"]:
             report.add("OWNER_MISMATCH", f"{pid} is owned by {pkg['owner']}, not {h['owner']}", pid)
         if _read_only(pkg, view) and h["changed_files"]:
             report.add("SCOPE_VIOLATION", f"{pid} is read-only but changed "
@@ -1018,6 +1144,17 @@ def check_handoff(handoff: Any, plan: Any, profile: Any, root: str | Path | None
     if h["base_commit"] and bases and not any(_same_commit(h["base_commit"], base) for base in bases):
         report.add("STALE_BASE", f"hand-off base {h['base_commit']} is neither the plan base "
                    f"{parsed_plan['base_commit']} nor an integrated head", pid)
+
+    # Only a finished package is accepted; FAILED takes the retry path below.
+    if h["status"] == "BLOCKED":
+        report.add("NOT_DONE", f"{pid} is BLOCKED: escalate to the lead, and to the human when the lead "
+                   "cannot unblock it (governance section 4); it is not accepted", pid)
+    elif h["status"] == "PARTIAL":
+        report.add("NOT_DONE", f"{pid} is PARTIAL: return it to its owner to finish; it is not accepted", pid)
+    elif (h["status"] == "DONE" and pkg is not None and pkg["kind"] == "implement"
+          and h["integration_ready"] is False):
+        report.add("NOT_DONE", f"{pid} is DONE but not integration-ready; an implement package is "
+                   "accepted only when it can be integrated", pid)
 
     if h["status"] == "FAILED" and h["attempt"] is not None:
         budget = view["max_retries"] if view["max_retries"] is not None else 0
@@ -1106,7 +1243,7 @@ def _parse_ledger(ledger: Any, report: Report) -> dict[str, Any]:
         report.add("SCHEMA", "ledger must be a JSON object")
         return parsed
     _check_schema(ledger, LEDGER_SCHEMA, report, where)
-    parsed["head_commit"] = _get(ledger, "head_commit", "str", report, where)
+    parsed["head_commit"] = _get(ledger, "head_commit", "commit", report, where)
     rework = _get(ledger, "rework_cycles", "dict", report, where, required=False, default={})
     for package, cycles in rework.items():
         if _SHAPES["count"][0](cycles):
@@ -1133,7 +1270,7 @@ def _parse_ledger(ledger: Any, report: Report) -> dict[str, Any]:
             "deferred_by": _get(item, "deferred_by", "str", report, label, cid, required=False),
             "reason": None,
         }
-        if status == "deferred" and entry["deferred_by"] == "human":
+        if status == "deferred" and _is_human(entry["deferred_by"]):
             entry["reason"] = _get(item, "reason", "str", report, label, cid)
         if cid is not None:
             parsed["criteria"].append(entry)
@@ -1181,19 +1318,35 @@ def _parse_ledger(ledger: Any, report: Report) -> dict[str, Any]:
     return parsed
 
 
+def _stale(cited: list[str], evidence: dict[str, dict[str, Any]], head: str | None) -> list[str]:
+    """Cited evidence that exists, names a valid commit, and did not run at head."""
+    if head is None:
+        return []
+    return [eid for eid in cited if eid in evidence and evidence[eid]["commit"] is not None
+            and not _same_commit(evidence[eid]["commit"], head)]
+
+
 def check_gate(ledger: Any, plan: Any, profile: Any) -> dict[str, Any]:
     """Decide whether the integrated head may go to a human-approved pull request."""
     report = Report("gate")
     view = _profile_view(profile, report)
     parsed_plan = _parse_plan(plan, view, report)
     led = _parse_ledger(ledger, report)
+    _rule_secrets(ledger, "ledger", report, None)
+    _rule_secrets(plan, "plan", report, None)
+    # A gate never passes on a plan the plan check would refuse.
+    _plan_rules(parsed_plan, view, report)
     packages = parsed_plan["packages"]
     evidence = led["evidence"]
     head = led["head_commit"]
     independent = parsed_plan["execution"]["independent_review"]
 
-    _rule_merge_policy(parsed_plan, report)
-    _rule_conflicts(parsed_plan, report)
+    def stale_rule(subject: str, what: str, cited: list[str]) -> bool:
+        stale = _stale(cited, evidence, head)
+        if stale:
+            report.add("EVIDENCE_STALE", f"{what} relies on {', '.join(stale)}, produced on a commit other "
+                       f"than head {head}", subject)
+        return bool(stale)
 
     plan_criteria = [(criterion, pid) for pid, pkg in packages.items() for criterion in pkg["acceptance"]]
     owner_of = dict(plan_criteria)
@@ -1223,7 +1376,7 @@ def check_gate(ledger: Any, plan: Any, profile: Any) -> dict[str, Any]:
         elif status == "unverified":
             report.add("UNVERIFIED", f"{cid} is unverified", cid)
         elif status == "deferred":
-            if entry["deferred_by"] == "human":
+            if _is_human(entry["deferred_by"]):
                 unverified.append({"id": cid, "reason": entry["reason"]})
             else:
                 report.add("UNVERIFIED", f"{cid} is deferred by {entry['deferred_by'] or 'nobody named'}; "
@@ -1233,18 +1386,19 @@ def check_gate(ledger: Any, plan: Any, profile: Any) -> dict[str, Any]:
             if gap:
                 report.add("UNSUPPORTED_VERDICT", f"{cid} is verified but {gap}", cid)
                 flagged.add(cid)
-            stale = [eid for eid in entry["evidence"] if eid in evidence
-                     and not _same_commit(evidence[eid]["commit"], head)]
-            if stale:
-                report.add("EVIDENCE_STALE", f"{cid} is verified by {', '.join(stale)}, produced on a commit "
-                           f"other than head {head}", cid)
+            if stale_rule(cid, f"{cid} is verified and", entry["evidence"]):
                 flagged.add(cid)
             pkg = packages[pid]
             if (pkg["kind"] == "implement" and (independent or pkg["risk"] == "high")
-                    and entry["verified_by"] is not None and entry["verified_by"] == pkg["owner"]):
-                report.add("REVIEW_NOT_INDEPENDENT", f"{cid} is verified by {entry['verified_by']}, who owns "
-                           f"{pid}; independent review is required", cid)
-                flagged.add(cid)
+                    and entry["verified_by"] is not None):
+                # Only the owner of a verify package that reviews this package
+                # may verify it; the writer, the lead, or a bystander may not.
+                reviewers = _reviewer_owners(packages, pid)
+                if _label(entry["verified_by"]) not in reviewers:
+                    report.add("REVIEW_NOT_INDEPENDENT", f"{cid} is verified by {entry['verified_by']}; "
+                               f"independent review of {pid} needs the owner of a verify package that reviews "
+                               f"it ({', '.join(sorted(reviewers)) or 'none planned'})", cid)
+                    flagged.add(cid)
             if entry["verified_by"] is None:
                 flagged.add(cid)
             if cid not in flagged:
@@ -1266,10 +1420,18 @@ def check_gate(ledger: Any, plan: Any, profile: Any) -> dict[str, Any]:
             # Rejecting a finding needs evidence that it is wrong, never the
             # evidence its raiser cited for it.
             cited = finding["resolution_evidence"] or []
+            reasons = []
             gap = _evidence_gap(cited, evidence)
             if gap:
-                report.add("UNSUPPORTED_RESOLUTION", f"finding {fid} is {status} but its resolution {gap}", fid)
-        elif status == "accepted-risk" and finding["accepted_by"] != "human":
+                reasons.append(gap)
+            reused = sorted(set(cited) & set(finding["evidence"]))
+            if status == "rejected" and reused:
+                reasons.append(f"cites the raiser's own evidence {', '.join(reused)} as proof the finding is wrong")
+            if reasons:
+                report.add("UNSUPPORTED_RESOLUTION", f"finding {fid} is {status} but its resolution "
+                           f"{'; and '.join(reasons)}", fid)
+            stale_rule(fid, f"finding {fid} is {status} and its resolution", cited)
+        elif status == "accepted-risk" and not _is_human(finding["accepted_by"]):
             report.add("RISK_NOT_ACCEPTED_BY_HUMAN", f"finding {fid} is accepted-risk by "
                        f"{finding['accepted_by'] or 'nobody named'}; only the human accepts risk", fid)
 
@@ -1287,9 +1449,10 @@ def check_gate(ledger: Any, plan: Any, profile: Any) -> dict[str, Any]:
                 gap = _evidence_gap(dispute["evidence"], evidence)
                 if gap:
                     report.add("VOTE_NOT_EVIDENCE", f"dispute {did} is resolved on evidence but {gap}", did)
-            elif dispute["decided_by"] is not None and dispute["decided_by"] != "human":
+                stale_rule(did, f"dispute {did} is resolved on evidence and", dispute["evidence"])
+            elif not _is_human(dispute["decided_by"]):
                 report.add("VOTE_NOT_EVIDENCE", f"dispute {did} claims basis human but was decided by "
-                           f"{dispute['decided_by']}", did)
+                           f"{dispute['decided_by'] or 'nobody named'}", did)
 
     limit = view["max_rework_cycles"]
     if limit is not None:

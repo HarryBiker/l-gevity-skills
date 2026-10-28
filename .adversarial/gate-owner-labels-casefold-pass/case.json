@@ -1,0 +1,13 @@
+{
+  "criterion": "multi-agent-governance #88: label spelling never changes a gate verdict",
+  "description": "The reviewer, deferrer, risk acceptor, and dispute decider are recorded as ' Agent-C', 'Human', 'HUMAN', and ' human '.",
+  "command": "gate",
+  "args": {
+    "plan": "plan.json",
+    "ledger": "ledger.json"
+  },
+  "expect": {
+    "verdict": "PASS",
+    "codes": []
+  }
+}

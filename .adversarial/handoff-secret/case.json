@@ -9,7 +9,7 @@
   "expect": {
     "verdict": "REJECT",
     "codes": [
-      "SECRET_IN_HANDOFF"
+      "SECRET_IN_RECORD"
     ]
   }
 }

@@ -73,20 +73,21 @@ omitted.
 
 | Field | Rule |
 |:--|:--|
-| `base` | `commit` the run starts from; `integrated` lists heads the lead integrated a wave at, which later waves may start from. |
+| `base` | `commit` the run starts from; `integrated` lists heads the lead integrated a wave at, which later waves may start from. Every commit in every record is a hex SHA of 7 to 64 characters. |
 | `kind` | `decide` (architecture or contract decision), `implement`, `verify`, or `analyze`. Only `implement` writes. |
-| `owner` | The agent label. `lead` is the integration owner. Distinct owners are the agent count. |
-| `envelope` | `analyst` (read, test) or `implementer` (read, edit, test); the runtime adapter enforces it where it can. |
-| `writes` | Files, or directories ending in `/`. `dir/**` is read as `dir/`. Any other wildcard is rejected, so overlap stays decidable: two write sets overlap when one entry equals or is a directory prefix of the other. |
+| `owner` | The agent label. `lead` is the integration owner. Distinct owners are the agent count. Owner labels and `human` compare trimmed and case-insensitively. |
+| `envelope` | `analyst` (read, test) or `implementer` (read, edit, test, commit); the runtime adapter enforces it where it can. |
+| `skills` | At least one skill the agent loads from the library, never from text pasted into its prompt. |
+| `writes` | Files, or directories ending in `/`. `dir/**` is read as `dir/`. Any other wildcard is rejected, so overlap stays decidable: two write sets overlap when one entry equals or is a directory prefix of the other, compared case-insensitively. |
 | `depends_on` | Package IDs. The graph must be acyclic. |
 | `produces` / `consumes` | Contract names. A consumer depends, directly or transitively, on the producer; a consumed contract nobody produces must be listed in `contracts_existing`. |
-| `reviews` | `verify` only: the packages it reviews. Its owner owns none of them. |
-| `acceptance` | At least one criterion per package. `check` is `command` with a `command`, or `review` with a `question`. IDs are canonical criterion IDs where they exist. |
-| `permissions` | Subset of `read`, `test`, `edit`, `commit`. `push` and `pull_request` belong to the lead after human approval; `merge` and `deploy` never appear in a plan. |
-| `approved_by` | `human` on a package that writes a protected path. |
+| `reviews` | `verify` only: the packages it reviews. Its owner owns none of them, and it depends, directly or transitively, on each. |
+| `acceptance` | At least one criterion per package, so the plan holds at least one. `check` is `command` with a `command`, or `review` with a `question`. IDs are canonical criterion IDs where they exist. |
+| `permissions` | Subset of `read`, `test`, `edit`, `commit`, and of the package's envelope. `push` and `pull_request` belong to the lead after human approval; `merge` and `deploy` never appear in a plan. |
+| `approved_by` | `human` on a package that writes a protected path. A protected entry guards itself and every path under it, with or without a trailing `/`, case-insensitively. |
 | `may_delegate` | Absent or `false`. Delegation depth is 1. |
 | required | `id`, `kind`, `owner`, `envelope` (a profile envelope), `risk` (`low`, `medium`, `high`), `requirements`, `writes`, `depends_on`, `acceptance`, `permissions`. Package and criterion IDs are unique. |
-| `conflicts` | `{"between": [ids], "resolution": null}` until a human or evidence resolves it: `{"basis": "human" or "evidence", "evidence": [...], "rationale": "..."}`. |
+| `conflicts` | `{"between": [ids], "resolution": null}` until a human or evidence resolves it: `{"basis": "human", "decided_by": "human", "rationale": "..."}` or `{"basis": "evidence", "evidence": [...], "rationale": "..."}`. |
 
 ## Hand-off — `alchemy-handoff/1`
 
@@ -152,10 +153,11 @@ Kept by the lead from hand-offs, independent verification, and integration.
 
 | Field | Rule |
 |:--|:--|
+| `head_commit` | The integrated head. Every evidence item the gate relies on — for a verified criterion, a finding resolution or rejection, or a dispute decided on evidence — ran at it. |
 | `criteria[].status` | `verified` (evidence IDs that exited 0 at `head_commit`), `failed`, `unverified`, or `deferred` with `deferred_by: human`. Every plan criterion appears once. |
-| `criteria[]` | `verified_by` is required when verified; `reason` when deferred. Only plan criteria, under their own package. |
-| `findings[].severity` | `blocking`, `major`, or `minor`. Blocking and major must end `resolved` with `resolution.evidence`, `rejected` with `resolution.evidence` showing the finding is wrong — never the raiser's own evidence — or `accepted-risk` with `accepted_by: human`. |
-| `disputes[].resolution.basis` | `evidence` with evidence IDs, or `human`. Majority, seniority, model, and confidence are not a basis. |
+| `criteria[]` | `verified_by` is required when verified; `reason` when deferred. Only plan criteria, under their own package. When independent review is on or the package's risk is `high`, an `implement` criterion's `verified_by` is the owner of a `verify` package that reviews it. |
+| `findings[].severity` | `blocking`, `major`, or `minor`. Blocking and major must end `resolved` with `resolution.evidence`, `rejected` with `resolution.evidence` showing the finding is wrong — sharing no ID with the raiser's own `evidence` — or `accepted-risk` with `accepted_by: human`. |
+| `disputes[].resolution.basis` | `evidence` with evidence IDs, or `human` with `decided_by: human`. Majority, seniority, model, and confidence are not a basis. |
 | `rework_cycles` | Correction rounds per package; above the profile's `max_rework_cycles` the gate escalates. |
 
 ## Profile — `alchemy-workspace/1`
@@ -187,26 +189,29 @@ bound reached must stop rework rather than restart it.
 
 | Code | Check | Verdict | Meaning |
 |:--|:--|:--|:--|
-| `SCHEMA` | all | FAIL / REJECT | A required field is missing, mistyped, or the schema version is unknown |
-| `MISSING_TRACE` | plan | FAIL | A package has no requirement ID or no acceptance criterion |
-| `CYCLE` | plan | FAIL | `depends_on` forms a cycle |
-| `UNKNOWN_DEPENDENCY` | plan | FAIL | A dependency, review target, or reviewed package does not exist |
-| `INVALID_WRITE_SET` | plan | FAIL | A write entry uses a wildcard other than a trailing `/**` |
-| `WRITE_CONFLICT` | plan | FAIL | Two packages with no dependency path between them write overlapping paths |
-| `READ_ONLY_WRITES` | plan | FAIL | A `decide`, `verify`, or `analyze` package, or an `analyst` envelope, declares writes or `edit` |
-| `CONTRACT_ORDER` | plan | FAIL | A consumer does not depend on the producer of a contract it consumes |
-| `UNKNOWN_CONTRACT` | plan | FAIL | A consumed contract is neither produced nor existing |
-| `SELF_REVIEW` | plan | FAIL | A verifier owns a package it reviews |
-| `UNREVIEWED_CHANGE` | plan | FAIL | An `implement` package lacks an independent `verify` package while `independent_review` is true or its risk is `high` |
-| `DELEGATION` | plan | FAIL | A package may delegate, or the profile allows depth above 1 |
-| `CAP_EXCEEDED` | plan | FAIL | Declared parallelism or distinct owners exceed the profile |
-| `PERMISSION_EXCEEDS` | plan | FAIL | A package asks for `push`, `pull_request`, `merge`, `deploy`, or an unknown permission |
-| `PROTECTED_PATH` | plan | FAIL | A package writes a protected path without `approved_by: human` |
+| `SCHEMA` | all | FAIL / REJECT | A required field is missing or mistyped, a commit is not 7 to 64 hex characters, or the schema version is unknown |
+| `SECRET_IN_RECORD` | all | FAIL / REJECT | A plan, hand-off, or ledger value matches a credential pattern or sits under a credential key; every report redacts it |
+| `MISSING_TRACE` | plan, gate | FAIL | A package has no requirement ID, no acceptance criterion, or no skill, or the plan holds no criterion |
+| `CYCLE` | plan, gate | FAIL | `depends_on` forms a cycle |
+| `UNKNOWN_DEPENDENCY` | plan, gate | FAIL | A dependency, review target, or reviewed package does not exist |
+| `INVALID_WRITE_SET` | plan, gate | FAIL | A write entry uses a wildcard other than a trailing `/**` |
+| `WRITE_CONFLICT` | plan, gate | FAIL | Two packages with no dependency path between them write overlapping paths, compared case-insensitively |
+| `READ_ONLY_WRITES` | plan, gate | FAIL | A `decide`, `verify`, or `analyze` package, or an `analyst` envelope, declares writes or `edit` |
+| `CONTRACT_ORDER` | plan, gate | FAIL | A consumer does not depend on the producer of a contract it consumes |
+| `UNKNOWN_CONTRACT` | plan, gate | FAIL | A consumed contract is neither produced nor existing |
+| `SELF_REVIEW` | plan, gate | FAIL | A verifier owns a package it reviews |
+| `REVIEW_ORDER` | plan, gate | FAIL | A `verify` package does not depend, directly or transitively, on a package it reviews |
+| `UNREVIEWED_CHANGE` | plan, gate | FAIL | An `implement` package lacks an independent `verify` package while `independent_review` is true or its risk is `high` |
+| `DELEGATION` | plan, gate | FAIL | A package may delegate, or the profile allows depth above 1 |
+| `CAP_EXCEEDED` | plan, gate | FAIL | Declared parallelism or distinct owners exceed the profile |
+| `PERMISSION_EXCEEDS` | plan, gate | FAIL | A package asks for `push`, `pull_request`, `merge`, `deploy`, an unknown permission, or one its envelope does not grant |
+| `PROTECTED_PATH` | plan, gate | FAIL | A package writes a protected path, or a path under one, without `approved_by: human` |
 | `MERGE_POLICY` | plan, gate | FAIL | `merge_policy` is not `human-approval` |
-| `MODE_MISMATCH` | plan | FAIL | `single-agent` with more than one agent (package owners plus the integration owner), `multi-agent` with one, or any multi-agent plan while the profile sets `execution.multi_agent` to `off` |
-| `REQUIREMENT_CONFLICT` | plan, gate | ESCALATE | A recorded requirement conflict has no resolution |
+| `MODE_MISMATCH` | plan, gate | FAIL | `single-agent` with more than one agent (package owners plus the integration owner), `multi-agent` with one, or any multi-agent plan while the profile sets `execution.multi_agent` to `off` |
+| `REQUIREMENT_CONFLICT` | plan, gate | ESCALATE | A recorded requirement conflict has no resolution, or a `human` basis the human did not decide |
 | `UNKNOWN_PACKAGE` | handoff | REJECT | The hand-off names a package the plan does not hold |
 | `OWNER_MISMATCH` | handoff | REJECT | The sender is not the package owner |
+| `NOT_DONE` | handoff | REJECT | `PARTIAL` (returns to the owner), `BLOCKED` (escalates to the lead, then the human), or an `implement` package `DONE` but not integration-ready |
 | `SCOPE_VIOLATION` | handoff | REJECT | A changed file lies outside the write set, or a read-only package changed files |
 | `SCOPE_EXPANSION` | handoff | REJECT | The hand-off claims requirements its package was not assigned |
 | `CLAIM_CONTRADICTS_WORKSPACE` | handoff | REJECT | A changed file is missing or its digest differs from the workspace |
@@ -214,7 +219,6 @@ bound reached must stop rework rather than restart it.
 | `UNSUPPORTED_CLAIM` | handoff | REJECT | A claim cites no evidence or unknown evidence |
 | `UNEVIDENCED_CRITERION` | handoff | REJECT | A `DONE` package leaves an acceptance criterion without evidence |
 | `BLOCKER_IGNORED` | handoff | REJECT | Integration-ready with an open blocking blocker |
-| `SECRET_IN_HANDOFF` | handoff | REJECT | A value matches a credential pattern |
 | `UNTRUSTED_INSTRUCTION` | handoff | REJECT | A value carries an instruction aimed at agents, such as ignoring prior instructions or skipping review |
 | `STALE_BASE` | handoff | STALE | The base commit is neither the plan's base nor an integrated head |
 | `STALE_CONTEXT` | handoff | STALE | A `relied_on` digest no longer matches the workspace |
@@ -224,11 +228,11 @@ bound reached must stop rework rather than restart it.
 | `CRITERION_FAILED` | gate | FAIL | A criterion is `failed` |
 | `UNVERIFIED` | gate | FAIL | A criterion is `unverified`, or deferred by anyone but the human |
 | `UNSUPPORTED_VERDICT` | gate | FAIL | `verified` without evidence that exists and exited 0 |
-| `EVIDENCE_STALE` | gate | FAIL | Verifying evidence was produced on a commit other than `head_commit` |
-| `REVIEW_NOT_INDEPENDENT` | gate | FAIL | Independent review is required and the verifier owns the package |
+| `EVIDENCE_STALE` | gate | FAIL | Evidence a verified criterion, finding resolution, or dispute decision relies on was produced on a commit other than `head_commit` |
+| `REVIEW_NOT_INDEPENDENT` | gate | FAIL | Independent review is required and the verifier is not the owner of a `verify` package that reviews the package |
 | `UNRESOLVED_FINDING` | gate | FAIL | A blocking or major finding is open |
-| `UNSUPPORTED_RESOLUTION` | gate | FAIL | A finding resolved or rejected without passing evidence |
+| `UNSUPPORTED_RESOLUTION` | gate | FAIL | A finding resolved or rejected without passing evidence, or rejected on its raiser's own evidence |
 | `RISK_NOT_ACCEPTED_BY_HUMAN` | gate | FAIL | `accepted-risk` without `accepted_by: human` |
-| `VOTE_NOT_EVIDENCE` | gate | FAIL | A dispute resolved on a basis other than evidence or the human, or on evidence it does not cite |
+| `VOTE_NOT_EVIDENCE` | gate | FAIL | A dispute resolved on a basis other than evidence or the human, on evidence it does not cite, or on a `human` basis the human did not decide |
 | `DISPUTE_OPEN` | gate | ESCALATE | A dispute is open or escalated |
 | `REWORK_LIMIT` | gate | ESCALATE | A package exceeded `max_rework_cycles` |

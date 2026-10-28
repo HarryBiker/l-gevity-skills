@@ -18,6 +18,9 @@ EXECUTION_RE = re.compile(r"^[\s>*_`|-]*Execution:[\s*_`]*(.+?)[\s*_`|]*$", re.M
 DISPATCH_RE = re.compile(r"Dispatch:[\s*_`]*(SKIP|DIRECT|ADAPTIVE|FULL)\b")
 MODE_RE = re.compile(r"\b(single-agent|multi-agent)\b")
 CHECK_RE = re.compile(r"check_orchestration\.py[\"']?\s+([a-z_-]+)")
+# A check run is a Python interpreter invoking the checker with a subcommand;
+# reading or grepping the file is not a run.
+CHECK_RUN_RE = re.compile(r"python[0-9.]*(?:\.exe)?[\"']?\s+(?:-\S+\s+)*[\"']?[^\s\"']*check_orchestration\.py[\"']?\s+(plan|handoff|gate)", re.I)
 EXIT_RE = re.compile(r"[Ee]xit code:?\s*(-?\d+)")
 VERDICT_RE = re.compile(r"\b(PASS|FAIL|ESCALATE|ACCEPT|REJECT|STALE|RETRY)\b")
 AGENT_ID_RE = re.compile(r"agent[ _-]?[Ii][Dd]\W{0,3}\s*([A-Za-z0-9_-]{4,})")
@@ -229,7 +232,7 @@ def analyze_claude(stamped: list[tuple[float | None, dict]]) -> dict:
     checks = []
     for tool_use_id, use in sorted(tool_uses.items(), key=lambda item: item[1]["index"]):
         command = str(use["input"].get("command", ""))
-        if use["name"] not in SHELL_TOOLS or "check_orchestration.py" not in command:
+        if use["name"] not in SHELL_TOOLS or not CHECK_RUN_RE.search(command):
             continue
         returned = tool_results.get(tool_use_id)
         status = None
@@ -404,7 +407,7 @@ def analyze_codex(stamped: list[tuple[float | None, dict]]) -> dict:
         elif item.get("type") == "command_execution":
             command = str(item.get("command", ""))
             skills.extend(skills_in(command))
-            if "check_orchestration.py" in command:
+            if CHECK_RUN_RE.search(command):
                 subcommand = CHECK_RE.search(command)
                 verdict = VERDICT_RE.search(str(item.get("aggregated_output", "")))
                 checks.append({

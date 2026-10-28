@@ -1,6 +1,6 @@
 {
   "criterion": "multi-agent-governance #56: a finding is closed only on passing evidence",
-  "description": "F1 is marked resolved with no evidence, and F3 is rejected citing E5, a check that exited 1.",
+  "description": "F1 is marked resolved with no evidence, and F3 is rejected citing E12, a check that exited 1 at head.",
   "command": "gate",
   "args": {
     "plan": "plan.json",

@@ -1,0 +1,14 @@
+{
+  "criterion": "multi-agent-governance #68: write sets compare case-insensitively",
+  "description": "P1 owns src/Orders/ and a concurrent P2 writes SRC/orders/validate.js: the same file on a case-insensitive filesystem.",
+  "command": "plan",
+  "args": {
+    "plan": "plan.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "WRITE_CONFLICT"
+    ]
+  }
+}

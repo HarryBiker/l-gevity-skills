@@ -19,8 +19,8 @@
     {
       "id": "loads-no-orchestration",
       "criterion": "execution-strategy #1: a trivial refactor pays no orchestration cost",
-      "check": "reads_exclude",
-      "paths": [".claude/skills/alchemy-orchestrate/SKILL.md"]
+      "check": "guidance_excludes",
+      "skills": ["alchemy-orchestrate"]
     }
   ]
 }

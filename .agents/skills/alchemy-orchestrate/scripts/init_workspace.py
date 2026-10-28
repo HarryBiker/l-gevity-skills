@@ -72,6 +72,9 @@ RUNTIMES: dict[str, tuple[Target, ...]] = {
     ),
 }
 
+# A skills root is rendered into permission rules such as Bash(python <root>/...),
+# so it may hold only characters that cannot change the rule's meaning.
+ROOT_RE = re.compile(r"^[A-Za-z0-9._/-]+$")
 PLACEHOLDER_RE = re.compile(r"\{\{\s*([A-Za-z_][\w.]*?)(\[\*\])?\s*((?:\|\s*\w+\s*)*)\}\}")
 
 
@@ -118,26 +121,52 @@ def load_profile(overlay: Path | None) -> dict[str, Any]:
     if execution.get("multi_agent", "auto") not in ("auto", "off"):
         raise UsageError(f"{where}: execution.multi_agent must be 'auto' or 'off'")
     roots = (profile.get("skills") or {}).get("roots")
-    if not isinstance(roots, list) or not roots or not all(isinstance(r, str) and r.strip() for r in roots):
+    if not isinstance(roots, list) or not roots:
         raise UsageError(f"{where}: skills.roots must be a non-empty list of paths")
-    profile["skills"]["roots"] = [root.strip().rstrip("/") for root in roots]
+    profile["skills"]["roots"] = [skills_root(root, where) for root in roots]
     for name in ("analyst", "implementer"):
         envelope = (profile.get("envelopes") or {}).get(name) or {}
         for field in ("description", "instructions"):
             if not isinstance(envelope.get(field), str) or not envelope[field].strip():
                 raise UsageError(f"{where}: envelopes.{name}.{field} must be a non-empty string")
-    relative_path((profile.get("repository") or {}).get("state_dir", ".alchemy/runs/"),
-                  "repository.state_dir", where)
     return profile
 
 
-def relative_path(value: Any, label: str, where: Path) -> PurePosixPath:
-    if not isinstance(value, str) or not value.strip():
-        raise UsageError(f"{where}: {label} must be a relative path")
-    path = PurePosixPath(value.strip().replace("\\", "/"))
-    if path.is_absolute() or re.match(r"^[A-Za-z]:", value) or ".." in path.parts:
-        raise UsageError(f"{where}: {label} must stay inside the project, not {value!r}")
-    return path
+def skills_root(value: Any, where: Path) -> str:
+    text = value.strip() if isinstance(value, str) else ""
+    parts = text.split("/")
+    if (not ROOT_RE.match(text) or text.startswith("/") or ".." in parts
+            or not [part for part in parts if part not in ("", ".")]):
+        raise UsageError(f"{where}: skills.roots entry {value!r} must be a relative path of letters, "
+                         "digits, '.', '_', '-', and '/', with no '..' segment")
+    return text.rstrip("/")
+
+
+def inside(value: Any, label: str, root: Path, where: Path) -> PurePosixPath:
+    """A path strictly inside root, refused by Windows or POSIX rules alike."""
+    if not isinstance(value, str):
+        raise UsageError(f"{where}: {label} must be a string, not {value!r}")
+    text = value.strip()
+    parts = text.replace("\\", "/").split("/")
+    problem = ""
+    if not text:
+        problem = "is empty"
+    elif text[0] in "/\\":
+        problem = "is absolute (a leading slash, backslash, or UNC prefix)"
+    elif ":" in text:
+        problem = "contains ':' (a drive letter such as C: or D:x, or a stream name)"
+    elif ".." in parts:
+        problem = "contains a '..' segment"
+    elif not [part for part in parts if part not in ("", ".")]:
+        problem = "names the project root itself"
+    else:
+        base = root.resolve()
+        target = (base / "/".join(parts)).resolve()
+        if base not in target.parents:
+            problem = "does not resolve strictly inside the project"
+    if problem:
+        raise UsageError(f"{where}: {label} {value!r} {problem}")
+    return PurePosixPath(*[part for part in parts if part not in ("", ".")])
 
 
 # ---------------------------------------------------------------- rendering
@@ -247,8 +276,9 @@ def plan_writes(runtimes: list[str], root: Path, overlay: Path | None, explicit_
         writes.append((PROFILE_NAME, None, "skip"))
     else:
         writes.append((PROFILE_NAME, DEFAULTS.read_bytes().replace(b"\r\n", b"\n"), "profile"))
-    state = relative_path(profile.get("repository", {}).get("state_dir", ".alchemy/runs/"),
-                          "repository.state_dir", overlay or DEFAULTS)
+    repository = profile.get("repository") if isinstance(profile.get("repository"), dict) else {}
+    state = inside(repository.get("state_dir", ".alchemy/runs/"), "repository.state_dir", root,
+                   overlay or DEFAULTS)
     writes.append(((state / ".gitignore").as_posix(), b"*\n", "file"))
     for runtime in runtimes:
         for target in RUNTIMES[runtime]:

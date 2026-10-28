@@ -47,8 +47,11 @@ pipeline:
       assignment names the package ID, owner label, plan path, base commit, write set,
       read scope, the skills to load, and the acceptance checks, and asks for one
       alchemy-handoff/1 record. Carry out `lead` packages yourself. When this runtime
-      cannot launch sub-agents, carry out every package yourself and state that fallback
-      in the report.
+      cannot launch sub-agents, do not carry out another owner's package under its
+      label: return BLOCKED and report that the plan must be re-planned as single-agent.
+      After integrating a wave, record its head in `base.integrated` of the run
+      directory's `plan.json`, the only edit that file allows, and return it in
+      integrated_heads.
     REVIEW_RULES: >-
       You wrote none of this change. Read `<skills>/alchemy-orchestrate/SKILL.md`
       (section 4 step 8 and section 5), its `references/governance.md`, and
@@ -85,14 +88,16 @@ pipeline:
       {"type":"object","additionalProperties":false,"properties":{
       "status":{"type":"string","enum":["INTEGRATED","BLOCKED","ESCALATE"]},
       "head_commit":{"type":"string"},
+      "integrated_heads":{"type":"array","items":{"type":"string"},"description":"Every commit a wave was integrated at, in order, the final head included"},
       "report":{"type":"string"}},
-      "required":["status","head_commit","report"]}
+      "required":["status","head_commit","integrated_heads","report"]}
     CORRECT_SCHEMA: >-
       {"type":"object","additionalProperties":false,"properties":{
       "status":{"type":"string","enum":["CORRECTED","BLOCKED"]},
       "head_commit":{"type":"string"},
+      "integrated_heads":{"type":"array","items":{"type":"string"},"description":"Every commit a correction was integrated at, in order, the final head included"},
       "report":{"type":"string"}},
-      "required":["status","head_commit","report"]}
+      "required":["status","head_commit","integrated_heads","report"]}
     LEDGER_SCHEMA: >-
       {"type":"object","additionalProperties":false,"properties":{
       "head_commit":{"type":"string"},
@@ -193,6 +198,7 @@ pipeline:
       outputs:
         status: ${{ parseJson(steps.execute.outputs.json_response).status }}
         head_commit: ${{ parseJson(steps.execute.outputs.json_response).head_commit }}
+        integrated_heads: ${{ join(parseJson(steps.execute.outputs.json_response).integrated_heads, ',') }}
         report_file: ${{ steps.execute.outputs.json_response_file }}
       steps:
         - id: execute
@@ -205,7 +211,7 @@ pipeline:
             prompt: |
               You are the lead of an approved ALCHEMY run on this worktree. ${{ env.SKILLS_NOTE }} ${{ env.UNTRUSTED_NOTE }}
 
-              - Approved plan: ${{ needs.plan_check.outputs.plan_file }}. Do not edit it; the pipeline checks against the planning step's own record.
+              - Approved plan: ${{ needs.plan_check.outputs.plan_file }}. Change nothing in it but `base.integrated`; the pipeline checks against the planning step's own record plus the integrated heads you return.
               - Run directory: ${{ needs.plan_check.outputs.run_dir }}
               - Plan check: ${{ needs.plan_check.outputs.summary }}
 
@@ -214,10 +220,10 @@ pipeline:
               - Save the last hand-off of every package, `lead` packages included, as `<run directory>/handoffs/<package id>.json`, and move superseded attempts to `<run directory>/handoffs/superseded/`. Check each on receipt with the `handoff` command and `--root` set to the workspace it describes, and follow governance section 4 within the profile's budgets. ${{ env.CHECK_NOTE }}
               - Integrate accepted packages in wave order into this worktree's branch, commit, and run the plan's `command` criteria and the profile's `repository.verification` commands on the integrated head. Leave nothing uncommitted outside the run directory. Do not push, open a pull request, or merge.
 
-              Return status INTEGRATED when every package was accepted and integrated, BLOCKED when work cannot continue without a human decision, or ESCALATE when a bound was reached; head_commit; and a report with the execution block, each hand-off verdict, commands with exit codes, and what was not done.
+              Return status INTEGRATED when every package was accepted and integrated, BLOCKED when work cannot continue without a human decision, or ESCALATE when a bound was reached; head_commit; integrated_heads; and a report with the execution block, each hand-off verdict, commands with exit codes, and what was not done.
 
     handoff_check:
-      name: Check Hand-offs And Snapshot
+      name: Check Hand-offs Structurally And Snapshot
       needs:
         - plan
         - plan_check
@@ -228,6 +234,9 @@ pipeline:
         head_commit: ${{ steps.snapshot.outputs.head_commit }}
         diff_file: ${{ steps.snapshot.outputs.diff_file }}
       steps:
+        # Structural checks only: every wave is integrated by now, so later waves may
+        # have changed files an earlier hand-off relied on or changed. The lead checked
+        # digests with --root when each hand-off arrived.
         - id: check
           uses: project/alchemy-check
           with:
@@ -235,6 +244,8 @@ pipeline:
             plan: ${{ needs.plan.outputs.response_file }}
             plan_field: plan
             record: ${{ needs.plan_check.outputs.run_dir }}/handoffs
+            digests: 'false'
+            integrated: ${{ needs.execute.outputs.integrated_heads }}
         - id: snapshot
           uses: project/alchemy-snapshot
           with:
@@ -305,6 +316,7 @@ pipeline:
       needs:
         - plan
         - plan_check
+        - execute
         - consolidate
       outputs:
         verdict: ${{ steps.check.outputs.verdict }}
@@ -318,6 +330,7 @@ pipeline:
             plan: ${{ needs.plan.outputs.response_file }}
             plan_field: plan
             record: ${{ needs.plan_check.outputs.run_dir }}/ledger.json
+            integrated: ${{ needs.execute.outputs.integrated_heads }}
             enforce: 'false'
 
     correct:
@@ -328,6 +341,7 @@ pipeline:
       if: needs.gate.result == 'success' && needs.gate.outputs.verdict == 'FAIL'
       outputs:
         status: ${{ parseJson(steps.correct.outputs.json_response).status }}
+        integrated_heads: ${{ join(parseJson(steps.correct.outputs.json_response).integrated_heads, ',') }}
       steps:
         - id: correct
           uses: builtin/agent-prompt
@@ -345,18 +359,20 @@ pipeline:
 
               Follow alchemy-orchestrate section 4 step 9: route each open blocking or major finding and each failed or unverified criterion to the owner of its package. ${{ env.SPAWN_NOTE }} Check each new hand-off on receipt, save it as `<run directory>/handoffs/<package id>.json`, integrate, commit, and add one to that package's `rework_cycles` in the ledger. ${{ env.CHECK_NOTE }} Leave disputes, deferrals, and accepted risks to the human. Never weaken a check, criterion, or test. Do not push, open a pull request, or merge.
 
-              Return status CORRECTED when every routed item has a new accepted hand-off, otherwise BLOCKED; head_commit; and a report.
+              Return status CORRECTED when every routed item has a new accepted hand-off, otherwise BLOCKED; head_commit; integrated_heads; and a report.
 
     rereview:
       name: Re-review
       needs:
         - plan
         - plan_check
+        - execute
         - correct
       if: needs.correct.result == 'success' && needs.correct.outputs.status == 'CORRECTED'
       outputs:
         findings_file: ${{ steps.review.outputs.json_response_file }}
       steps:
+        # Structural checks only, as in handoff_check.
         - id: check
           uses: project/alchemy-check
           with:
@@ -364,6 +380,8 @@ pipeline:
             plan: ${{ needs.plan.outputs.response_file }}
             plan_field: plan
             record: ${{ needs.plan_check.outputs.run_dir }}/handoffs
+            digests: 'false'
+            integrated: '${{ needs.execute.outputs.integrated_heads }},${{ needs.correct.outputs.integrated_heads }}'
         - id: snapshot
           uses: project/alchemy-snapshot
           with:
@@ -417,6 +435,8 @@ pipeline:
       needs:
         - plan
         - plan_check
+        - execute
+        - correct
         - reconsolidate
       outputs:
         verdict: ${{ steps.check.outputs.verdict }}
@@ -429,6 +449,7 @@ pipeline:
             plan: ${{ needs.plan.outputs.response_file }}
             plan_field: plan
             record: ${{ needs.plan_check.outputs.run_dir }}/ledger.json
+            integrated: '${{ needs.execute.outputs.integrated_heads }},${{ needs.correct.outputs.integrated_heads }}'
             enforce: 'false'
 
     escalate:
@@ -455,13 +476,16 @@ pipeline:
             plan: ${{ needs.plan.outputs.response_file }}
             plan_field: plan
             record: ${{ needs.plan_check.outputs.run_dir }}/ledger.json
+            integrated: '${{ needs.execute.outputs.integrated_heads }},${{ needs.correct.outputs.integrated_heads }}'
 
     approve_pr:
       name: Approve Pull Request
       needs:
         - plan
         - plan_check
+        - execute
         - gate
+        - correct
         - regate
       if: (needs.gate.result == 'success' && needs.gate.outputs.verdict == 'PASS') || (needs.regate.result == 'success' && needs.regate.outputs.verdict == 'PASS')
       outputs:
@@ -475,6 +499,7 @@ pipeline:
             plan: ${{ needs.plan.outputs.response_file }}
             plan_field: plan
             record: ${{ needs.plan_check.outputs.run_dir }}/ledger.json
+            integrated: '${{ needs.execute.outputs.integrated_heads }},${{ needs.correct.outputs.integrated_heads }}'
         - id: ask
           uses: builtin/request-input
           with:

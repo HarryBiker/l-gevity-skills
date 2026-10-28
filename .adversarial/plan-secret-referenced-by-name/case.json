@@ -1,0 +1,12 @@
+{
+  "criterion": "multi-agent-governance #89: a record may name a secret by its variable name",
+  "description": "Copied from plan-parallel-independent-pass; P1 names its credentials by environment-variable name (DB_PASSWORD, PAYMENTS_API_KEY), never by value.",
+  "command": "plan",
+  "args": {
+    "plan": "plan.json"
+  },
+  "expect": {
+    "verdict": "PASS",
+    "codes": []
+  }
+}

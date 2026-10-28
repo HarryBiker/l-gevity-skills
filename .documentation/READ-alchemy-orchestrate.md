@@ -94,4 +94,4 @@ the first missed and cost twice as much, use one.
 [SKILL.md](../.claude/skills/alchemy-orchestrate/SKILL.md) and its references;
 the routing it builds on is explained in [the alchemy primer](READ-alchemy.md).*
 
-<!-- skill-revision: d309504956e0 -->
+<!-- skill-revision: 1fe36e5a00df -->

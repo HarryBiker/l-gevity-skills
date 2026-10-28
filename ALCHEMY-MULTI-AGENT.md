@@ -110,7 +110,8 @@ Objective
 10. Agents MUST be composed from capabilities the work needs, not from a fixed
     roster: lead, architecture, engineering, verification, optimization,
     security, scientific validation. One agent MAY hold several; a skill or
-    gate MUST NOT be equated with an agent.
+    gate MUST NOT be equated with an agent. *Judgment*, visible in the plan's
+    `capabilities` and the runtime transcript.
 11. Composition MUST use `assets/skill-contracts.json`, which records for every
     skill its capability, inputs, outputs, parallelism, exclusive writes,
     independent check, and completion and failure decisions. *Check:*
@@ -170,7 +171,8 @@ Objective
     the run's plan. Conversation and agent memory MUST NOT be authoritative.
 23. Run records (plan, hand-offs, ledger) are execution state under
     `state_dir`, MUST NOT be committed, and MUST link canonical artifacts
-    rather than copy them.
+    rather than copy them. *Check:* `init_workspace.py` writes
+    `<state_dir>/.gitignore`; *judgment* for linking.
 24. Every hand-off MUST state its base commit and the digest of every artifact
     it relied on and changed; the receiver MUST re-check them. *Check:*
     `STALE_BASE`, `STALE_CONTEXT`, `CLAIM_CONTRADICTS_WORKSPACE`.
@@ -190,7 +192,9 @@ Objective
 29. Recovery MUST be idempotent: writers touch only their write set in an
     isolated workspace from a fixed base, so discarding and re-running one
     package cannot disturb another. Failed integration is rolled back to the
-    last passing head; shared branches are never force-pushed.
+    last passing head; shared branches are never force-pushed. *Check:*
+    `WRITE_CONFLICT` and `SCOPE_VIOLATION` keep writes disjoint; the Claude
+    Code adapter denies force-push; *judgment* for rollback.
 30. An unresolved requirement conflict MUST stop the affected packages and
     escalate. *Check:* `REQUIREMENT_CONFLICT`.
 
@@ -206,7 +210,11 @@ Objective
 34. The human MUST approve: a consequential plan (crossing a subsystem
     boundary, writing a protected path, or exceeding the agent budget); push and
     pull-request creation per the profile; accepted risk and deferred criteria;
-    merge, deploy, and any destructive or external action.
+    merge, deploy, and any destructive or external action. *Check:*
+    `PROTECTED_PATH`, `RISK_NOT_ACCEPTED_BY_HUMAN`, `UNVERIFIED`,
+    `MERGE_POLICY`, `PERMISSION_EXCEEDS`; the pipeline's `request-input`
+    checkpoints and the Claude Code ask and deny rules; *judgment* where a
+    runtime has no such mechanism.
 35. Checks and hooks MUST NOT be skipped or weakened to reach a passing gate.
     *Judgment*, reviewed in the report.
 

@@ -1,0 +1,16 @@
+{
+  "criterion": "multi-agent-governance #77: a detected secret is never echoed by any report message",
+  "description": "The sender label is an AWS access key ID; the OWNER_MISMATCH message would echo it unless redacted.",
+  "command": "handoff",
+  "args": {
+    "plan": "plan.json",
+    "handoff": "handoff.json"
+  },
+  "expect": {
+    "verdict": "REJECT",
+    "codes": [
+      "OWNER_MISMATCH",
+      "SECRET_IN_RECORD"
+    ]
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #76: commits are hex SHAs, never branch names or labels",
+  "description": "The hand-off names its base as 'main' and its evidence commit as 'working-tree'.",
+  "command": "handoff",
+  "args": {
+    "plan": "plan.json",
+    "handoff": "handoff.json"
+  },
+  "expect": {
+    "verdict": "REJECT",
+    "codes": [
+      "SCHEMA"
+    ]
+  }
+}

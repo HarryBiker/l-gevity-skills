@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #82: a rejection cannot reuse the raiser's evidence, even when it passes",
+  "description": "F3 is rejected with resolution evidence E8, the same passing check its raiser cited for it.",
+  "command": "gate",
+  "args": {
+    "plan": "plan.json",
+    "ledger": "ledger.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "UNSUPPORTED_RESOLUTION"
+    ]
+  }
+}

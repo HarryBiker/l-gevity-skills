@@ -193,9 +193,9 @@
     "skills_loaded_by_lead": [],
     "skills_loaded_by_subagents": {},
     "subagent_events_observed": 0,
-    "execution_line": "single-agent \u2014 one file set, no independent parts, no high-risk surface",
+    "execution_line": "single-agent — one file set, no independent parts, no high-risk surface",
     "execution_lines": [
-      "single-agent \u2014 one file set, no independent parts, no high-risk surface"
+      "single-agent — one file set, no independent parts, no high-risk surface"
     ],
     "execution_mode": "single-agent",
     "dispatch": "SKIP",

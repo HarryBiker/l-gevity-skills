@@ -1793,6 +1793,9 @@ def scenario_route(output: str) -> set[str]:
     parenthesized aside are notes, not claims."""
     named = set()
     for value in scenario_values(output, "Core route"):
+        # A route segment the run itself marks as not run, as in
+        # "E — Not run (prerequisite missing)", is a note, not a claim.
+        value = ",".join(segment for segment in value.split(",") if not NOT_RUN_RE.search(segment))
         value = re.sub(r"\b[A-Za-z][A-Za-z-]*\s*\([^)]*\)", lambda m: "" if NOT_RUN_RE.search(m.group(0)) else m.group(0), value)
         for token in re.findall(r"[A-Za-z][A-Za-z-]*", re.sub(r"\([^)]*\)", "", value)):
             if token in ROUTE_SKILLS:
@@ -3237,7 +3240,13 @@ def orchestration_checker():
 
 
 def validate_runtime_neutrality() -> None:
-    files = [ORCHESTRATE / "SKILL.md", *sorted((ORCHESTRATE / "references").glob("*.md"))]
+    files = [
+        ORCHESTRATE / "SKILL.md",
+        *sorted((ORCHESTRATE / "references").glob("*.md")),
+        # The composition map is methodology; the profile is project
+        # configuration and names the skill trees the installers write.
+        ORCHESTRATE / "assets" / "skill-contracts.json",
+    ]
     for path in files:
         for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
             match = RUNTIME_TERMS.search(line)
@@ -3355,8 +3364,11 @@ def validate_skill_contracts() -> None:
         if not entry["completion"]:
             fail(f"{label} {name}: completion needs at least one decision")
         text = (AGENT_SKILLS / name / "SKILL.md").read_text(encoding="utf-8")
+        flat = flatten(text)
         for decision in entry["completion"] + entry["failure"]:
-            if not contains(text, decision):
+            # A whole word or phrase, so an invented decision cannot pass by
+            # matching inside another word.
+            if not re.search(rf"(?<![\w-]){re.escape(flatten(decision))}(?![\w-])", flat):
                 fail(f"{label} {name}: decision '{decision}' does not appear in {name}/SKILL.md")
 
 
@@ -3373,7 +3385,9 @@ def validate_execution_contract() -> None:
         fail(f"{router.relative_to(ROOT)} must decide execution after dispatch and before qualification")
     section = text[execution:qualification]
     for term in ("never a fifth dispatch", "`alchemy-orchestrate`", "`single-agent`", "`multi-agent`",
-                 "`execution.multi_agent`", "the user never names agents"):
+                 "`execution.multi_agent`", "the user never names agents",
+                 "`SKIP` and `DIRECT` run `single-agent` and never load orchestration",
+                 "one writer and one independent reviewer is `multi-agent`"):
         if not contains(section, term):
             fail(f"{router.relative_to(ROOT)} Execution Strategy missing '{term}'")
     if not re.search(r"^Execution:\s+<single-agent \| multi-agent>", text, re.M):
