@@ -136,7 +136,8 @@ the runtime transcript).
    using the agent definition named after its plan envelope
    (`alchemy-analyst` or `alchemy-implementer`), and pass the package record,
    its skill names, and the hand-off format. Spawn a wave's packages together
-   and wait for all of them; contract packages go first. Each writer starts
+   and wait for all of them before ending your turn; contract packages go
+   first. Each writer starts
    from the plan's base or an integrated head, works in an isolated workspace
    when the runtime provides one, and touches only its write set. Delegated
    agents never delegate. When the runtime cannot spawn agents, re-plan as
@@ -156,8 +157,10 @@ the runtime transcript).
 9. **Correct, bounded.** Route each blocking finding to the package owner. At
    most `max_rework_cycles` per package; then escalate with both positions.
 10. **Gate.** Record criteria, evidence, findings, and disputes in the ledger;
-    run `check_orchestration.py gate <ledger.json> --plan <plan.json>`.
-    Only `PASS` continues.
+    run `check_orchestration.py gate <ledger.json> --plan <plan.json>
+    --profile alchemy-workspace.json --root .`, which also confirms the
+    ledger's head is the repository's committed, clean head. Only `PASS`
+    continues.
 11. **Report and stop at the merge boundary.** Prepare the pull request with
     the gate's verified and unverified lists. Push, open, merge, and deploy
     only as the profile's approval policy and the human allow.

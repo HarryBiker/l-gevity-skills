@@ -13,10 +13,13 @@ Usage:
     check_orchestration.py plan <plan.json> [--profile <alchemy-workspace.json>]
     check_orchestration.py handoff <handoff.json> --plan <plan.json>
                                    [--profile <profile>] [--root <workspace>]
-    check_orchestration.py gate <ledger.json> --plan <plan.json> [--profile <profile>]
+    check_orchestration.py gate <ledger.json> --plan <plan.json>
+                                [--profile <profile>] [--root <repository>]
 
-Prints one JSON report to stdout. Exit 0 on PASS or ACCEPT, 1 on any other
-verdict, 2 on unreadable input or bad usage.
+Without --profile the CLI reads alchemy-workspace.json from the current
+directory when one exists, and reports which profile it used. Prints one JSON
+report to stdout. Exit 0 on PASS or ACCEPT, 1 on any other verdict, 2 on
+unreadable input or bad usage.
 """
 
 from __future__ import annotations
@@ -24,8 +27,10 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import posixpath
 import re
+import subprocess
 import sys
 from pathlib import Path
 from typing import Any
@@ -37,6 +42,9 @@ LEDGER_SCHEMA = "alchemy-ledger/1"
 PROFILE_SCHEMA = "alchemy-workspace/1"
 
 DEFAULT_PROFILE = Path(__file__).resolve().parent.parent / "assets" / "alchemy-workspace.json"
+# The CLI picks up the project overlay from the working directory; the
+# importable functions never read a file they were not given.
+PROJECT_PROFILE = "alchemy-workspace.json"
 
 # Code -> verdict class, verbatim from the Check Codes table in contracts.md.
 # "FAIL / REJECT" renders as REJECT in a hand-off check and FAIL in a plan or
@@ -87,6 +95,8 @@ CODES = {
     "UNSUPPORTED_RESOLUTION": "FAIL",
     "RISK_NOT_ACCEPTED_BY_HUMAN": "FAIL",
     "VOTE_NOT_EVIDENCE": "FAIL",
+    "VERIFICATION_FAILED": "FAIL",
+    "WORKSPACE_MISMATCH": "FAIL",
     "DISPUTE_OPEN": "ESCALATE",
     "REWORK_LIMIT": "ESCALATE",
 }
@@ -285,6 +295,20 @@ def _same_commit(left: Any, right: Any) -> bool:
     return full.startswith(short)
 
 
+def _command(value: Any) -> str | None:
+    """A command as compared: internal whitespace collapsed, ends trimmed."""
+    return " ".join(value.split()) if isinstance(value, str) and value.strip() else None
+
+
+def _same_evidence(left: dict[str, Any], right: dict[str, Any]) -> bool:
+    """Evidence identity is (command, commit, exit code), whatever its ID: a
+    renamed copy of a check is the same check."""
+    return (_command(left["command"]) is not None
+            and _command(left["command"]) == _command(right["command"])
+            and left["exit_code"] == right["exit_code"]
+            and _same_commit(left["commit"], right["commit"]))
+
+
 def _label(value: Any) -> str | None:
     """An agent label as compared: trimmed and case-folded."""
     return value.strip().casefold() if isinstance(value, str) and value.strip() else None
@@ -394,6 +418,8 @@ def _profile_view(profile: Any, report: Report) -> dict[str, Any]:
         "max_retries": None,
         "max_rework_cycles": None,
         "protected_paths": [],
+        "verification": [],
+        "state_dir": None,
         "envelopes": {},
     }
     where = "profile"
@@ -420,6 +446,25 @@ def _profile_view(profile: Any, report: Report) -> dict[str, Any]:
                 report.add("SCHEMA", f"profile.repository.protected_paths entry '{raw}' {problem}")
             else:
                 view["protected_paths"].append(normalized)
+        # Each verification entry is {"id", "command"} or a bare command string.
+        entries = _get(repository, "verification", "list", report, f"{where}.repository",
+                       required=False, default=[])
+        for index, entry in enumerate(entries):
+            label = f"{where}.repository.verification[{index}]"
+            if isinstance(entry, str) and _command(entry):
+                view["verification"].append({"id": None, "command": entry})
+            elif isinstance(entry, dict) and _command(entry.get("command")):
+                vid = _get(entry, "id", "str", report, label, required=False)
+                view["verification"].append({"id": vid, "command": entry["command"]})
+            else:
+                report.add("SCHEMA", f"{label} must be a command string or an object with a 'command'")
+        state_dir = _get(repository, "state_dir", "str", report, f"{where}.repository", required=False)
+        if state_dir is not None:
+            normalized, problem = _normalize_write(state_dir)
+            if problem:
+                report.add("SCHEMA", f"profile.repository.state_dir '{state_dir}' {problem}")
+            else:
+                view["state_dir"] = normalized
     envelopes = _get(profile, "envelopes", "dict", report, where)
     if envelopes is not None:
         for name, body in envelopes.items():
@@ -483,8 +528,10 @@ def _parse_conflicts(raw: list[Any], report: Report, where: str) -> list[dict[st
     return conflicts
 
 
-def _parse_acceptance(raw: list[Any], report: Report, label: str, subject: str) -> list[str]:
-    ids = []
+def _parse_acceptance(raw: list[Any], report: Report, label: str, subject: str) -> list[dict[str, Any]]:
+    """Each criterion's ID with its check definition, so the gate can hold
+    evidence to the check the plan assigned."""
+    criteria = []
     for index, item in enumerate(raw):
         where = f"{label}.acceptance[{index}]"
         if not isinstance(item, dict):
@@ -492,13 +539,14 @@ def _parse_acceptance(raw: list[Any], report: Report, label: str, subject: str) 
             continue
         criterion = _get(item, "id", "str", report, where, subject)
         check = _enum(item, "check", CHECKS, report, where, subject)
+        command = None
         if check == "command":
-            _get(item, "command", "str", report, where, subject)
+            command = _get(item, "command", "str", report, where, subject)
         elif check == "review":
             _get(item, "question", "str", report, where, subject)
         if criterion is not None:
-            ids.append(criterion)
-    return ids
+            criteria.append({"id": criterion, "check": check, "command": command})
+    return criteria
 
 
 def _parse_package(raw: Any, index: int, profile: dict[str, Any], report: Report,
@@ -541,7 +589,9 @@ def _parse_package(raw: Any, index: int, profile: dict[str, Any], report: Report
                                required=False, default=False)
     acceptance = _get(raw, "acceptance", "list", report, label, pid)
     pkg["acceptance_declared"] = None if acceptance is None else len(acceptance)
-    pkg["acceptance"] = _parse_acceptance(acceptance or [], report, label, pid)
+    criteria = _parse_acceptance(acceptance or [], report, label, pid)
+    pkg["acceptance"] = [criterion["id"] for criterion in criteria]
+    pkg["checks"] = {criterion["id"]: criterion for criterion in criteria}
     return pkg
 
 
@@ -949,7 +999,8 @@ def _rule_secrets(record: Any, root: str, report: Report, subject: str | None) -
                 found = found or label
         # A credential key holding a variable name such as DB_PASSWORD refers
         # to a secret by name, which governance allows; only a value is flagged.
-        if isinstance(key, str) and SECRET_KEY_RE.search(key) and text.strip()                 and not SECRET_NAME_RE.fullmatch(text.strip()):
+        if (isinstance(key, str) and SECRET_KEY_RE.search(key) and text.strip()
+                and not SECRET_NAME_RE.fullmatch(text.strip())):
             report.secrets.update({text, text.strip()})
             found = found or "credential key"
         if found:
@@ -1269,9 +1320,16 @@ def _parse_ledger(ledger: Any, report: Report) -> dict[str, Any]:
             "verified_by": _get(item, "verified_by", "str", report, label, cid, required=status == "verified"),
             "deferred_by": _get(item, "deferred_by", "str", report, label, cid, required=False),
             "reason": None,
+            "equivalent": None,
         }
         if status == "deferred" and _is_human(entry["deferred_by"]):
             entry["reason"] = _get(item, "reason", "str", report, label, cid)
+        # A check the human accepted in place of the plan's command.
+        equivalent = _get(item, "equivalent", "dict", report, label, cid, required=False)
+        if equivalent is not None:
+            command = _get(equivalent, "command", "str", report, f"{label}.equivalent", cid)
+            if command is not None:
+                entry["equivalent"] = {"command": command, "accepted_by": equivalent.get("accepted_by")}
         if cid is not None:
             parsed["criteria"].append(entry)
 
@@ -1305,7 +1363,15 @@ def _parse_ledger(ledger: Any, report: Report) -> dict[str, Any]:
         did = _get(item, "id", "str", report, label)
         status = _enum(item, "status", DISPUTE_STATUSES, report, label, did)
         resolution = _get(item, "resolution", "dict", report, label, did, required=status == "resolved")
-        entry = {"id": did, "status": status, "basis": None, "decided_by": None, "evidence": []}
+        entry = {"id": did, "status": status, "basis": None, "decided_by": None, "evidence": [], "positions": []}
+        for number, position in enumerate(_get(item, "positions", "list", report, label, did,
+                                               required=False, default=[])):
+            where_position = f"{label}.positions[{number}]"
+            if not isinstance(position, dict):
+                report.add("SCHEMA", f"{where_position} must be an object", did)
+                continue
+            entry["positions"].append(_get(position, "evidence", "strs", report, where_position, did,
+                                           required=False, default=[]))
         if resolution is not None:
             entry["basis"] = resolution.get("basis") if isinstance(resolution.get("basis"), str) else None
             entry["decided_by"] = _get(resolution, "decided_by", "str", report, f"{label}.resolution", did,
@@ -1318,6 +1384,61 @@ def _parse_ledger(ledger: Any, report: Report) -> dict[str, Any]:
     return parsed
 
 
+def _git(root: Path, *args: str) -> tuple[str | None, str | None]:
+    """(stdout, None) when git succeeds in root, else (None, the reason)."""
+    try:
+        proc = subprocess.run(["git", "-C", str(root), *args], capture_output=True, timeout=60)
+    except (OSError, subprocess.SubprocessError) as exc:
+        return None, f"git cannot run in {root}: {exc}"
+    if proc.returncode != 0:
+        detail = proc.stderr.decode("utf-8", "replace").strip().splitlines()
+        return None, f"git {args[0]} failed in {root}: {detail[0] if detail else f'exit {proc.returncode}'}"
+    return proc.stdout.decode("utf-8", "replace"), None
+
+
+def _workspace_problems(root: Path, head: str | None, state_dir: str | None) -> tuple[list[str], bool]:
+    """Differences between the real repository at root and the ledger: its head
+    and any change outside the state directory. The flag is True when git ran."""
+    top, error = _git(root, "rev-parse", "--show-toplevel")
+    if error:
+        return [error], False
+    try:
+        same = os.path.samefile(top.strip(), root)
+    except OSError as exc:
+        return [f"cannot compare the work tree top {top.strip()} with {root}: {exc}"], False
+    if not same:
+        return [f"{root} is not the top of a git work tree; the work tree there is {top.strip()}"], False
+    actual, error = _git(root, "rev-parse", "HEAD")
+    if error:
+        return [error], False
+    status, error = _git(root, "status", "--porcelain=v1", "-z", "--untracked-files=all")
+    if error:
+        return [error], False
+    problems = []
+    actual = actual.strip()
+    if head is not None and not _same_commit(actual, head):
+        problems.append(f"the repository head is {actual}, not ledger head_commit {head}")
+    changed, tokens, position = [], status.split("\0"), 0
+    while position < len(tokens):
+        token = tokens[position]
+        position += 1
+        if len(token) < 4:
+            continue
+        paths = [token[3:]]
+        if "R" in token[:2] or "C" in token[:2]:
+            # A rename or copy is followed by its source path.
+            if position < len(tokens):
+                paths.append(tokens[position])
+                position += 1
+        if not (state_dir and all(_protects(state_dir, path) for path in paths)):
+            changed.append(paths[0])
+    if changed:
+        shown = ", ".join(changed[:5]) + (" ..." if len(changed) > 5 else "")
+        problems.append(f"the work tree has {len(changed)} uncommitted change(s) outside "
+                        f"{state_dir or 'the state directory'}: {shown}")
+    return problems, True
+
+
 def _stale(cited: list[str], evidence: dict[str, dict[str, Any]], head: str | None) -> list[str]:
     """Cited evidence that exists, names a valid commit, and did not run at head."""
     if head is None:
@@ -1326,8 +1447,12 @@ def _stale(cited: list[str], evidence: dict[str, dict[str, Any]], head: str | No
             and not _same_commit(evidence[eid]["commit"], head)]
 
 
-def check_gate(ledger: Any, plan: Any, profile: Any) -> dict[str, Any]:
-    """Decide whether the integrated head may go to a human-approved pull request."""
+def check_gate(ledger: Any, plan: Any, profile: Any, root: str | Path | None = None) -> dict[str, Any]:
+    """Decide whether the integrated head may go to a human-approved pull request.
+
+    With `root`, the repository there must be at the ledger's head and hold no
+    uncommitted change outside the profile's state directory.
+    """
     report = Report("gate")
     view = _profile_view(profile, report)
     parsed_plan = _parse_plan(plan, view, report)
@@ -1382,9 +1507,28 @@ def check_gate(ledger: Any, plan: Any, profile: Any) -> dict[str, Any]:
                 report.add("UNVERIFIED", f"{cid} is deferred by {entry['deferred_by'] or 'nobody named'}; "
                            "only the human defers a criterion", cid)
         elif status == "verified":
+            reasons = []
             gap = _evidence_gap(entry["evidence"], evidence)
             if gap:
-                report.add("UNSUPPORTED_VERDICT", f"{cid} is verified but {gap}", cid)
+                reasons.append(gap)
+            cited = [evidence[eid] for eid in entry["evidence"] if eid in evidence]
+            foreign = [item["id"] for item in cited if item["criterion"] is not None and item["criterion"] != cid]
+            if foreign:
+                reasons.append(f"cites {', '.join(foreign)}, recorded as evidence for another criterion")
+            definition = packages[pid]["checks"].get(cid)
+            if definition is not None and definition["check"] == "command" and definition["command"]:
+                expected, source = definition["command"], "the plan's check"
+                equivalent = entry["equivalent"]
+                if equivalent is not None:
+                    if _is_human(equivalent["accepted_by"]):
+                        expected, source = equivalent["command"], "the human-accepted equivalent"
+                    else:
+                        reasons.append(f"names an equivalent check accepted by "
+                                       f"{equivalent['accepted_by'] or 'nobody named'}, not the human")
+                if cited and not any(_command(item["command"]) == _command(expected) for item in cited):
+                    reasons.append(f"evidence does not run the assigned check ({source}: {_command(expected)})")
+            if reasons:
+                report.add("UNSUPPORTED_VERDICT", f"{cid} is verified but {'; and '.join(reasons)}", cid)
                 flagged.add(cid)
             if stale_rule(cid, f"{cid} is verified and", entry["evidence"]):
                 flagged.add(cid)
@@ -1424,9 +1568,13 @@ def check_gate(ledger: Any, plan: Any, profile: Any) -> dict[str, Any]:
             gap = _evidence_gap(cited, evidence)
             if gap:
                 reasons.append(gap)
-            reused = sorted(set(cited) & set(finding["evidence"]))
+            # Compared by ID and by identity, so a renamed copy is still the raiser's.
+            raised = [evidence[eid] for eid in finding["evidence"] if eid in evidence]
+            reused = sorted(eid for eid in set(cited) if eid in finding["evidence"] or (
+                eid in evidence and any(_same_evidence(evidence[eid], item) for item in raised)))
             if status == "rejected" and reused:
-                reasons.append(f"cites the raiser's own evidence {', '.join(reused)} as proof the finding is wrong")
+                reasons.append(f"cites the raiser's own evidence, by ID or as a renamed copy ({', '.join(reused)}), "
+                               "as proof the finding is wrong")
             if reasons:
                 report.add("UNSUPPORTED_RESOLUTION", f"finding {fid} is {status} but its resolution "
                            f"{'; and '.join(reasons)}", fid)
@@ -1446,6 +1594,15 @@ def check_gate(ledger: Any, plan: Any, profile: Any) -> dict[str, Any]:
                 report.add("VOTE_NOT_EVIDENCE", f"dispute {did} is resolved on basis "
                            f"'{basis or 'none'}'; only evidence or the human decide", did)
             elif basis == "evidence":
+                # The lead decides only when exactly one position has passing
+                # evidence (governance section 2); otherwise the human does.
+                backed = sum(1 for cited in dispute["positions"]
+                             if cited and _evidence_gap(cited, evidence) is None)
+                if backed != 1:
+                    open_items.append(did)
+                    report.add("DISPUTE_OPEN", f"dispute {did} was decided on evidence, but {backed} of "
+                               f"{len(dispute['positions'])} positions have passing evidence; when both "
+                               "positions (or neither) have passing evidence, the human decides", did)
                 gap = _evidence_gap(dispute["evidence"], evidence)
                 if gap:
                     report.add("VOTE_NOT_EVIDENCE", f"dispute {did} is resolved on evidence but {gap}", did)
@@ -1460,12 +1617,34 @@ def check_gate(ledger: Any, plan: Any, profile: Any) -> dict[str, Any]:
             if cycles > limit:
                 report.add("REWORK_LIMIT", f"{package} took {cycles} rework cycles; the bound is {limit}", package)
 
+    # The profile's verification commands must have passed on the integrated head.
+    for item in view["verification"]:
+        command = _command(item["command"])
+        runs = [entry for entry in evidence.values() if _command(entry["command"]) == command]
+        if any(entry["exit_code"] == 0 and _same_commit(entry["commit"], head) for entry in runs):
+            continue
+        if not runs:
+            why = "has no evidence in the ledger"
+        elif any(entry["exit_code"] == 0 for entry in runs):
+            why = f"passed only on a commit other than head {head}"
+        else:
+            why = "did not exit 0"
+        label = f"{item['id']} ({command})" if item["id"] else command
+        report.add("VERIFICATION_FAILED", f"profile verification {label} {why}", item["id"])
+
+    head_checked = False
+    if root is not None:
+        problems, head_checked = _workspace_problems(Path(root), head, view["state_dir"])
+        for problem in problems:
+            report.add("WORKSPACE_MISMATCH", problem)
+
     return _result(report, {
         "verified": verified,
         "unverified": unverified,
         "open": open_items,
         "minor": minor,
         "coverage": f"{len(verified)}/{len(plan_criteria)}",
+        "head_checked": head_checked,
     })
 
 
@@ -1483,28 +1662,36 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
     handoff.add_argument("--root", type=Path, help="workspace to re-check digests against")
     gate = commands.add_parser("gate", help="check the ledger before the merge boundary")
     gate.add_argument("ledger", type=Path, help="alchemy-ledger/1 JSON file")
+    gate.add_argument("--root", type=Path, help="repository whose HEAD and work tree must match the ledger")
     for sub, needs_plan in ((plan, False), (handoff, True), (gate, True)):
         if needs_plan:
             sub.add_argument("--plan", type=Path, required=True, help="alchemy-plan/1 JSON file")
-        sub.add_argument("--profile", type=Path, help="project alchemy-workspace.json overriding the defaults")
+        sub.add_argument("--profile", type=Path,
+                         help=f"project profile overriding the defaults; {PROJECT_PROFILE} in the "
+                         "current directory when omitted")
     return parser.parse_args(argv)
 
 
 def main(argv: list[str] | None = None) -> int:
     args = _parse_args(sys.argv[1:] if argv is None else argv)
     try:
-        profile = load_profile(args.profile)
+        profile_path = args.profile
+        if profile_path is None and Path(PROJECT_PROFILE).is_file():
+            profile_path = Path(PROJECT_PROFILE)
+        profile = load_profile(profile_path)
+        root = getattr(args, "root", None)
+        if root is not None and not root.is_dir():
+            raise InputError(f"{root}: --root is not a directory")
         if args.command == "plan":
             result = check_plan(_read_json(args.plan), profile)
         elif args.command == "handoff":
-            if args.root is not None and not args.root.is_dir():
-                raise InputError(f"{args.root}: --root is not a directory")
-            result = check_handoff(_read_json(args.handoff), _read_json(args.plan), profile, args.root)
+            result = check_handoff(_read_json(args.handoff), _read_json(args.plan), profile, root)
         else:
-            result = check_gate(_read_json(args.ledger), _read_json(args.plan), profile)
+            result = check_gate(_read_json(args.ledger), _read_json(args.plan), profile, root)
     except InputError as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 2
+    result["profile"] = str(profile_path) if profile_path is not None else "defaults"
     print(json.dumps(result, indent=2))
     return 0 if result["verdict"] in ("PASS", "ACCEPT") else 1
 

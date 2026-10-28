@@ -155,9 +155,10 @@ Kept by the lead from hand-offs, independent verification, and integration.
 |:--|:--|
 | `head_commit` | The integrated head. Every evidence item the gate relies on — for a verified criterion, a finding resolution or rejection, or a dispute decided on evidence — ran at it. |
 | `criteria[].status` | `verified` (evidence IDs that exited 0 at `head_commit`), `failed`, `unverified`, or `deferred` with `deferred_by: human`. Every plan criterion appears once. |
-| `criteria[]` | `verified_by` is required when verified; `reason` when deferred. Only plan criteria, under their own package. When independent review is on or the package's risk is `high`, an `implement` criterion's `verified_by` is the owner of a `verify` package that reviews it. |
-| `findings[].severity` | `blocking`, `major`, or `minor`. Blocking and major must end `resolved` with `resolution.evidence`, `rejected` with `resolution.evidence` showing the finding is wrong — sharing no ID with the raiser's own `evidence` — or `accepted-risk` with `accepted_by: human`. |
-| `disputes[].resolution.basis` | `evidence` with evidence IDs, or `human` with `decided_by: human`. Majority, seniority, model, and confidence are not a basis. |
+| `criteria[]` | `verified_by` is required when verified; `reason` when deferred. Only plan criteria, under their own package. When independent review is on or the package's risk is `high`, an `implement` criterion's `verified_by` is the owner of a `verify` package that reviews it. A verified `command` criterion cites evidence whose `command` is the plan's, whitespace-normalized, or that of an `equivalent: {"command", "accepted_by": "human"}` the human accepted in its place. |
+| `evidence[]` | `id`, `command`, `exit_code`, `commit`; optional `produced_by`, and `criterion`, the only criterion the item may verify. Items with the same normalized command, commit, and exit code are the same evidence, whatever their IDs. |
+| `findings[].severity` | `blocking`, `major`, or `minor`. Blocking and major must end `resolved` with `resolution.evidence`, `rejected` with `resolution.evidence` showing the finding is wrong — sharing no evidence, by ID or identity, with the raiser's own `evidence` — or `accepted-risk` with `accepted_by: human`. |
+| `disputes[].resolution.basis` | `evidence` with evidence IDs, only when exactly one position's evidence all exists and exited 0; when both positions or neither have it, the human decides. Or `human` with `decided_by: human`. Majority, seniority, model, and confidence are not a basis. |
 | `rework_cycles` | Correction rounds per package; above the profile's `max_rework_cycles` the gate escalates. |
 
 ## Profile — `alchemy-workspace/1`
@@ -168,6 +169,7 @@ a project file overrides only the keys it states.
 
 | Key | Default | Meaning |
 |:--|:--|:--|
+| `execution.multi_agent` | `auto` | `off` refuses any multi-agent plan (`MODE_MISMATCH`) |
 | `execution.default_mode` | `single-agent` | Mode when no rule selects another |
 | `execution.max_parallel_agents` | `3` | Concurrent agents, lead excluded |
 | `execution.max_agents` | `5` | Distinct owners per run, lead included |
@@ -175,8 +177,8 @@ a project file overrides only the keys it states.
 | `execution.max_retries` | `1` | Re-runs of a failed package from its base |
 | `execution.max_rework_cycles` | `2` | Correction rounds per package before escalation |
 | `repository.protected_paths` | `[]` | Writes need `approved_by: human` |
-| `repository.verification` | `[]` | Commands the integrated head must pass |
-| `repository.state_dir` | `.alchemy/runs/` | Run records; never committed |
+| `repository.verification` | `[]` | Commands, as `{"id", "command"}` or plain strings, the integrated head must pass; the gate needs passing ledger evidence for each at `head_commit` |
+| `repository.state_dir` | `.alchemy/runs/` | Run records; never committed; the only uncommitted changes `gate --root` tolerates |
 | `approval` | human for `merge`, `push`, `pull_request`, `destructive`, `external` | Actions the lead may not take without the human |
 | `envelopes` | `analyst`, `implementer` | Permission envelopes the adapters render |
 
@@ -227,12 +229,14 @@ bound reached must stop rework rather than restart it.
 | `SILENT_SKIP` | gate | FAIL | A plan criterion is missing from the ledger |
 | `CRITERION_FAILED` | gate | FAIL | A criterion is `failed` |
 | `UNVERIFIED` | gate | FAIL | A criterion is `unverified`, or deferred by anyone but the human |
-| `UNSUPPORTED_VERDICT` | gate | FAIL | `verified` without evidence that exists and exited 0 |
+| `UNSUPPORTED_VERDICT` | gate | FAIL | `verified` without evidence that exists, exited 0, runs the criterion's assigned or human-accepted check, and is not recorded for another criterion |
 | `EVIDENCE_STALE` | gate | FAIL | Evidence a verified criterion, finding resolution, or dispute decision relies on was produced on a commit other than `head_commit` |
 | `REVIEW_NOT_INDEPENDENT` | gate | FAIL | Independent review is required and the verifier is not the owner of a `verify` package that reviews the package |
 | `UNRESOLVED_FINDING` | gate | FAIL | A blocking or major finding is open |
-| `UNSUPPORTED_RESOLUTION` | gate | FAIL | A finding resolved or rejected without passing evidence, or rejected on its raiser's own evidence |
+| `UNSUPPORTED_RESOLUTION` | gate | FAIL | A finding resolved or rejected without passing evidence, or rejected on its raiser's own evidence, by ID or identity |
 | `RISK_NOT_ACCEPTED_BY_HUMAN` | gate | FAIL | `accepted-risk` without `accepted_by: human` |
 | `VOTE_NOT_EVIDENCE` | gate | FAIL | A dispute resolved on a basis other than evidence or the human, on evidence it does not cite, or on a `human` basis the human did not decide |
-| `DISPUTE_OPEN` | gate | ESCALATE | A dispute is open or escalated |
+| `VERIFICATION_FAILED` | gate | FAIL | A profile `repository.verification` command has no passing evidence at `head_commit` |
+| `WORKSPACE_MISMATCH` | gate | FAIL | With `--root`, the repository's HEAD is not `head_commit`, it holds uncommitted changes outside `state_dir`, or git cannot confirm either |
+| `DISPUTE_OPEN` | gate | ESCALATE | A dispute is open or escalated, or decided on evidence while both positions, or neither, have passing evidence |
 | `REWORK_LIMIT` | gate | ESCALATE | A package exceeded `max_rework_cycles` |

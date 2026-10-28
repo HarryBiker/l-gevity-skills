@@ -137,6 +137,18 @@ whether or not the jobs it needs succeeded, so each such condition tests
   mode skips permission prompts, so the `ask` rules do not stop them. Whether
   the `deny` rules still block there was not verified. In the pipeline, the
   human checkpoints are the `request-input` jobs.
+- **Headless Claude Code stops background sub-agents.** Sub-agents start in
+  the background; in `claude -p`, Claude Code stops them 10 minutes after the
+  lead's last turn. A recorded run lost its verifier that way
+  (`.pilot/results/claude-multi-parallel-1.json`). The settings set
+  `CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS` to one hour; interactive sessions
+  re-invoke the lead when a sub-agent finishes and are not affected.
+- **The pipeline's lead step ends with its turn.** `builtin/agent-prompt` asks
+  for its structured result when the lead's turn ends, so sub-agents still
+  running in the background are abandoned. Runs e2e-3 and e2e-4 lost wave 2
+  this way and correctly returned `ESCALATE`. The spawn instruction now has the
+  lead launch each wave in the foreground (`run_in_background: false`) in
+  Claude Code and wait with `wait_agent` in Codex.
 - **Claude Code ignores the `allow` rules until the workspace is trusted.**
   In an untrusted temp project, `claude -p` printed: "Ignoring 4
   permissions.allow entries … this workspace has not been trusted".

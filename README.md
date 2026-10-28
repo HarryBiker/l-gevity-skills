@@ -184,7 +184,7 @@ an agent.
 ### What is decided by code, not by the model
 
 `check_orchestration.py` decides every rule that has a deterministic answer,
-and each of its 45 codes is exercised by one of 64
+and each of its 49 codes is exercised by at least one of 99
 [adversarial cases](./.adversarial/):
 
 | Check | Rejects |
@@ -259,9 +259,11 @@ write sets, waves), `handoffs/<package>.json`, and `ledger.json` (criteria,
 evidence, findings, disputes). Re-check any of them yourself:
 
 ```sh
-python .agents/skills/alchemy-orchestrate/scripts/check_orchestration.py plan    .alchemy/runs/<id>/plan.json
-python .agents/skills/alchemy-orchestrate/scripts/check_orchestration.py handoff .alchemy/runs/<id>/handoffs/P1.json --plan .alchemy/runs/<id>/plan.json --root .
-python .agents/skills/alchemy-orchestrate/scripts/check_orchestration.py gate    .alchemy/runs/<id>/ledger.json --plan .alchemy/runs/<id>/plan.json
+C=.agents/skills/alchemy-orchestrate/scripts/check_orchestration.py
+R=.alchemy/runs/<id>
+python $C plan    $R/plan.json                          --profile alchemy-workspace.json
+python $C handoff $R/handoffs/P1.json --plan $R/plan.json --profile alchemy-workspace.json --root .
+python $C gate    $R/ledger.json      --plan $R/plan.json --profile alchemy-workspace.json --root .
 ```
 
 Your runtime's transcript shows which agents were spawned and which skills
@@ -269,31 +271,47 @@ each loaded.
 
 ### Runtime support
 
-| Runtime | How agents are launched | Status |
-|:--|:--|:--|
-| Claude Code | Native: the lead's Agent tool with `alchemy-implementer` (own git worktree) and `alchemy-analyst` (read-only) | Both agents load (`claude -p`). A trivial `/alchemy` task stayed single-agent with no launch. A multi-agent `/alchemy` audit and an injected-agent-failure run are recorded under [.pilot/results](./.pilot/results/); see the pull request for their outcome. |
-| Codex | Native: `spawn_agent` / `wait_agent` with the custom agents in `.codex/agents/` | `codex exec` lists and spawns `alchemy-analyst`, which answers in the hand-off format. A `$alchemy` audit selected multi-agent unprompted and passed its plan check, but its spawns failed because the test harness ran Codex with `--ephemeral` (no saved session to fork); the lead reported the failure and fell back as specified. A rerun without that flag is recorded under [.pilot/results](./.pilot/results/). |
-| Unstoppable | Preconfigured workflow: the `alchemy-multi-agent` pipeline (plan, plan check, human approval, native sub-agents, cross-provider review, gate, human approval, pull request). Inside a chat, the Claude Code or Codex mechanism above. | Validated with `unstoppable-code pipelines validate`; an end-to-end CLI run is recorded under [.pilot/results](./.pilot/results/) when it completes. |
-| Other agents (Gemini CLI, Grok CLI) | None shipped | Fallback: single-agent, with the limitation reported |
+Every row below is backed by a recorded run in [.pilot/results](./.pilot/results/);
+the acceptance facts in each result are extracted from the runtime's own event
+stream or saved sessions, not from the agent's summary.
+
+| Runtime | How agents are launched | Verified by real runs | Not verified |
+|:--|:--|:--|:--|
+| Claude Code | Native: the lead's Agent tool with `alchemy-implementer` (own git worktree) and `alchemy-analyst` (read-only) | A trivial `/alchemy` task stayed single-agent with no launch. Complex `/alchemy` objectives chose multi-agent unprompted and launched real agents. Two implementers ran in parallel in separate worktrees, and the verifier started only after both finished. Delegated agents loaded their own ALCHEMY skills. An injected agent crash was retried once. Independent reviewers drove corrections, and the gate held at `FAIL` for a decision only the human can make. | A full headless run once lost its verifier when Claude Code stopped background agents after the lead's last turn; the adapter now bounds that wait, and the rerun's runner process died before it could record the outcome. |
+| Codex | Native: `spawn_agent` / `wait_agent`, with the custom agents in `.codex/agents/` | `codex exec` lists and spawns `alchemy-analyst`, which answers in the hand-off format. A `$alchemy` audit chose multi-agent unprompted. A depth-1 reviewer sub-agent, recovered from Codex's saved sessions, loaded its skills, found a money defect by executing a reproduction, and was re-run after the lead's correction. | Parallel implementers, and an injected failure. The reviewer ran as Codex's default agent type, not as `alchemy-analyst`. |
+| Unstoppable | Preconfigured workflow: the `alchemy-multi-agent` pipeline (plan, plan check, human approval, native sub-agents, cross-provider review, gate, human approval, pull request). In a chat, the Claude Code or Codex mechanism above. | The pipeline validates and runs from the CLI. Planning produced checked multi-wave plans, and human checkpoints paused the run. When execution could not finish, the lead escalated rather than claiming success: once for a repository defect, and twice when its turn ended with agents still running. | A complete pass through review, gate, and pull request. |
+| Other agents (Gemini CLI, Grok CLI) | None shipped | — | Fallback: single-agent, with the limitation reported |
 
 The adapter details, every mechanism, and every limitation are in the
 [adapters reference](./.agents/skills/alchemy-orchestrate/adapters/README.md).
 
 ### Single agent or several: measured
 
-The pilot in [.pilot/](./.pilot/README.md) gives both arms the identical
-`/alchemy` objective on a small backend with ten seeded defects (correctness,
-security, dead code, layering, duplication) and scores them with hidden tests.
-Only the profile differs: `execution.multi_agent` is `off` for the baseline.
+The pilot in [.pilot/](./.pilot/README.md) runs the normal `/alchemy` or
+`$alchemy` entrypoint on a small backend with ten seeded defects (correctness,
+security, dead code, layering, duplication), and scores the result with hidden
+tests. Only the profile differs between arms: `execution.multi_agent` is `off`
+for the baseline.
 
-| Run | Execution | Agents | Seeded defects fixed | Visible tests | Cost | Time |
+| Run | Execution | Agents launched | Seeded defects fixed | Visible tests | Cost | Time |
 |:--|:--|:--|:--|:--|:--|:--|
-| Claude Code, trivial rename | single-agent (SKIP) | 0 | n/a | pass | $0.34 | 24 s |
+| Claude Code, trivial rename | single-agent (`SKIP`) | 0 | n/a | pass | $0.34 | 24 s |
 | Claude Code, audit, baseline (`off`) | single-agent | 0 | 9 / 10 | pass | $5.42 | 13 min |
-| Codex, audit, `--ephemeral` harness defect | multi-agent selected; spawn failed, fallback | 0 recorded | 8 / 10 | pass | not reported by Codex | 6.5 min |
+| Claude Code, audit | lead + 1 independent analyst | 1 | 10 / 10 | pass | $10.46 | 23 min |
+| Claude Code, audit, injected agent crash | lead + 2 parallel reviewers, crash retried | 3 (1 blocked) | 10 / 10 | pass | $21.22 | 42 min |
+| Claude Code, two independent features | 2 parallel implementers, then 1 verifier; the verifier was stopped by the headless background limit, so no `PR.md` | 3 | n/a (feature task) | pass | $10.46 | 23 min |
+| Codex, audit (harness ran `--ephemeral`) | multi-agent chosen; spawns failed | 0 | 8 / 10 | pass | not reported | 6.5 min |
+| Codex, audit | lead + 1 reviewer sub-agent | 1 | 8 / 10 | pass | not reported | 5 min |
 
-One fixture and one run per arm cannot establish a quality difference; treat
-these as a reproducible smoke test of the behavior, not a benchmark.
+What these runs do and do not show:
+
+- **Shown:** the decision, the delegation, skill loading, parallelism,
+  dependency order, bounded recovery, and the gate behave as specified.
+- **Not shown:** that multi-agent finds more defects in general. With one
+  fixture and one run per arm, multi-agent fixed one more seeded defect than
+  the baseline (10 vs 9) at roughly two to four times the cost.
+- **How to treat them:** as a reproducible smoke test of the behavior, not a
+  benchmark. Keep multi-agent where your own baseline shows it pays.
 
 ### Limitations and cost
 
@@ -304,6 +322,10 @@ these as a reproducible smoke test of the behavior, not a benchmark.
   delegation depth 1, and the concurrency cap through its settings; Codex
   enforces only the cap, and relies on instructions plus the hand-off check
   for the rest; Codex agents share one working directory.
+- **Non-interactive runs must wait for their agents.** In headless and
+  pipeline runs, a lead whose turn ends while sub-agents still run loses them;
+  the adapters bound the background wait and launch waves in the foreground.
+  Interactive sessions are not affected.
 - **Permission rules are guardrails.** A deny rule matches command text, so it
   is not a sandbox; the hand-off and gate checks are the backstop.
 - **Not exercised end to end:** cross-repository work, and the real

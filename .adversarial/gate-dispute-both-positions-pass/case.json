@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #97: when both positions have passing evidence the human decides",
+  "description": "Dispute X1 was decided by the lead on evidence, but both the handler and the repository positions cite passing checks.",
+  "command": "gate",
+  "args": {
+    "plan": "plan.json",
+    "ledger": "ledger.json"
+  },
+  "expect": {
+    "verdict": "ESCALATE",
+    "codes": [
+      "DISPUTE_OPEN"
+    ]
+  }
+}

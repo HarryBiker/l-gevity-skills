@@ -1,0 +1,586 @@
+{
+  "schema": "alchemy-pilot-result/1",
+  "fixture": "server-audit",
+  "arm": "multi",
+  "runtime": "claude",
+  "runtime_version": "claude-code 2.1.293",
+  "model_requested": "claude-opus-5",
+  "model_reported": "claude-opus-5",
+  "objective": {
+    "name": "file:parallel-features.txt",
+    "prompt": "/alchemy Implement two independent changes, each with its own tests, then verify both and write a pull request description to PR.md with what changed, the evidence (commands and results), and what you did not verify. (1) Users: POST /users rejects an email that does not contain exactly one '@' with a non-empty part on each side, or that is longer than 254 characters, with 400. (2) Reports: POST /reports/orders accepts an optional \"status\" field (pending, paid, shipped, delivered, or cancelled) and exports only orders in that state; any other value returns 400. Keep every existing test passing. Do not push or open a real pull request."
+  },
+  "workspace": {
+    "multi_agent": "auto",
+    "multi_agent_written_by_init": "auto",
+    "init_workspace_created": [
+      ".alchemy/runs/.gitignore",
+      ".claude/agents/alchemy-analyst.md",
+      ".claude/agents/alchemy-implementer.md",
+      ".claude/settings.json",
+      "alchemy-workspace.json"
+    ],
+    "failure_hook": null
+  },
+  "command": [
+    "claude",
+    "-p",
+    "/alchemy Implement two independent changes, each with its own tests, then verify both and write a pull request description to PR.md with what changed, the evidence (commands and results), and what you did not verify. (1) Users: POST /users rejects an email that does not contain exactly one '@' with a non-empty part on each side, or that is longer than 254 characters, with 400. (2) Reports: POST /reports/orders accepts an optional \"status\" field (pending, paid, shipped, delivered, or cancelled) and exports only orders in that state; any other value returns 400. Keep every existing test passing. Do not push or open a real pull request.",
+    "--output-format",
+    "stream-json",
+    "--verbose",
+    "--setting-sources",
+    "project",
+    "--strict-mcp-config",
+    "--no-session-persistence",
+    "--permission-mode",
+    "bypassPermissions",
+    "--forward-subagent-text",
+    "--model",
+    "claude-opus-5"
+  ],
+  "started_at": "2026-10-28T19:19:36+00:00",
+  "finished_at": "2026-10-28T19:43:02+00:00",
+  "wall_clock_seconds": 1405.9,
+  "exit_code": 0,
+  "timed_out": false,
+  "result_event": true,
+  "metrics": {
+    "subtype": "success",
+    "is_error": false,
+    "duration_ms": 162107,
+    "duration_api_ms": 1501456,
+    "num_turns": 13,
+    "total_cost_usd": 10.455058999999997,
+    "usage": {
+      "input_tokens": 26,
+      "cache_creation_input_tokens": 20263,
+      "cache_read_input_tokens": 1981621,
+      "output_tokens": 10712,
+      "output_tokens_details": {
+        "thinking_tokens": 3952
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 20263,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "global",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 54,
+          "cache_read_input_tokens": 160074,
+          "cache_creation_input_tokens": 508,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 508
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard",
+      "fallback_credit": null
+    },
+    "modelUsage": {
+      "claude-opus-5": {
+        "inputTokens": 240,
+        "outputTokens": 112792,
+        "cacheReadInputTokens": 9408213,
+        "cacheCreationInputTokens": 379912,
+        "webSearchRequests": 0,
+        "costUSD": 10.455058999999997,
+        "contextWindow": 1000000,
+        "maxOutputTokens": 64000,
+        "thinkingTokens": 47020,
+        "canonicalModel": "claude-opus-5",
+        "provider": "firstParty",
+        "costBasis": "list"
+      }
+    }
+  },
+  "tools_available": [
+    "Task",
+    "Bash",
+    "CronCreate",
+    "CronDelete",
+    "CronList",
+    "DesignSync",
+    "Edit",
+    "EnterWorktree",
+    "ExitWorktree",
+    "Glob",
+    "Grep",
+    "ListAgents",
+    "Monitor",
+    "NotebookEdit",
+    "PushNotification",
+    "Read",
+    "RemoteTrigger",
+    "ReportFindings",
+    "ScheduleWakeup",
+    "SendMessage",
+    "Skill",
+    "TaskStop",
+    "ToolSearch",
+    "WebSearch",
+    "Workflow",
+    "Write"
+  ],
+  "skills_available": [
+    "alchemy",
+    "alchemy-orchestrate",
+    "architecture-as-code",
+    "architecture-as-code-javascript",
+    "architecture-as-code-python",
+    "architecture-guidelines",
+    "bring-down",
+    "ci-cd-reliability-architecture",
+    "continuous-improvement",
+    "defect-shift-left",
+    "dependency-lifecycle",
+    "evolutionary-database-design",
+    "functionality-complexity-tradeoff",
+    "implementation-readiness",
+    "morphogenetic-architecture",
+    "observability-design",
+    "push-out",
+    "requirements-grounding",
+    "requirements-topology",
+    "requirements-traceability",
+    "structural-simplification",
+    "system-optimization",
+    "test-strategy",
+    "zero-copy-requirements",
+    "deep-research",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring"
+  ],
+  "tool_calls": {
+    "lead": {
+      "Bash": 39,
+      "Agent": 3,
+      "ToolSearch": 1
+    },
+    "subagents": {
+      "Skill": 7,
+      "Bash": 62,
+      "Read": 14,
+      "Edit": 9
+    }
+  },
+  "acceptance": {
+    "agent_launches": [
+      {
+        "tool_use_id": "toolu_01ArakqYr1jhCm1yyPPSNYDe",
+        "order": 0,
+        "subagent_type": "alchemy-implementer",
+        "role": "implementer",
+        "description": "P1 email validation",
+        "launched_by": "lead",
+        "background": true,
+        "blocked": false,
+        "is_error": false,
+        "launch_index": 272,
+        "finish_index": 404,
+        "launched_at": 378.032,
+        "finished_at": 508.409,
+        "subagent_events": 72
+      },
+      {
+        "tool_use_id": "toolu_01EeKXmM988UyKboHbbjtLQD",
+        "order": 1,
+        "subagent_type": "alchemy-implementer",
+        "role": "implementer",
+        "description": "P2 report status filter",
+        "launched_by": "lead",
+        "background": true,
+        "blocked": false,
+        "is_error": false,
+        "launch_index": 297,
+        "finish_index": 515,
+        "launched_at": 405.905,
+        "finished_at": 643.142,
+        "subagent_events": 111
+      },
+      {
+        "tool_use_id": "toolu_01GssKwd57b66dZqMaHAKWVP",
+        "order": 2,
+        "subagent_type": "alchemy-analyst",
+        "role": "analyst",
+        "description": "P3 independent verification",
+        "launched_by": "lead",
+        "background": true,
+        "blocked": false,
+        "is_error": false,
+        "launch_index": 567,
+        "finish_index": 800,
+        "launched_at": 756.5,
+        "finished_at": 1405.665,
+        "subagent_events": 170
+      }
+    ],
+    "agent_launch_count": 3,
+    "parallel_overlap": true,
+    "review_after_implementation": true,
+    "review_launches": [
+      "toolu_01GssKwd57b66dZqMaHAKWVP"
+    ],
+    "correction_after_review": false,
+    "correction_launches": [],
+    "skills_loaded_by_lead": [
+      "alchemy-orchestrate",
+      "architecture-guidelines",
+      "functionality-complexity-tradeoff",
+      "morphogenetic-architecture",
+      "structural-simplification",
+      "test-strategy"
+    ],
+    "skills_loaded_by_subagents": {
+      "toolu_01ArakqYr1jhCm1yyPPSNYDe": [
+        "alchemy-orchestrate",
+        "test-strategy"
+      ],
+      "toolu_01EeKXmM988UyKboHbbjtLQD": [
+        "alchemy-orchestrate",
+        "test-strategy"
+      ],
+      "toolu_01GssKwd57b66dZqMaHAKWVP": [
+        "alchemy-orchestrate",
+        "functionality-complexity-tradeoff",
+        "test-strategy"
+      ]
+    },
+    "subagent_events_observed": 353,
+    "execution_line": null,
+    "execution_lines": [],
+    "execution_mode": null,
+    "dispatch": null,
+    "orchestration_checks": [
+      {
+        "kind": "plan",
+        "command": "mkdir -p .alchemy/runs/r1 && cat > .alchemy/runs/r1/plan.json <<'JSON'\n{\n  \"schema\": \"alchemy-plan/1\",\n  \"objective\": \"Reject malformed and over-long registration emails; filter the order export by order status\",\n  \"requirements\": [\"REQ-1\", \"REQ-2\"],\n  \"conflicts\": [],\n  \"base\": {\"commit\": \"53c8adc191b21243138f92c7fbee58c78f52a27d\"},\n  \"contracts_existing\": [\"contract:order-service-interface\"],\n  \"execution\": {\n    \"mode\": \"multi-agent\",\n    \"strategy\": \"dependency-aware\",\n    \"max_parallel_agents\": 2,\n    \"integration_owner\": \"lead\",\n    \"independent_review\": true,\n    \"merge_policy\": \"human-approval\"\n  },\n  \"packages\": [\n    {\n      \"id\": \"P1\",\n      \"kind\": \"implement\",\n      \"capabilities\": [\"engineering\"],\n      \"skills\": [\"test-strategy\"],\n      \"owner\": \"agent-a\",\n      \"envelope\": \"implementer\",\n      \"risk\": \"medium\",\n      \"requirements\": [\"REQ-1\"],\n      \"writes\": [\"src/users/service.js\", \"test/users.test.js\"],\n      \"reads\": [\"src/\", \"test/\"],\n      \"depends_on\": [],\n      \"produces\": [],\n      \"consumes\": [],\n      \"acceptance\": [\n        {\"id\": \"REQ-1-AC1\", \"check\": \"command\", \"command\": \"node --test test/users.test.js\"}\n      ],\n      \"permissions\": [\"read\", \"edit\", \"test\"],\n      \"budget\": {\"max_turns\": 40}\n    },\n    {\n      \"id\": \"P2\",\n      \"kind\": \"implement\",\n      \"capabilities\": [\"engineering\"],\n      \"skills\": [\"test-strategy\"],\n      \"owner\": \"agent-b\",\n      \"envelope\": \"implementer\",\n      \"risk\": \"medium\",\n      \"requirements\": [\"REQ-2\"],\n      \"writes\": [\"src/orders/service.js\", \"src/reports/routes.js\", \"test/reports.test.js\"],\n      \"reads\": [\"src/\", \"test/\"],\n      \"depends_on\": [],\n      \"produces\": [],\n      \"consumes\": [\"contract:order-service-interface\"],\n      \"acceptance\": [\n        {\"id\": \"REQ-2-AC1\", \"check\": \"command\", \"command\": \"node --test test/reports.test.js\"}\n      ],\n      \"permissions\": [\"read\", \"edit\", \"test\"],\n      \"budget\": {\"max_turns\": 40}\n    },\n    {\n      \"id\": \"P3\",\n      \"kind\": \"verify\",\n      \"capabilities\": [\"verification\"],\n      \"skills\": [\"test-strategy\", \"functionality-complexity-tradeoff\"],\n      \"owner\": \"agent-c\",\n      \"envelope\": \"analyst\",\n      \"risk\": \"low\",\n      \"requirements\": [\"REQ-1\", \"REQ-2\"],\n      \"writes\": [],\n      \"reads\": [\"src/\", \"test/\", \"README.md\"],\n      \"depends_on\": [\"P1\", \"P2\"],\n      \"reviews\": [\"P1\", \"P2\"],\n      \"acceptance\": [\n        {\"id\": \"P3-AC1\", \"check\": \"command\", \"command\": \"npm test\"},\n        {\"id\": \"P3-AC2\", \"check\": \"review\", \"question\": \"Do the integrated diffs satisfy REQ-1 and REQ-2 exactly, with tests that would fail if the production change were reverted, and no existing behaviour broken?\"}\n      ],\n      \"permissions\": [\"read\", \"test\"]\n    }\n  ]\n}\nJSON\npython .claude/skills/alchemy-orchestrate/scripts/check_orchestration.py plan .alchemy/runs/r1/plan.json --profile alchemy-workspace.json; echo \"EXIT=$?\"",
+        "run_by": "lead",
+        "exit_status": 0,
+        "verdict": "PASS",
+        "at": 290.526
+      },
+      {
+        "kind": "plan",
+        "command": "python - <<'PY'\nimport json\np='.alchemy/runs/r1/plan.json'\nd=json.load(open(p))\nfor pkg in d['packages']:\n    if pkg['id']=='P2':\n        pkg['writes'].append('README.md')\njson.dump(d,open(p,'w'),indent=2)\nPY\npython .claude/skills/alchemy-orchestrate/scripts/check_orchestration.py plan .alchemy/runs/r1/plan.json --profile alchemy-workspace.json; echo \"EXIT=$?\"",
+        "run_by": "lead",
+        "exit_status": 0,
+        "verdict": "PASS",
+        "at": 341.042
+      },
+      {
+        "kind": "handoff",
+        "command": "cat > .alchemy/runs/r1/handoff-P1.json <<'JSON'\n{\n  \"schema\": \"alchemy-handoff/1\",\n  \"package\": \"P1\",\n  \"owner\": \"agent-a\",\n  \"status\": \"DONE\",\n  \"attempt\": 1,\n  \"base_commit\": \"53c8adc191b21243138f92c7fbee58c78f52a27d\",\n  \"head_commit\": \"53c8adc191b21243138f92c7fbee58c78f52a27d\",\n  \"requirements\": [\"REQ-1\"],\n  \"decisions\": [\n    {\"id\": \"P1-D1\", \"summary\": \"No new @-counting code; EMAIL_PATTERN left byte-identical; only production change is the 254-character cap.\", \"ref\": \"src/users/service.js\"},\n    {\"id\": \"P1-D2\", \"summary\": \"Cap as module-level MAX_EMAIL_LENGTH = 254 beside MIN_PASSWORD_LENGTH, checked in register(), raising invalid(...) mapped to 400.\", \"ref\": \"src/users/service.js\"},\n    {\"id\": \"P1-D3\", \"summary\": \"Mutation check outside evidence: deleting the cap failed only the boundary test (7 pass / 1 fail); cap restored before the recorded run.\", \"ref\": \"src/users/service.js\"}\n  ],\n  \"assumptions\": [\n    \"The cap applies to the normalized (trimmed, lowercased) email, the value the store persists.\",\n    \"REQ-1 read as rejection-only; both boundary addresses satisfy EMAIL_PATTERN so the 255 case fails solely on length.\",\n    \"Cap enforced in register() only; verifyCredentials and the login path unchanged.\",\n    \"Changes left uncommitted in the agent worktree, so head_commit equals base_commit.\"\n  ],\n  \"relied_on\": [\n    {\"path\": \"src/http/router.js\", \"sha256\": \"f318e55e1e7edf2ba904b120327fbd0e09edd6b429d8fb057f5dd09f449abeba\"},\n    {\"path\": \"src/lib/errors.js\", \"sha256\": \"b4314361b5bb1d8208b2cdd29c894c33c08035c821d6a2389a602c12f051a236\"},\n    {\"path\": \"test/helpers.js\", \"sha256\": \"206552f8c9209538203acb0848d2f2e8a59c72a4b4a9b812d673f0e8f446986e\"},\n    {\"path\": \"src/http/respond.js\", \"sha256\": \"05289656daf185e1dc97bf8389ca4d3b7d392b21cd69f844028fdfa1044d5c43\"}\n  ],\n  \"changed_files\": [\n    {\"path\": \"src/users/service.js\", \"sha256\": \"79a79b4bce048d1903380e156d71b5ffa43b7a2111d5a4bbd5e634e6813ebbd3\"},\n    {\"path\": \"test/users.test.js\", \"sha256\": \"c359a8f66f629d31c0ef7f07216e3b95ad5af64761cd633331cef150c45ce0db\"}\n  ],\n  \"evidence\": [\n    {\"id\": \"E1\", \"criterion\": \"REQ-1-AC1\", \"command\": \"node --test test/users.test.js\", \"exit_code\": 0, \"commit\": \"53c8adc191b21243138f92c7fbee58c78f52a27d\", \"summary\": \"8 tests, 8 passed, 0 failed\"}\n  ],\n  \"claims\": [\n    {\"text\": \"POST /users returns 400 for no '@', a@@b.com, a@b@c.com, @example.com, and alice@.\", \"evidence\": [\"E1\"]},\n    {\"text\": \"POST /users returns 201 for a normalized email of exactly 254 characters.\", \"evidence\": [\"E1\"]},\n    {\"text\": \"POST /users returns 400 for a normalized email of 255 characters, failing only on the new cap.\", \"evidence\": [\"E1\"]},\n    {\"text\": \"No pre-existing test in test/users.test.js was modified or deleted.\", \"evidence\": [\"E1\"]}\n  ],\n  \"blockers\": [],\n  \"next_owner\": \"lead\",\n  \"integration_ready\": true\n}\nJSON\npython .claude/skills/alchemy-orchestrate/scripts/check_orchestration.py handoff .alchemy/runs/r1/handoff-P1.json --plan .alchemy/runs/r1/plan.json --root \".claude/worktrees/agent-a3f6f9061bae18942\"; echo \"EXIT=$?\"",
+        "run_by": "lead",
+        "exit_status": 0,
+        "verdict": "ACCEPT",
+        "at": 528.995
+      },
+      {
+        "kind": "handoff",
+        "command": "cat > .alchemy/runs/r1/handoff-P2.json <<'JSON'\n{\n  \"schema\": \"alchemy-handoff/1\",\n  \"package\": \"P2\",\n  \"owner\": \"agent-b\",\n  \"status\": \"DONE\",\n  \"attempt\": 1,\n  \"base_commit\": \"53c8adc191b21243138f92c7fbee58c78f52a27d\",\n  \"head_commit\": \"53c8adc191b21243138f92c7fbee58c78f52a27d\",\n  \"requirements\": [\"REQ-2\"],\n  \"decisions\": [\n    {\"id\": \"P2-D1\", \"summary\": \"Allow-list derived as Object.keys(TRANSITIONS) in src/orders/service.js; no second literal status list anywhere\", \"ref\": \"src/orders/service.js\"},\n    {\"id\": \"P2-D2\", \"summary\": \"all({ status } = {}) validates and filters in the orders service; the reports route forwards the body and adds no require\", \"ref\": \"src/reports/routes.js\"},\n    {\"id\": \"P2-D3\", \"summary\": \"orders.all(body) runs before fs.mkdir so a rejected status performs no filesystem write\", \"ref\": \"src/reports/routes.js\"},\n    {\"id\": \"P2-D4\", \"summary\": \"No typeof guard on status: includes uses SameValueZero, so null, 7, empty string and objects all fail the derived allow-list\", \"ref\": \"src/orders/service.js\"},\n    {\"id\": \"P2-D5\", \"summary\": \"Mutation check outside evidence: reverting all() to unfiltered made 4 of 7 reports tests fail; change restored before the recorded run\", \"ref\": \"src/orders/service.js\"}\n  ],\n  \"assumptions\": [\n    \"readJson guarantees the handler body is a non-null non-array object, so orders.all(body) never receives null from HTTP; the = {} default keeps orders.all() callable with no argument.\",\n    \"Work left uncommitted in the isolated agent worktree; digests taken there, so the hand-off check must use --root pointing at it.\",\n    \"No instruction aimed at an agent was found in any file or tool output read.\"\n  ],\n  \"relied_on\": [\n    {\"path\": \"src/http/router.js\", \"sha256\": \"f318e55e1e7edf2ba904b120327fbd0e09edd6b429d8fb057f5dd09f449abeba\"},\n    {\"path\": \"src/lib/errors.js\", \"sha256\": \"b4314361b5bb1d8208b2cdd29c894c33c08035c821d6a2389a602c12f051a236\"},\n    {\"path\": \"src/orders/routes.js\", \"sha256\": \"c213ed43ef57d63cab6b828444602d169798d9521fdbecd14e0ac3a0cf8a69fd\"},\n    {\"path\": \"src/payments/routes.js\", \"sha256\": \"d6ecb778ff7eec2e9b078c12ccede95e6703d5041452cc77e02f38d8e67677a2\"},\n    {\"path\": \"test/helpers.js\", \"sha256\": \"206552f8c9209538203acb0848d2f2e8a59c72a4b4a9b812d673f0e8f446986e\"}\n  ],\n  \"changed_files\": [\n    {\"path\": \"src/orders/service.js\", \"sha256\": \"0e4bf11df6558d9c0937b49d058c7b126a1aeb5ab891d47d74c7b968a1a8e918\"},\n    {\"path\": \"src/reports/routes.js\", \"sha256\": \"e3cfeeac52ba2322f4139040e9165b8f46c20f9e3ead41103a0ef1ca7d3dee4e\"},\n    {\"path\": \"test/reports.test.js\", \"sha256\": \"3c9579e62ad43bccc5a8fdd2cf724889a1f6fdbf10061c1a1ee68525e840c493\"},\n    {\"path\": \"README.md\", \"sha256\": \"695adaca5dfd270e506cd99a5995586d9d2f2425f8d04c264cdae7fa51912204\"}\n  ],\n  \"evidence\": [\n    {\"id\": \"E1\", \"criterion\": \"REQ-2-AC1\", \"command\": \"node --test test/reports.test.js\", \"exit_code\": 0, \"commit\": \"53c8adc191b21243138f92c7fbee58c78f52a27d\", \"summary\": \"tests 7, pass 7, fail 0\"},\n    {\"id\": \"E2\", \"criterion\": \"REQ-2-AC1\", \"command\": \"node --test test/orders.test.js test/payments.test.js\", \"exit_code\": 0, \"commit\": \"53c8adc191b21243138f92c7fbee58c78f52a27d\", \"summary\": \"tests 10, pass 10, fail 0\"}\n  ],\n  \"claims\": [\n    {\"text\": \"POST /reports/orders with pending, paid, shipped, delivered or cancelled returns 201 and the CSV holds exactly the orders in that state.\", \"evidence\": [\"E1\"]},\n    {\"text\": \"POST /reports/orders with any other status value returns 400.\", \"evidence\": [\"E1\"]},\n    {\"text\": \"A rejected status creates no file in the report directory.\", \"evidence\": [\"E1\"]},\n    {\"text\": \"Omitting status still exports every order with the original CSV header and row format.\", \"evidence\": [\"E1\"]},\n    {\"text\": \"Extending orders.all() with the optional filter breaks no other caller of the order service.\", \"evidence\": [\"E2\"]}\n  ],\n  \"blockers\": [],\n  \"next_owner\": \"lead\",\n  \"integration_ready\": true\n}\nJSON\npython .claude/skills/alchemy-orchestrate/scripts/check_orchestration.py handoff .alchemy/runs/r1/handoff-P2.json --plan .alchemy/runs/r1/plan.json --root \".claude/worktrees/agent-a7fff0029b5f311f2\"; echo \"EXIT=$?\"",
+        "run_by": "lead",
+        "exit_status": 0,
+        "verdict": "ACCEPT",
+        "at": 662.498
+      },
+      {
+        "kind": "handoff",
+        "command": "python .claude/skills/alchemy-orchestrate/scripts/check_orchestration.py handoff /tmp/handoff-P3.json --plan .alchemy/runs/r1/plan.json --root . ; echo \"CHECK EXIT=$?\"",
+        "run_by": "toolu_01GssKwd57b66dZqMaHAKWVP",
+        "exit_status": 0,
+        "verdict": "STALE",
+        "at": 1351.315
+      },
+      {
+        "kind": "handoff",
+        "command": "python -c \"\nimport json\np=json.load(open('.alchemy/runs/r1/plan.json',encoding='utf-8'))\np['base']['integrated']=['c5e1871cf616e8dd3f4b7b7f23de014b37047214']\njson.dump(p,open('/tmp/plan-with-integrated.json','w',encoding='utf-8'))\nprint('wrote /tmp/plan-with-integrated.json (scratch copy, repo plan untouched)')\n\" && python .claude/skills/alchemy-orchestrate/scripts/check_orchestration.py handoff /tmp/handoff-P3.json --plan /tmp/plan-with-integrated.json --root . ; echo \"CHECK EXIT=$?\"; git status --porcelain",
+        "run_by": "toolu_01GssKwd57b66dZqMaHAKWVP",
+        "exit_status": 0,
+        "verdict": null,
+        "at": 1358.625
+      },
+      {
+        "kind": "handoff",
+        "command": "T=\"<tmp>\" && python -c \"\nimport json,sys\np=json.load(open('.alchemy/runs/r1/plan.json',encoding='utf-8'))\np['base']['integrated']=['c5e1871cf616e8dd3f4b7b7f23de014b37047214']\njson.dump(p,open(sys.argv[1],'w',encoding='utf-8'))\n\" \"$T/plan-with-integrated.json\" && python .claude/skills/alchemy-orchestrate/scripts/check_orchestration.py handoff \"$T/handoff-P3.json\" --plan \"$T/plan-with-integrated.json\" --root . ; echo \"CHECK EXIT=$?\"; rm -f /c/tmp/plan-with-integrated.json; git status --porcelain",
+        "run_by": "toolu_01GssKwd57b66dZqMaHAKWVP",
+        "exit_status": 0,
+        "verdict": "ACCEPT",
+        "at": 1365.708
+      }
+    ],
+    "injected_failure": {
+      "blocked_launches": 0,
+      "retried": false,
+      "retry_same_subagent_type": false,
+      "retry_tool_use_id": null
+    }
+  },
+  "injection": null,
+  "score": {
+    "schema": "alchemy-pilot-score/1",
+    "fixture": "server-audit",
+    "node": "v24.19.0",
+    "visible_tests_pass": true,
+    "visible_tests": {
+      "pass": true,
+      "exit": 0,
+      "timed_out": false,
+      "counts": {
+        "tests": 19,
+        "pass": 19,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "failing": []
+    },
+    "project_tests_pass": true,
+    "project_tests": {
+      "pass": true,
+      "exit": 0,
+      "timed_out": false,
+      "counts": {
+        "tests": 26,
+        "pass": 26,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "failing": []
+    },
+    "defects": [
+      {
+        "id": "D01",
+        "category": "correctness",
+        "file": "src/lib/pagination.js",
+        "method": "hidden-test",
+        "fixed": false,
+        "evidence": "D01.test.js: exit 1, failing ['D01 totalPages counts a partially filled last page']"
+      },
+      {
+        "id": "D02",
+        "category": "correctness",
+        "file": "src/lib/money.js",
+        "method": "hidden-test",
+        "fixed": false,
+        "evidence": "D02.test.js: exit 1, failing ['D02 order totals are exact to the cent']"
+      },
+      {
+        "id": "D03",
+        "category": "correctness",
+        "file": "src/orders/service.js",
+        "method": "hidden-test",
+        "fixed": false,
+        "evidence": "D03.test.js: exit 1, failing ['D03 a shipped order cannot be cancelled']"
+      },
+      {
+        "id": "D04",
+        "category": "security",
+        "file": "src/orders/routes.js",
+        "method": "hidden-test",
+        "fixed": false,
+        "evidence": "D04.test.js: exit 1, failing [\"D04 a customer cannot read another customer's order\"]"
+      },
+      {
+        "id": "D05",
+        "category": "security",
+        "file": "src/auth/tokens.js",
+        "method": "static",
+        "fixed": false,
+        "evidence": "['src/auth/tokens.js'] match 'createHmac' without 'timingSafeEqual'"
+      },
+      {
+        "id": "D06",
+        "category": "security",
+        "file": "src/reports/routes.js",
+        "method": "hidden-test",
+        "fixed": false,
+        "evidence": "D06.test.js: exit 1, failing ['D06 report downloads cannot escape the report directory']"
+      },
+      {
+        "id": "D07",
+        "category": "dead-code",
+        "file": "src/http/respond.js",
+        "method": "static",
+        "fixed": false,
+        "evidence": "matches in ['src/http/respond.js']"
+      },
+      {
+        "id": "D08",
+        "category": "dead-code",
+        "file": "src/payments/providers.js",
+        "method": "static",
+        "fixed": false,
+        "evidence": "matches in ['src/payments/providers.js', 'src/payments/service.js']"
+      },
+      {
+        "id": "D09",
+        "category": "architecture",
+        "file": "src/users/routes.js",
+        "method": "static",
+        "fixed": false,
+        "evidence": "matches in ['src/users/routes.js']"
+      },
+      {
+        "id": "D10",
+        "category": "duplication",
+        "file": "src/payments/service.js",
+        "method": "static",
+        "fixed": false,
+        "evidence": "matches in ['src/payments/service.js']"
+      }
+    ],
+    "by_category": {
+      "correctness": {
+        "fixed": 0,
+        "total": 3
+      },
+      "security": {
+        "fixed": 0,
+        "total": 3
+      },
+      "dead-code": {
+        "fixed": 0,
+        "total": 2
+      },
+      "architecture": {
+        "fixed": 0,
+        "total": 1
+      },
+      "duplication": {
+        "fixed": 0,
+        "total": 1
+      }
+    },
+    "defects_fixed": 0,
+    "defects_total": 10,
+    "result_unmodified": true
+  },
+  "objective_checks": [],
+  "git": {
+    "fixture_commit": "fa64e814bac061a14e2754e1d5c61e1f5f0ddd8a",
+    "base_commit": "53c8adc191b21243138f92c7fbee58c78f52a27d",
+    "agent_commits": 1,
+    "files_changed": [
+      {
+        "path": "README.md",
+        "added": "1",
+        "deleted": "1",
+        "status": "tracked"
+      },
+      {
+        "path": "src/orders/service.js",
+        "added": "6",
+        "deleted": "2",
+        "status": "tracked"
+      },
+      {
+        "path": "src/reports/routes.js",
+        "added": "2",
+        "deleted": "2",
+        "status": "tracked"
+      },
+      {
+        "path": "src/users/service.js",
+        "added": "4",
+        "deleted": "0",
+        "status": "tracked"
+      },
+      {
+        "path": "test/reports.test.js",
+        "added": "84",
+        "deleted": "0",
+        "status": "tracked"
+      },
+      {
+        "path": "test/users.test.js",
+        "added": "25",
+        "deleted": "0",
+        "status": "tracked"
+      },
+      {
+        "path": ".claude/worktrees/agent-a3f6f9061bae18942/",
+        "added": "None",
+        "deleted": "0",
+        "status": "untracked"
+      },
+      {
+        "path": ".claude/worktrees/agent-a7fff0029b5f311f2/",
+        "added": "None",
+        "deleted": "0",
+        "status": "untracked"
+      }
+    ],
+    "fixture_files_changed": [
+      "README.md",
+      "src/orders/service.js",
+      "src/reports/routes.js",
+      "src/users/service.js",
+      "test/reports.test.js",
+      "test/users.test.js"
+    ],
+    "fixture_files_changed_count": 6
+  },
+  "pr_md": {
+    "exists": false
+  },
+  "orchestration_artifacts": [
+    ".alchemy/runs/r1/handoff-P1.json",
+    ".alchemy/runs/r1/handoff-P2.json",
+    ".alchemy/runs/r1/plan.json"
+  ],
+  "isolation": {
+    "forbidden_paths": [],
+    "answer_markers": [],
+    "clean": true
+  },
+  "stream": {
+    "file": "claude-multi-parallel-1.stream.jsonl",
+    "events": 801,
+    "non_json_lines": 0,
+    "census": {
+      "assistant": 251,
+      "rate_limit_event": 12,
+      "result/success": 3,
+      "system/background_tasks_changed": 6,
+      "system/init": 3,
+      "system/task_notification": 9,
+      "system/task_progress": 92,
+      "system/task_started": 9,
+      "system/task_updated": 3,
+      "system/thinking_tokens": 270,
+      "user": 143
+    },
+    "collab_item_keys": null
+  },
+  "stderr_tail": "Ignoring 4 permissions.allow entries from .claude/settings.json: this workspace has not been trusted. Run Claude Code interactively here once and accept the trust dialog, or set projects[\"<run-project>\"].hasTrustDialogAccepted: true in ~\\.claude.json.\nBackground tasks still running 10m after the last turn (subagent \"P3 independent verification\"); stopping them. Set CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS=0 to wait indefinitely.\n",
+  "warnings": []
+}

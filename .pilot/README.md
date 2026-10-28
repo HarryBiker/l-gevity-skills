@@ -4,9 +4,12 @@ A reproducible comparison of ALCHEMY on one agent and on several, for a
 server-side audit-and-refactor task: correctness bugs, security defects, dead
 code, architectural simplification, and independent review.
 
-**Status: harness only.** No real arm has been run yet, and nothing here is a
-result. The fixture is a representative stand-in: the production backend the
-pilot is meant to represent was not available in this repository.
+**Status: real runs recorded.** Each run's result, with acceptance facts taken
+from the runtime's own event stream or saved sessions, is in
+[`results/`](./results/); the summary table and what it does and does not show
+are in the [root README, section 2](../README.md#single-agent-or-several-measured).
+The fixture is a representative stand-in: the production backend the pilot is
+meant to represent was not available in this repository.
 
 ## Layout
 
@@ -19,6 +22,9 @@ pilot is meant to represent was not available in this repository.
 | `run_pilot.py` | Builds a throwaway run project, runs one arm headless, analyses the stream, scores, writes the result |
 | `pilot_analysis.py` | Acceptance facts from a Claude Code or Codex event stream |
 | `test/` | Parser unit tests over hand-written **synthetic** streams; they prove the parser, not the methodology |
+| `codex_threads.py` | Recovers a Codex run's agent tree (parent thread, spawn depth, skills read) from `~/.codex/sessions`, because `codex exec --json` does not always stream sub-agent activity |
+| `objectives/` | Objective files for runs other than the built-in audit and trivial objectives |
+| `results/` | Recorded runs: result JSON plus the redacted, time-stamped event stream |
 
 ## Arms
 

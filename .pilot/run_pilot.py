@@ -328,6 +328,11 @@ def runtime_environment(runtime: str) -> dict:
     environment = dict(os.environ)
     if runtime == "claude":
         environment.pop("CLAUDECODE", None)
+        # Headless runs stop background sub-agents 10 minutes after the lead's
+        # last turn; claude-multi-parallel-1 lost its verifier that way. The
+        # adapter settings carry the same bound; the environment makes sure it
+        # applies before the project settings are read.
+        environment["CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS"] = "3600000"
     return environment
 
 

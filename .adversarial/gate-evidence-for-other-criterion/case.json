@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #93: evidence recorded for one criterion cannot verify another",
+  "description": "The review criterion P3-AC1 cites E21, which the ledger records as evidence for REQ-12-AC1.",
+  "command": "gate",
+  "args": {
+    "plan": "plan.json",
+    "ledger": "ledger.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "UNSUPPORTED_VERDICT"
+    ]
+  }
+}

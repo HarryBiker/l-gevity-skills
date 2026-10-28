@@ -29,6 +29,9 @@ pipeline:
         base: gpt-6.1-sol
 
   env:
+    # Claude Code stops background sub-agents shortly after a non-interactive
+    # turn ends; run e2e-3 lost wave 2 that way. Bound the wait to one hour.
+    CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS: '3600000'
     SKILLS_NOTE: >-
       Paths are relative to the repository root. Skills live under `.agents/skills/`
       or, when that tree is absent, `.claude/skills/`; `<skills>` below means that tree.
@@ -40,6 +43,11 @@ pipeline:
       Run checks as `python <skills>/alchemy-orchestrate/scripts/check_orchestration.py`
       with `--profile alchemy-workspace.json` added when that file exists at the root.
     SPAWN_NOTE: >-
+      Wait for every sub-agent you launch to finish, and check its hand-off, before you
+      return; never end your turn while one is still running. This step ends when your
+      turn ends, so in Claude Code launch each wave's agents in one message with
+      run_in_background set to false: the call then returns only when every agent in the
+      wave has finished. In Codex, call wait_agent until every spawned agent completes.
       Launch a package owned by an agent other than `lead` through this runtime's native
       sub-agents: in Claude Code the Agent tool with subagent_type `alchemy-implementer`
       for implement packages and `alchemy-analyst` for read-only packages; in Codex

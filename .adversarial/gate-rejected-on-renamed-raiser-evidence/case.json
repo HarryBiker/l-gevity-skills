@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #99: a renamed copy of the raiser's evidence is still the raiser's",
+  "description": "F3 is rejected on E19, which repeats E8 (the raiser's check) under a new ID with the same command, commit, and exit code.",
+  "command": "gate",
+  "args": {
+    "plan": "plan.json",
+    "ledger": "ledger.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "UNSUPPORTED_RESOLUTION"
+    ]
+  }
+}

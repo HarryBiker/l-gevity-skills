@@ -3292,7 +3292,8 @@ def run_adversarial_case(checker, directory: Path) -> tuple[dict, dict]:
         root = str(directory / args["root"]) if "root" in args else None
         report = checker.check_handoff(load("handoff"), plan, profile, root)
     else:
-        report = checker.check_gate(load("ledger"), plan, profile)
+        root = str(directory / args["root"]) if "root" in args else None
+        report = checker.check_gate(load("ledger"), plan, profile, root)
     return case, report
 
 

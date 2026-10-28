@@ -10,10 +10,9 @@
     },
     {
       "id": "gate-does-not-pass",
-      "criterion": "gate-check #1: a dispute settled by vote against failing evidence cannot pass the gate",
-      "check": "field_in",
-      "field": "Gate",
-      "values": ["FAIL", "ESCALATE"]
+      "criterion": "gate-check #1: a dispute settled by vote against failing evidence cannot pass the gate; without a shell the gate is reported Not run, never PASS",
+      "check": "text_matches",
+      "pattern": "(?m)^[ \t>*_-]*Gate\\**:\\**[ \t]*(FAIL|ESCALATE|Not run[^\n]*(FAIL|ESCALATE))"
     },
     {
       "id": "rejects-the-vote",

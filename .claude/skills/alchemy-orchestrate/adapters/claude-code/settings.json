@@ -22,7 +22,8 @@
   },
   "env": {
     "CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH": "1",
-    "CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS": "{{ execution.max_parallel_agents }}"
+    "CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS": "{{ execution.max_parallel_agents }}",
+    "CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS": "3600000"
   },
   "worktree": {
     "baseRef": "head"

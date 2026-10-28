@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #90: evidence verifies a criterion only by running its assigned check",
+  "description": "REQ-12-AC1 is assigned 'npm test -- orders' but is marked verified on E15, a passing lint run.",
+  "command": "gate",
+  "args": {
+    "plan": "plan.json",
+    "ledger": "ledger.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "UNSUPPORTED_VERDICT"
+    ]
+  }
+}
