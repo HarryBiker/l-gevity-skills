@@ -1,0 +1,129 @@
+{
+  "schema": "alchemy-pilot-evidence/1",
+  "runtime": "unstoppable (CLI: unstoppable-code pipelines executions run/resume)",
+  "pipeline": ".agents/skills/alchemy-orchestrate/adapters/unstoppable/pipelines/alchemy-multi-agent.yaml",
+  "plan_approval": "Answered 'continue' by the test operator through the CLI; recorded by the runtime as automation-initiated, not human approval.",
+  "result": "No run completed review, gate, and pull request. Every run planned, passed the plan check, paused for approval, and launched execution; every non-completing run stopped with BLOCKED or ESCALATE rather than a false success.",
+  "runs": [
+    {
+      "execution": "alchemy-e2e-2",
+      "note": "Fixture repo built before the .gitignore fix: src/reports/routes.js was untracked, so the base commit was not runnable.",
+      "jobs": {},
+      "plan_check": {
+        "verdict": "PASS",
+        "waves": [
+          [
+            "P1"
+          ],
+          [
+            "P2"
+          ],
+          [
+            "P3",
+            "P4"
+          ],
+          [
+            "P5",
+            "P6"
+          ],
+          [
+            "P7",
+            "P8"
+          ]
+        ],
+        "derived_mode": "multi-agent",
+        "recommendation": "multi-agent",
+        "independent_write_sets": 2
+      },
+      "execute": {
+        "status": "BLOCKED",
+        "report_excerpt": "**What I found**\n\nThe plan's base commit is not a runnable state of this repository, so I stopped the run before dispatching any implementer and left the branch untouched (the record calls this BLOCKED). `src/reports/routes.js` exists only in the working tree: `.gitignore` line 2 reads `reports/`, which matches `src/reports/` as well as the `REPORT_DIR` output directory the rule was evidently written for. The commit tracks `test/reports.test.js` but not the module it exercises, so a clean checkout of `ac3f4787` fails `npm test` 5 of 5 with `Cannot find module './reports/routes'`. That path is in P3's write set, and the fix lives in `.gitignore` or the git index — neither is inside any package's write set.\n\nP1 and P2 (both owned by `lead`) ran and were accepted. The read-only work is done: ten defects admitted with anchors, six reproduced by an executed probe, four necessity verdicts, the requirement topology, and all six contracts P3 and P4 consume.\n\n**Why it matters**\n\nActing on this now means one of two repository decisions, and they are not equivalent: committing `src/reports/routes.js` adds a file the project's own ignore rule excludes and leaves line 2 wrong for the next contributor, while narrowing line 2 to `/reports/` changes what the repository tracks. Not acting leaves the run stalled at 4 of 25 criteria. It also means the evidence I did record is anchored more weakly than its commit field suggests: P1's and P2's checks passed because they ran in the working tree th"
+      }
+    },
+    {
+      "execution": "alchemy-e2e-3",
+      "note": "Lead's turn ended while wave-2 sub-agents ran in the background; no bounded wait yet.",
+      "jobs": {},
+      "plan_check": {
+        "verdict": "PASS",
+        "waves": [
+          [
+            "P-A"
+          ],
+          [
+            "P-B",
+            "P-C"
+          ],
+          [
+            "P-D"
+          ],
+          [
+            "P-E"
+          ]
+        ],
+        "derived_mode": "multi-agent",
+        "recommendation": "multi-agent",
+        "independent_write_sets": 2
+      },
+      "execute": {
+        "status": "ESCALATE",
+        "report_excerpt": "**What I found** — The run was cut off mid-flight. Wave 1 (P-A) is accepted and its three contracts released; wave 2 (P-B, P-C) was launched into isolated worktrees and had not returned hand-offs when output was forced, so nothing is integrated and the worktree head is still the plan base. Status is ESCALATE because a bound was reached (the turn ended while two delegated packages were in flight), not because a check failed: no hand-off was rejected and no criterion failed.\n\n**Why it matters** — No code change has entered the branch, so the repository is exactly at `306743ba` with the 20-test baseline green; nothing must be rolled back. But the two implementer worktrees may hold committed work that no hand-off has been checked against, so resuming must re-receive those hand-offs (or re-run the packages from the base) rather than merging anything on trust. P-D and P-E never started: P-D depends on P-A and P-B, P-E on all three implement packages.\n\n**Do this first** — 1. Re-enter the run and collect the two outstanding hand-offs, then check each: `python .agents/skills/alchemy-orchestrate/scripts/check_orchestration.py handoff .alchemy/runs/20261028T195501Z-6f7bf4a1/handoffs/P-B.json --plan .alchemy/runs/20261028T195501Z-6f7bf4a1/plan.json --profile alchemy-workspace.json --root &lt;that package's worktree&gt;` (and the same for P-C). 2. Integrate wave 2 in order, commit, record the head in `base.integrated`. 3. Then run wave 3 (P-D) and wave 4 (P-E).\n\n**What I did not check** —"
+      }
+    },
+    {
+      "execution": "alchemy-e2e-4",
+      "note": "Bounded wait added, but the agent-prompt step collects its structured result when the lead's turn ends, abandoning background sub-agents.",
+      "jobs": {},
+      "plan_check": {
+        "verdict": "PASS",
+        "waves": [
+          [
+            "P0"
+          ],
+          [
+            "P1",
+            "P2"
+          ],
+          [
+            "P3",
+            "P4"
+          ]
+        ],
+        "derived_mode": "multi-agent",
+        "recommendation": "multi-agent",
+        "independent_write_sets": 2
+      },
+      "execute": {
+        "status": "ESCALATE",
+        "report_excerpt": "## What I found\n\nThe run was forced to return before wave 2 finished. Wave 1 (P0) is complete and accepted; waves 2 and 3 are not. I am reporting ESCALATE rather than INTEGRATED because the P1 and P2 sub-agents were still executing when the structured output was demanded, so I hold no hand-off from either and will not invent one.\n\n## Why it matters\n\nNothing was integrated beyond the base commit, so the repository is unchanged except for an empty integration branch and gitignored run state. All eight requirement obligations remain unfixed in the working tree. Resuming is cheap — P0's contracts are durable on disk — but a fresh run must re-launch P1 and P2 because their worktree hand-offs were never received or checked.\n\n## Do this first\n\n1. Re-launch wave 2 from `.alchemy/runs/20261028T202107Z-9f706245/plan.json` at base `cb0b452`, with the contracts in `.alchemy/runs/2026-10-28-orders-audit/P0-decisions.md`, then waves 3 and the gate.\n2. Check each returned hand-off with `python .agents/skills/alchemy-orchestrate/scripts/check_orchestration.py handoff <file> --plan <plan> --root <workspace>`.\n3. Integration branch `alchemy/20261028T202107Z-9f706245` is already created off `main` and sits at the base commit.\n\n## What I did not check\n\nP1 and P2 hand-offs, the integrated diff, P3 and P4 independent review, the ledger, and the gate — none ran. Close them with the commands in the plan's `acceptance` blocks plus `npm test` and `check_orchestration.py gate`.\n\n---\n\n```text\nExecution:"
+      }
+    },
+    {
+      "execution": "alchemy-e2e-5",
+      "note": "Waves launched in the foreground. Interrupted by a session restart during execute, resumed, then stopped by the operator before execute finished. No verdict.",
+      "jobs": {},
+      "plan_check": {
+        "verdict": "PASS",
+        "waves": [
+          [
+            "P0"
+          ],
+          [
+            "P1",
+            "P2"
+          ],
+          [
+            "P3",
+            "P4"
+          ]
+        ],
+        "derived_mode": "multi-agent",
+        "recommendation": "multi-agent",
+        "independent_write_sets": 2
+      },
+      "execute": {
+        "status": "not finished"
+      }
+    }
+  ]
+}

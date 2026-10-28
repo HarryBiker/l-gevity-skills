@@ -1,0 +1,1276 @@
+{
+  "schema": "alchemy-pilot-evidence/1",
+  "run": "claude-multi-parallel-2",
+  "note": "The runner process exited 127 mid-run, so no event stream was captured; the Claude Code session kept running and finished. This record is reconstructed from the run project's own artifacts: git history and worktrees, the run records the lead wrote, and PR.md. The gate was re-run on the lead's ledger with the current checker, without --root.",
+  "objective_file": ".pilot/objectives/parallel-features.txt",
+  "git_log": [
+    "3c66272 Import orders-service",
+    "d3b2f0a Add skill library and workspace profile",
+    "c68d9aa Reject over-long emails on POST /users (REQ-1)",
+    "e123a59 Filter order exports by an optional validated status",
+    "60aae7e Integrate P1: reject emails over 254 characters on POST /users",
+    "8e31c8b Integrate P2: optional validated status filter on POST /reports/orders",
+    "cc14f04 Pin the shipped and cancelled status filters with behavioural tests",
+    "1205c14 Pin delivered-order inclusion in the status-filtered export"
+  ],
+  "worktrees": [
+    "[alchemy/r1-email-and-report-status]",
+    "[worktree-agent-a8e80f0e497531284]",
+    "[worktree-agent-a9d49362a6b71cf5e]",
+    "[worktree-agent-aeb70fe608a29d60e]",
+    "[worktree-agent-afedee7663c76235f]"
+  ],
+  "run_records": {
+    "handoff-P1.json": {
+      "schema": "alchemy-handoff/1",
+      "package": "P1",
+      "owner": "agent-a",
+      "status": "DONE",
+      "attempt": 2,
+      "base_commit": "d3b2f0a5fda7defaaf112d3a47b8693925d0a32a",
+      "head_commit": "c68d9aa91f6289eabcf2a1320557ad35d38aef16",
+      "requirements": [
+        "REQ-1"
+      ],
+      "decisions": [
+        {
+          "id": "P1-D1",
+          "summary": "No second '@' check added: EMAIL_PATTERN already requires exactly one '@' with a non-empty, '@'-free part on each side",
+          "ref": ".alchemy/runs/r1/plan.json#packages.P1"
+        },
+        {
+          "id": "P1-D2",
+          "summary": "Length cap as MAX_EMAIL_LENGTH = 254 plus one invalid(...) throw in register",
+          "ref": ".alchemy/runs/r1/plan.json#packages.P1"
+        },
+        {
+          "id": "P1-D3",
+          "summary": "Cap check placed after the EMAIL_PATTERN check; both paths are 400",
+          "ref": "src/users/service.js"
+        },
+        {
+          "id": "P1-D4",
+          "summary": "Non-hollowness control, not acceptance evidence: with src/users/service.js reverted to d3b2f0a and the tests unchanged, `node --test test/users.test.js` exited 1 with exactly one failure, the 255-character case, so the new assertion fails without the new code and the '@' partition needs none",
+          "ref": "handoff-P1 attempt 1, run at d3b2f0a"
+        }
+      ],
+      "assumptions": [
+        "The 254-character limit applies to the normalized email (after trim and lowercase), the value the store persists",
+        "Rejection is surfaced by throwing invalid(...); src/http/router.js maps code 'invalid' to HTTP 400",
+        "Error-message style follows the file: lowercase, no trailing period"
+      ],
+      "relied_on": [
+        {
+          "path": "test/helpers.js",
+          "sha256": "206552f8c9209538203acb0848d2f2e8a59c72a4b4a9b812d673f0e8f446986e"
+        },
+        {
+          "path": "src/http/router.js",
+          "sha256": "f318e55e1e7edf2ba904b120327fbd0e09edd6b429d8fb057f5dd09f449abeba"
+        },
+        {
+          "path": "src/lib/errors.js",
+          "sha256": "b4314361b5bb1d8208b2cdd29c894c33c08035c821d6a2389a602c12f051a236"
+        },
+        {
+          "path": "src/users/routes.js",
+          "sha256": "4d0ea6ea4c33b34549bafbbf9d837508acfe75914c08e09c0a7e652781971734"
+        }
+      ],
+      "changed_files": [
+        {
+          "path": "src/users/service.js",
+          "sha256": "22630fbc3f83dcf4cc30addbd682a902cc12b698d34b2cccc92d7dbcf17d7d8c"
+        },
+        {
+          "path": "test/users.test.js",
+          "sha256": "5325ed9cf5fa6baa7a683583b0c48d0d24d813734bf46795b6a5494acb30908b"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "E1",
+          "criterion": "REQ-1-AC1",
+          "command": "node --test test/users.test.js",
+          "exit_code": 0,
+          "commit": "c68d9aa91f6289eabcf2a1320557ad35d38aef16",
+          "summary": "9 tests, 9 pass, 0 fail"
+        },
+        {
+          "id": "E2",
+          "criterion": "REQ-1-AC2",
+          "command": "node --test",
+          "exit_code": 0,
+          "commit": "c68d9aa91f6289eabcf2a1320557ad35d38aef16",
+          "summary": "23 tests, 23 pass, 0 fail (baseline 20)"
+        }
+      ],
+      "claims": [
+        {
+          "text": "POST /users rejects an email whose normalized form exceeds 254 characters with 400 and accepts one of exactly 254",
+          "evidence": [
+            "E1"
+          ]
+        },
+        {
+          "text": "POST /users rejects an email without exactly one '@' with non-empty sides with 400, pinned by five regression cases",
+          "evidence": [
+            "E1"
+          ]
+        },
+        {
+          "text": "No pre-existing test or assertion was weakened; the 20-test baseline still passes",
+          "evidence": [
+            "E2"
+          ]
+        }
+      ],
+      "blockers": [],
+      "next_owner": "lead",
+      "integration_ready": true
+    },
+    "handoff-P2-attempt2.json": {
+      "schema": "alchemy-handoff/1",
+      "package": "P2",
+      "owner": "agent-b",
+      "status": "DONE",
+      "attempt": 2,
+      "base_commit": "8e31c8b4ab0a8b06ed19bb336c2a49f450d3bd25",
+      "head_commit": "cc14f04506821793b41ce02caf088995087ef0d3",
+      "requirements": [
+        "REQ-2"
+      ],
+      "decisions": [
+        {
+          "id": "D-P2-R1",
+          "summary": "Closes finding P3-F1 with two behavioural tests for the shipped and cancelled filter values; no production code touched, since P3-F1 is a test-portfolio gap not a behaviour defect",
+          "ref": "test/reports.test.js"
+        },
+        {
+          "id": "D-P2-R2",
+          "summary": "Both states are reached through the real HTTP API (POST /payments then POST /orders/:id/ship as admin; POST /orders/:id/cancel as the customer), not by writing into the store",
+          "ref": "test/reports.test.js"
+        },
+        {
+          "id": "D-P2-R3",
+          "summary": "Mutant control, deliberately failing and therefore not acceptance evidence: in a copy outside the repository with line 58 of src/orders/service.js widened to also reject shipped and cancelled, node --test test/reports.test.js exited 1 with 10 tests, 8 pass, 2 fail - exactly the two new tests failed and no pre-existing test",
+          "ref": "finding P3-F1"
+        },
+        {
+          "id": "D-P2-R4",
+          "summary": "Each new test contrasts the target status against an adjacent lifecycle state (shipped against paid-but-unshipped, cancelled against pending), so the absence assertion discriminates between neighbouring states",
+          "ref": "test/reports.test.js"
+        }
+      ],
+      "assumptions": [
+        "A payment must equal the order total exactly, so each exercised order is paid with its own total",
+        "Shipping requires the admin token and cancelling is the customer's own action, as src/orders/routes.js declares"
+      ],
+      "relied_on": [
+        {
+          "path": "test/helpers.js",
+          "sha256": "206552f8c9209538203acb0848d2f2e8a59c72a4b4a9b812d673f0e8f446986e"
+        },
+        {
+          "path": "src/orders/service.js",
+          "sha256": "b208d15a8d006c2ca5220f22a1356a9a5c37d67dd1ecc97d3ff78560f80d6c63"
+        },
+        {
+          "path": "src/reports/routes.js",
+          "sha256": "bba39191dde56e313c022842c5c4aceb39d2718276974aa7dee03113a825caa2"
+        },
+        {
+          "path": "src/orders/routes.js",
+          "sha256": "c213ed43ef57d63cab6b828444602d169798d9521fdbecd14e0ac3a0cf8a69fd"
+        },
+        {
+          "path": "src/payments/service.js",
+          "sha256": "efb9ceca52a6599f4fa8cd00a4f0d6dc4b276f574f04c11e3bcaa51475e096a0"
+        }
+      ],
+      "changed_files": [
+        {
+          "path": "test/reports.test.js",
+          "sha256": "c2b71e1f94702643416d214097ee1287063d354ec88999e717ddeccd3a774e75"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "E1",
+          "criterion": "REQ-2-AC1",
+          "command": "node --test test/reports.test.js",
+          "exit_code": 0,
+          "commit": "cc14f04506821793b41ce02caf088995087ef0d3",
+          "summary": "10 tests, 10 pass, 0 fail (8 before this change)"
+        },
+        {
+          "id": "E2",
+          "criterion": "REQ-2-AC2",
+          "command": "node --test",
+          "exit_code": 0,
+          "commit": "cc14f04506821793b41ce02caf088995087ef0d3",
+          "summary": "30 tests, 30 pass, 0 fail (28 at the base commit)"
+        }
+      ],
+      "claims": [
+        {
+          "text": "status 'shipped' returns 201 and exports the shipped order's row while omitting a paid-but-unshipped order's row",
+          "evidence": [
+            "E1",
+            "E2"
+          ]
+        },
+        {
+          "text": "status 'cancelled' returns 201 and exports the cancelled order's row while omitting a pending order's row",
+          "evidence": [
+            "E1",
+            "E2"
+          ]
+        },
+        {
+          "text": "All 28 tests passing at the base commit still pass, and the suite now holds 30",
+          "evidence": [
+            "E2"
+          ]
+        },
+        {
+          "text": "No production code, README.md, or test file other than test/reports.test.js changed, and no existing assertion was weakened",
+          "evidence": [
+            "E1",
+            "E2"
+          ]
+        }
+      ],
+      "blockers": [],
+      "next_owner": "lead",
+      "integration_ready": true
+    },
+    "handoff-P2-attempt3.json": {
+      "schema": "alchemy-handoff/1",
+      "package": "P2",
+      "owner": "agent-b",
+      "status": "DONE",
+      "attempt": 3,
+      "base_commit": "cc14f04506821793b41ce02caf088995087ef0d3",
+      "head_commit": "1205c14a31b1433ffb941591bca28ff6cf985045",
+      "requirements": [
+        "REQ-2"
+      ],
+      "decisions": [
+        {
+          "id": "D-P2-7",
+          "summary": "Closes P3-F5 as a test-portfolio gap: a delivered-order inclusion test in the shape of the shipped and cancelled tests, driving the order to delivered through the real HTTP API. No production code touched",
+          "ref": "finding P3-F5"
+        },
+        {
+          "id": "D-P2-8",
+          "summary": "Added alongside, not in place of, the existing header-only delivered test, whose own store still holds no delivered order; diff is 19 insertions, 0 deletions",
+          "ref": "test/reports.test.js"
+        },
+        {
+          "id": "D-P2-9",
+          "summary": "Full per-value mutant sweep in a copy outside the repository, since deleted. Mutant A at line 59 (silently drop value V) and mutant B at line 58 (narrow the accepted enum by V), each run for all five values: all 10 killed, no survivor, including the reviewer's previously surviving delivered case. Mutation diagnostics, deliberately failing, recorded here rather than as acceptance evidence",
+          "ref": "src/orders/service.js:58-59"
+        }
+      ],
+      "assumptions": [
+        "An order reaches delivered only via pending -> paid -> shipped -> delivered per TRANSITIONS, so the test pays the exact total and ships before delivering",
+        "shipped is the adjacent state before delivered and is the contrast order asserted absent"
+      ],
+      "relied_on": [
+        {
+          "path": "test/helpers.js",
+          "sha256": "206552f8c9209538203acb0848d2f2e8a59c72a4b4a9b812d673f0e8f446986e"
+        },
+        {
+          "path": "src/orders/service.js",
+          "sha256": "b208d15a8d006c2ca5220f22a1356a9a5c37d67dd1ecc97d3ff78560f80d6c63"
+        },
+        {
+          "path": "src/reports/routes.js",
+          "sha256": "bba39191dde56e313c022842c5c4aceb39d2718276974aa7dee03113a825caa2"
+        },
+        {
+          "path": "src/orders/routes.js",
+          "sha256": "c213ed43ef57d63cab6b828444602d169798d9521fdbecd14e0ac3a0cf8a69fd"
+        },
+        {
+          "path": "src/payments/service.js",
+          "sha256": "efb9ceca52a6599f4fa8cd00a4f0d6dc4b276f574f04c11e3bcaa51475e096a0"
+        }
+      ],
+      "changed_files": [
+        {
+          "path": "test/reports.test.js",
+          "sha256": "4199adc9d24ce5ecd5392c77f6d03bbec6b46fdd5d1de3ade49cf3a24a7c2c27"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "E1",
+          "criterion": "REQ-2-AC1",
+          "command": "node --test test/reports.test.js",
+          "exit_code": 0,
+          "commit": "1205c14a31b1433ffb941591bca28ff6cf985045",
+          "summary": "tests 11, pass 11, fail 0"
+        },
+        {
+          "id": "E2",
+          "criterion": "REQ-2-AC2",
+          "command": "node --test",
+          "exit_code": 0,
+          "commit": "1205c14a31b1433ffb941591bca28ff6cf985045",
+          "summary": "tests 31, pass 31, fail 0; was 30 before this commit"
+        }
+      ],
+      "claims": [
+        {
+          "text": "A delivered order is exported by status delivered and an adjacent shipped order is not: P3-F5 is closed",
+          "evidence": [
+            "E1",
+            "E2"
+          ]
+        },
+        {
+          "text": "The reports suite grew from 10 to 11 and the whole suite from 30 to 31, with no existing assertion weakened",
+          "evidence": [
+            "E1",
+            "E2"
+          ]
+        },
+        {
+          "text": "No production code changed in this cycle; the only changed file is test/reports.test.js",
+          "evidence": [
+            "E2"
+          ]
+        }
+      ],
+      "blockers": [],
+      "next_owner": "lead",
+      "integration_ready": true
+    },
+    "handoff-P2.json": {
+      "schema": "alchemy-handoff/1",
+      "package": "P2",
+      "owner": "agent-b",
+      "status": "DONE",
+      "attempt": 1,
+      "base_commit": "d3b2f0a",
+      "head_commit": "e123a5936e363be6af92e376b2ebefb207f37cc1",
+      "requirements": [
+        "REQ-2"
+      ],
+      "decisions": [
+        {
+          "id": "D-P2-1",
+          "summary": "Valid statuses are Object.keys(TRANSITIONS) in src/orders/service.js; no second status list and none exported to reports",
+          "ref": "src/orders/service.js:15"
+        },
+        {
+          "id": "D-P2-2",
+          "summary": "orders.all(status) validates and filters; undefined returns every order, anything else throws invalid()",
+          "ref": "src/orders/service.js:56"
+        },
+        {
+          "id": "D-P2-3",
+          "summary": "The reports handler computes rows before mkdir and writeFile, so a rejected status has no filesystem effect",
+          "ref": "src/reports/routes.js:15"
+        },
+        {
+          "id": "D-P2-4",
+          "summary": "README API table row names the optional status filter and its five values; no Rules line added",
+          "ref": "README.md:28"
+        }
+      ],
+      "assumptions": [
+        "status absent or undefined exports every order, keeping the previous no-argument contract of orders.all()",
+        "status: null is not absent: it returns 400 — only undefined means unfiltered",
+        "a non-string status returns 400 via includes() over the string keys of TRANSITIONS",
+        "the empty string returns 400 and matching is case-sensitive, so 'Paid' returns 400",
+        "the error message is lowercase with no trailing period",
+        "guard.requireAdmin still runs before validation, so a customer sending an invalid status gets 403, not 400"
+      ],
+      "relied_on": [
+        {
+          "path": "test/helpers.js",
+          "sha256": "206552f8c9209538203acb0848d2f2e8a59c72a4b4a9b812d673f0e8f446986e"
+        },
+        {
+          "path": "src/http/router.js",
+          "sha256": "f318e55e1e7edf2ba904b120327fbd0e09edd6b429d8fb057f5dd09f449abeba"
+        },
+        {
+          "path": "src/store/memoryStore.js",
+          "sha256": "3d0780099c765ef16b483f917ed4fa3273ff2f0844d30fe87a74851e841a21e2"
+        },
+        {
+          "path": "src/lib/errors.js",
+          "sha256": "b4314361b5bb1d8208b2cdd29c894c33c08035c821d6a2389a602c12f051a236"
+        },
+        {
+          "path": "src/http/respond.js",
+          "sha256": "05289656daf185e1dc97bf8389ca4d3b7d392b21cd69f844028fdfa1044d5c43"
+        },
+        {
+          "path": "src/auth/guard.js",
+          "sha256": "9f4271a6acdfd60e38ef11a3ae75cbc4c203ed940be0294da9196913979a1860"
+        },
+        {
+          "path": "src/app.js",
+          "sha256": "65bf5b47e8ba6917848c2de3e5931018af73cb48cb696e1f8e41d4b24eabf451"
+        },
+        {
+          "path": "src/payments/service.js",
+          "sha256": "efb9ceca52a6599f4fa8cd00a4f0d6dc4b276f574f04c11e3bcaa51475e096a0"
+        },
+        {
+          "path": "src/orders/routes.js",
+          "sha256": "c213ed43ef57d63cab6b828444602d169798d9521fdbecd14e0ac3a0cf8a69fd"
+        },
+        {
+          "path": "test/orders.test.js",
+          "sha256": "a49d2d285534d69d960c4a7b669510b2c484759ea1e7d857fd64a1cbf2decc8a"
+        }
+      ],
+      "changed_files": [
+        {
+          "path": "src/orders/service.js",
+          "sha256": "b208d15a8d006c2ca5220f22a1356a9a5c37d67dd1ecc97d3ff78560f80d6c63"
+        },
+        {
+          "path": "src/reports/routes.js",
+          "sha256": "bba39191dde56e313c022842c5c4aceb39d2718276974aa7dee03113a825caa2"
+        },
+        {
+          "path": "test/reports.test.js",
+          "sha256": "295ec956e7b57eef944df9d42840f7547f411baa648b8179c061ef2043bdb2bd"
+        },
+        {
+          "path": "README.md",
+          "sha256": "e36c9c5a10edca5ebd36503779b9efefbc4f78d66b369737cb39dc282154f01d"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "E1",
+          "criterion": "REQ-2-AC1",
+          "command": "node --test test/reports.test.js",
+          "exit_code": 0,
+          "commit": "e123a5936e363be6af92e376b2ebefb207f37cc1",
+          "summary": "8 passed, 0 failed (3 pre-existing + 5 new)"
+        },
+        {
+          "id": "E2",
+          "criterion": "REQ-2-AC2",
+          "command": "node --test",
+          "exit_code": 0,
+          "commit": "e123a5936e363be6af92e376b2ebefb207f37cc1",
+          "summary": "25 passed, 0 failed; 20-test baseline intact"
+        },
+        {
+          "id": "E3",
+          "command": "node --test test/orders.test.js",
+          "exit_code": 0,
+          "commit": "e123a5936e363be6af92e376b2ebefb207f37cc1",
+          "summary": "orders tests pass unchanged after extending the shared src/orders/service.js"
+        }
+      ],
+      "claims": [
+        {
+          "text": "A valid status exports exactly the orders in that state: the paid-filtered CSV holds the paid order's id and not the pending one's, and the reverse",
+          "evidence": [
+            "E1",
+            "E2"
+          ]
+        },
+        {
+          "text": "A valid status matching no order returns 201 with a header-only CSV",
+          "evidence": [
+            "E1",
+            "E2"
+          ]
+        },
+        {
+          "text": "An unknown string, 'Paid', the empty string, null, a number, and an array each return 400 and leave the report directory listing unchanged",
+          "evidence": [
+            "E1",
+            "E2"
+          ]
+        },
+        {
+          "text": "A rejected status produces no filesystem effect: the report directory is not created, and a later unfiltered export creates it with one file",
+          "evidence": [
+            "E1",
+            "E2"
+          ]
+        },
+        {
+          "text": "Omitting status still exports every order whatever its state, and the pre-existing export test is unmodified",
+          "evidence": [
+            "E1",
+            "E2"
+          ]
+        },
+        {
+          "text": "The five statuses are derived from the keys of TRANSITIONS: no second list, and none crosses into the reports subsystem",
+          "evidence": [
+            "E1",
+            "E3"
+          ]
+        },
+        {
+          "text": "Extending orders.all() did not change behaviour for the orders subsystem sharing the file",
+          "evidence": [
+            "E3",
+            "E2"
+          ]
+        },
+        {
+          "text": "No existing test or assertion was weakened or deleted",
+          "evidence": [
+            "E1",
+            "E2"
+          ]
+        }
+      ],
+      "blockers": [],
+      "next_owner": "lead",
+      "integration_ready": true
+    },
+    "handoff-P3-attempt3.json": {
+      "schema": "alchemy-handoff/1",
+      "package": "P3",
+      "owner": "agent-c",
+      "status": "DONE",
+      "attempt": 3,
+      "base_commit": "1205c14a31b1433ffb941591bca28ff6cf985045",
+      "head_commit": "1205c14a31b1433ffb941591bca28ff6cf985045",
+      "requirements": [
+        "REQ-1",
+        "REQ-2"
+      ],
+      "decisions": [
+        {
+          "id": "D-P3-1",
+          "summary": "Mutant sweep reproduced independently in a copy outside the repository, since deleted; deliberately failing runs, recorded here and not as acceptance evidence. Family A at src/orders/service.js:59 and family B at :58, each for all five status values: 10 of 10 killed, no survivor, no pre-existing test failed under any mutant",
+          "ref": "src/orders/service.js:58-59"
+        },
+        {
+          "id": "D-P3-2",
+          "summary": "Finding P3-F5 is resolved on executed evidence: the previously surviving delivered mutant is killed by a test asserting the delivered order's id present and the adjacent shipped order's id absent",
+          "ref": "test/reports.test.js"
+        },
+        {
+          "id": "D-P3-3",
+          "summary": "REQ-1 mutants, deliberately failing, not acceptance evidence: service reverted to d3b2f0a, cap as >= instead of >, and cap applied to the raw instead of the normalized email - all three killed, each by a single expected test",
+          "ref": "src/users/service.js:26-28"
+        },
+        {
+          "id": "D-P3-4",
+          "summary": "Baseline re-derived rather than trusted: node --test at d3b2f0a reports 20 pass, and all 20 baseline test names are a subset of the 31 at the head, so none was renamed, removed or broken",
+          "ref": "d3b2f0a"
+        },
+        {
+          "id": "D-P3-5",
+          "summary": "REQ-2 exactness confirmed: all five values assert inclusion and absence by order id; readJson guarantees body is a non-null non-array object before the handler, so the new destructuring adds no TypeError path; rows are computed before fs.mkdir",
+          "ref": "src/reports/routes.js:15-16"
+        },
+        {
+          "id": "D-P3-6",
+          "summary": "REQ-1 exactness confirmed: 254 normalized accepted, 255 rejected, limit applied to the trimmed lowercased value, POST /sessions unaffected, and orders.all has exactly one caller",
+          "ref": "src/users/service.js:23-28"
+        },
+        {
+          "id": "D-P3-7",
+          "summary": "Out-of-scope items, status only: P3-F2/P3-F6 code untouched but the normalized-measurement reading is now pinned by a behavioural test; P3-F3/P3-F7 unchanged with two hand copies of the status list remaining; P3-F4 ordering unchanged and still untested",
+          "ref": ".alchemy/runs/r1/plan.json#packages.P3"
+        },
+        {
+          "id": "D-P3-8",
+          "summary": "Hand-off assumptions re-derived: every relied_on digest in all four implementer records still matches the workspace, and every re-derivable count is correct. One wording defect, not a behaviour defect: P1-D1 describes EMAIL_PATTERN as the at-sign rule but it also requires a dot in the domain, which is finding P3-F2",
+          "ref": ".alchemy/runs/r1/handoff-P2-attempt3.json"
+        },
+        {
+          "id": "D-P3-9",
+          "summary": "Read-only envelope honoured: no file inside the repository was created, edited or deleted at any point; all mutation ran in a deleted copy outside it",
+          "ref": "1205c14a31b1433ffb941591bca28ff6cf985045"
+        }
+      ],
+      "assumptions": [
+        "The baseline figure of 20 is the raw node --test count, which discovers test/helpers.js as one zero-test passing file; comparable behavioural counts are 19 at d3b2f0a and 30 at the head",
+        "REQ-1's 254 characters is read as UTF-16 code units, as JavaScript String.length measures; no non-BMP email is exercised",
+        "A review criterion's evidence is the read-only commands whose output decided it; deliberately failing mutant runs belong under decisions"
+      ],
+      "relied_on": [
+        {
+          "path": "src/users/service.js",
+          "sha256": "22630fbc3f83dcf4cc30addbd682a902cc12b698d34b2cccc92d7dbcf17d7d8c"
+        },
+        {
+          "path": "src/orders/service.js",
+          "sha256": "b208d15a8d006c2ca5220f22a1356a9a5c37d67dd1ecc97d3ff78560f80d6c63"
+        },
+        {
+          "path": "src/reports/routes.js",
+          "sha256": "bba39191dde56e313c022842c5c4aceb39d2718276974aa7dee03113a825caa2"
+        },
+        {
+          "path": "test/users.test.js",
+          "sha256": "5325ed9cf5fa6baa7a683583b0c48d0d24d813734bf46795b6a5494acb30908b"
+        },
+        {
+          "path": "test/reports.test.js",
+          "sha256": "4199adc9d24ce5ecd5392c77f6d03bbec6b46fdd5d1de3ade49cf3a24a7c2c27"
+        },
+        {
+          "path": "test/helpers.js",
+          "sha256": "206552f8c9209538203acb0848d2f2e8a59c72a4b4a9b812d673f0e8f446986e"
+        },
+        {
+          "path": "src/http/router.js",
+          "sha256": "f318e55e1e7edf2ba904b120327fbd0e09edd6b429d8fb057f5dd09f449abeba"
+        },
+        {
+          "path": "src/http/respond.js",
+          "sha256": "05289656daf185e1dc97bf8389ca4d3b7d392b21cd69f844028fdfa1044d5c43"
+        },
+        {
+          "path": "src/lib/errors.js",
+          "sha256": "b4314361b5bb1d8208b2cdd29c894c33c08035c821d6a2389a602c12f051a236"
+        },
+        {
+          "path": "src/auth/guard.js",
+          "sha256": "9f4271a6acdfd60e38ef11a3ae75cbc4c203ed940be0294da9196913979a1860"
+        },
+        {
+          "path": "src/store/memoryStore.js",
+          "sha256": "3d0780099c765ef16b483f917ed4fa3273ff2f0844d30fe87a74851e841a21e2"
+        },
+        {
+          "path": "src/orders/routes.js",
+          "sha256": "c213ed43ef57d63cab6b828444602d169798d9521fdbecd14e0ac3a0cf8a69fd"
+        },
+        {
+          "path": "src/users/routes.js",
+          "sha256": "4d0ea6ea4c33b34549bafbbf9d837508acfe75914c08e09c0a7e652781971734"
+        },
+        {
+          "path": "README.md",
+          "sha256": "e36c9c5a10edca5ebd36503779b9efefbc4f78d66b369737cb39dc282154f01d"
+        }
+      ],
+      "changed_files": [],
+      "evidence": [
+        {
+          "id": "E1",
+          "criterion": "P3-AC1",
+          "command": "node --test",
+          "exit_code": 0,
+          "commit": "1205c14a31b1433ffb941591bca28ff6cf985045",
+          "summary": "tests 31, pass 31, fail 0"
+        },
+        {
+          "id": "E2",
+          "criterion": "P3-AC1",
+          "command": "node --test test/users.test.js",
+          "exit_code": 0,
+          "commit": "1205c14a31b1433ffb941591bca28ff6cf985045",
+          "summary": "tests 9, pass 9, fail 0"
+        },
+        {
+          "id": "E3",
+          "criterion": "P3-AC1",
+          "command": "node --test test/reports.test.js",
+          "exit_code": 0,
+          "commit": "1205c14a31b1433ffb941591bca28ff6cf985045",
+          "summary": "tests 11, pass 11, fail 0"
+        },
+        {
+          "id": "E4",
+          "criterion": "P3-AC1",
+          "command": "node --test test/orders.test.js",
+          "exit_code": 0,
+          "commit": "1205c14a31b1433ffb941591bca28ff6cf985045",
+          "summary": "tests 6, pass 6, fail 0"
+        },
+        {
+          "id": "E5",
+          "criterion": "P3-AC1",
+          "command": "node --test test/payments.test.js",
+          "exit_code": 0,
+          "commit": "1205c14a31b1433ffb941591bca28ff6cf985045",
+          "summary": "tests 4, pass 4, fail 0"
+        },
+        {
+          "id": "E6",
+          "criterion": "P3-AC2",
+          "command": "git diff d3b2f0a 1205c14 --name-status",
+          "exit_code": 0,
+          "commit": "1205c14a31b1433ffb941591bca28ff6cf985045",
+          "summary": "Six modified files, zero added or deleted; nothing outside the permitted set"
+        },
+        {
+          "id": "E7",
+          "criterion": "P3-AC2",
+          "command": "git diff -U0 d3b2f0a 1205c14 -- test/",
+          "exit_code": 0,
+          "commit": "1205c14a31b1433ffb941591bca28ff6cf985045",
+          "summary": "Three hunks, all pure insertions: zero lines removed or modified under test/"
+        },
+        {
+          "id": "E8",
+          "criterion": "P3-AC2",
+          "command": "diff of the pre-existing export test between d3b2f0a and the head",
+          "exit_code": 0,
+          "commit": "1205c14a31b1433ffb941591bca28ff6cf985045",
+          "summary": "No difference; the pre-existing export test is byte-identical, shifted three lines"
+        },
+        {
+          "id": "E9",
+          "criterion": "P3-AC2",
+          "command": "sha256sum over every file the four implementer hand-offs recorded",
+          "exit_code": 0,
+          "commit": "1205c14a31b1433ffb941591bca28ff6cf985045",
+          "summary": "Every relied_on digest matches the workspace; no context moved underneath any package"
+        },
+        {
+          "id": "E10",
+          "criterion": "P3-AC2",
+          "command": "grep -rn for orders.all call sites in src and test",
+          "exit_code": 0,
+          "commit": "1205c14a31b1433ffb941591bca28ff6cf985045",
+          "summary": "orders.all has exactly one caller, src/reports/routes.js:16"
+        }
+      ],
+      "claims": [
+        {
+          "text": "REQ-1 is satisfied exactly at the head: 400 for an email without exactly one at-sign with non-empty sides and for one whose normalized form exceeds 254 characters, 201 at exactly 254",
+          "evidence": [
+            "E1",
+            "E2"
+          ]
+        },
+        {
+          "text": "REQ-2 is satisfied exactly at the head: each of the five values exports exactly the matching rows with inclusion and absence asserted by order id, and six bad value shapes return 400 before any filesystem effect",
+          "evidence": [
+            "E1",
+            "E3"
+          ]
+        },
+        {
+          "text": "The 254-character limit is applied to the trimmed lowercased value, and POST /sessions is unaffected",
+          "evidence": [
+            "E1",
+            "E2"
+          ]
+        },
+        {
+          "text": "No behaviour changed outside REQ-1 and REQ-2: six permitted files, one caller of orders.all, and all 20 baseline tests still pass by name",
+          "evidence": [
+            "E1",
+            "E4",
+            "E5",
+            "E6",
+            "E10"
+          ]
+        },
+        {
+          "text": "No pre-existing test or assertion was weakened: every test hunk is a pure insertion and the pre-existing export test is byte-identical",
+          "evidence": [
+            "E7",
+            "E8"
+          ]
+        },
+        {
+          "text": "The assertions are not hollow: all ten status mutants and all three email-cap mutants are killed with no survivor, closing P3-F5 and sustaining P3-F1 closure",
+          "evidence": [
+            "E1",
+            "E3"
+          ]
+        },
+        {
+          "text": "Every hand-off digest and re-derivable count in all four implementer records is accurate against the workspace",
+          "evidence": [
+            "E9"
+          ]
+        }
+      ],
+      "blockers": [
+        {
+          "id": "P3-F8",
+          "text": "minor, non-blocking, pre-existing at d3b2f0a: node --test discovers test/helpers.js and counts it as one passing test, so raw suite counts overstate behavioural tests by one (19 plus 1 at base, 30 plus 1 at head). Every hand-off count is faithful to node's own output. Closes by confining discovery to the test file glob or moving the helper out of test/",
+          "blocking": false
+        }
+      ],
+      "next_owner": "lead",
+      "integration_ready": true
+    },
+    "ledger.json": {
+      "schema": "alchemy-ledger/1",
+      "head_commit": "1205c14a31b1433ffb941591bca28ff6cf985045",
+      "rework_cycles": {
+        "P1": 0,
+        "P2": 2,
+        "P3": 0
+      },
+      "evidence": [
+        {
+          "id": "L1",
+          "command": "node --test",
+          "exit_code": 0,
+          "commit": "1205c14a31b1433ffb941591bca28ff6cf985045",
+          "produced_by": "agent-c"
+        },
+        {
+          "id": "L2",
+          "command": "node --test test/users.test.js",
+          "exit_code": 0,
+          "commit": "1205c14a31b1433ffb941591bca28ff6cf985045",
+          "produced_by": "agent-c"
+        },
+        {
+          "id": "L3",
+          "command": "node --test test/reports.test.js",
+          "exit_code": 0,
+          "commit": "1205c14a31b1433ffb941591bca28ff6cf985045",
+          "produced_by": "agent-c"
+        },
+        {
+          "id": "L4",
+          "command": "node --test test/orders.test.js",
+          "exit_code": 0,
+          "commit": "1205c14a31b1433ffb941591bca28ff6cf985045",
+          "produced_by": "agent-c"
+        },
+        {
+          "id": "L5",
+          "command": "node --test test/payments.test.js",
+          "exit_code": 0,
+          "commit": "1205c14a31b1433ffb941591bca28ff6cf985045",
+          "produced_by": "agent-c"
+        },
+        {
+          "id": "L6",
+          "command": "git diff d3b2f0a 1205c14 --name-status",
+          "exit_code": 0,
+          "commit": "1205c14a31b1433ffb941591bca28ff6cf985045",
+          "produced_by": "agent-c"
+        },
+        {
+          "id": "L7",
+          "command": "git diff -U0 d3b2f0a 1205c14 -- test/",
+          "exit_code": 0,
+          "commit": "1205c14a31b1433ffb941591bca28ff6cf985045",
+          "produced_by": "agent-c"
+        },
+        {
+          "id": "L8",
+          "command": "sha256sum over every file the four implementer hand-offs recorded",
+          "exit_code": 0,
+          "commit": "1205c14a31b1433ffb941591bca28ff6cf985045",
+          "produced_by": "agent-c"
+        },
+        {
+          "id": "L9",
+          "command": "node --test (lead integration run on the integrated head)",
+          "exit_code": 0,
+          "commit": "1205c14a31b1433ffb941591bca28ff6cf985045",
+          "produced_by": "lead"
+        }
+      ],
+      "criteria": [
+        {
+          "id": "REQ-1-AC1",
+          "package": "P1",
+          "status": "verified",
+          "evidence": [
+            "L2",
+            "L1"
+          ],
+          "verified_by": "agent-c"
+        },
+        {
+          "id": "REQ-1-AC2",
+          "package": "P1",
+          "status": "verified",
+          "evidence": [
+            "L1",
+            "L7"
+          ],
+          "verified_by": "agent-c"
+        },
+        {
+          "id": "REQ-2-AC1",
+          "package": "P2",
+          "status": "verified",
+          "evidence": [
+            "L3",
+            "L1"
+          ],
+          "verified_by": "agent-c"
+        },
+        {
+          "id": "REQ-2-AC2",
+          "package": "P2",
+          "status": "verified",
+          "evidence": [
+            "L1",
+            "L4",
+            "L5",
+            "L7"
+          ],
+          "verified_by": "agent-c"
+        },
+        {
+          "id": "P3-AC1",
+          "package": "P3",
+          "status": "verified",
+          "evidence": [
+            "L1",
+            "L9"
+          ],
+          "verified_by": "agent-c"
+        },
+        {
+          "id": "P3-AC2",
+          "package": "P3",
+          "status": "verified",
+          "evidence": [
+            "L6",
+            "L7",
+            "L8"
+          ],
+          "verified_by": "agent-c"
+        }
+      ],
+      "findings": [
+        {
+          "id": "P3-F1",
+          "package": "P2",
+          "severity": "major",
+          "status": "resolved",
+          "raised_by": "agent-c",
+          "evidence": [
+            "L3"
+          ],
+          "resolution": {
+            "by": "agent-b",
+            "evidence": [
+              "L3",
+              "L1"
+            ],
+            "rationale": "Two behavioural tests added for the shipped and cancelled filter values in rework cycle 1; the enum-narrowing mutant that previously survived the suite is now killed, re-derived independently by agent-c at the head"
+          }
+        },
+        {
+          "id": "P3-F5",
+          "package": "P2",
+          "severity": "major",
+          "status": "resolved",
+          "raised_by": "agent-c",
+          "evidence": [
+            "L3"
+          ],
+          "resolution": {
+            "by": "agent-b",
+            "evidence": [
+              "L3",
+              "L1"
+            ],
+            "rationale": "A delivered-order inclusion test added in rework cycle 2; the drop-delivered mutant that previously left all 30 tests green is now killed, and agent-c independently reproduced the full ten-mutant per-value sweep at the head with no survivor"
+          }
+        },
+        {
+          "id": "P3-F2",
+          "package": "P1",
+          "severity": "minor",
+          "status": "open",
+          "raised_by": "agent-c",
+          "evidence": [
+            "L2"
+          ]
+        },
+        {
+          "id": "P3-F3",
+          "package": "P2",
+          "severity": "minor",
+          "status": "open",
+          "raised_by": "agent-c",
+          "evidence": [
+            "L6"
+          ]
+        },
+        {
+          "id": "P3-F4",
+          "package": "P2",
+          "severity": "minor",
+          "status": "open",
+          "raised_by": "agent-c",
+          "evidence": [
+            "L3"
+          ]
+        },
+        {
+          "id": "P3-F6",
+          "package": "P1",
+          "severity": "minor",
+          "status": "open",
+          "raised_by": "agent-c",
+          "evidence": [
+            "L2"
+          ]
+        },
+        {
+          "id": "P3-F7",
+          "package": "P2",
+          "severity": "minor",
+          "status": "open",
+          "raised_by": "agent-c",
+          "evidence": [
+            "L3"
+          ]
+        },
+        {
+          "id": "P3-F8",
+          "package": "P3",
+          "severity": "minor",
+          "status": "open",
+          "raised_by": "agent-c",
+          "evidence": [
+            "L1"
+          ]
+        }
+      ],
+      "disputes": []
+    },
+    "plan.json": {
+      "schema": "alchemy-plan/1",
+      "objective": "Reject over-long emails on POST /users and add an optional validated status filter to POST /reports/orders",
+      "requirements": [
+        "REQ-1",
+        "REQ-2"
+      ],
+      "conflicts": [],
+      "base": {
+        "commit": "d3b2f0a5fda7defaaf112d3a47b8693925d0a32a",
+        "integrated": [
+          "8e31c8b4ab0a8b06ed19bb336c2a49f450d3bd25",
+          "cc14f04506821793b41ce02caf088995087ef0d3",
+          "1205c14a31b1433ffb941591bca28ff6cf985045"
+        ]
+      },
+      "contracts_existing": [],
+      "execution": {
+        "mode": "multi-agent",
+        "strategy": "dependency-aware",
+        "max_parallel_agents": 2,
+        "integration_owner": "lead",
+        "independent_review": true,
+        "merge_policy": "human-approval"
+      },
+      "packages": [
+        {
+          "id": "P1",
+          "kind": "implement",
+          "capabilities": [
+            "engineering"
+          ],
+          "skills": [
+            "test-strategy",
+            "defect-shift-left"
+          ],
+          "owner": "agent-a",
+          "envelope": "implementer",
+          "risk": "low",
+          "requirements": [
+            "REQ-1"
+          ],
+          "writes": [
+            "src/users/service.js",
+            "test/users.test.js"
+          ],
+          "reads": [
+            "src/",
+            "test/",
+            "README.md"
+          ],
+          "depends_on": [],
+          "produces": [],
+          "consumes": [],
+          "acceptance": [
+            {
+              "id": "REQ-1-AC1",
+              "check": "command",
+              "command": "node --test test/users.test.js"
+            },
+            {
+              "id": "REQ-1-AC2",
+              "check": "command",
+              "command": "node --test"
+            }
+          ],
+          "permissions": [
+            "read",
+            "edit",
+            "test",
+            "commit"
+          ],
+          "budget": {
+            "max_turns": 40
+          }
+        },
+        {
+          "id": "P2",
+          "kind": "implement",
+          "capabilities": [
+            "engineering"
+          ],
+          "skills": [
+            "test-strategy",
+            "defect-shift-left"
+          ],
+          "owner": "agent-b",
+          "envelope": "implementer",
+          "risk": "medium",
+          "requirements": [
+            "REQ-2"
+          ],
+          "writes": [
+            "src/orders/service.js",
+            "src/reports/routes.js",
+            "test/reports.test.js",
+            "README.md"
+          ],
+          "reads": [
+            "src/",
+            "test/",
+            "README.md"
+          ],
+          "depends_on": [],
+          "produces": [],
+          "consumes": [],
+          "acceptance": [
+            {
+              "id": "REQ-2-AC1",
+              "check": "command",
+              "command": "node --test test/reports.test.js"
+            },
+            {
+              "id": "REQ-2-AC2",
+              "check": "command",
+              "command": "node --test"
+            }
+          ],
+          "permissions": [
+            "read",
+            "edit",
+            "test",
+            "commit"
+          ],
+          "budget": {
+            "max_turns": 40
+          }
+        },
+        {
+          "id": "P3",
+          "kind": "verify",
+          "capabilities": [
+            "verification"
+          ],
+          "skills": [
+            "test-strategy",
+            "defect-shift-left"
+          ],
+          "owner": "agent-c",
+          "envelope": "analyst",
+          "risk": "low",
+          "requirements": [
+            "REQ-1",
+            "REQ-2"
+          ],
+          "writes": [],
+          "reads": [
+            "src/",
+            "test/",
+            "README.md"
+          ],
+          "depends_on": [
+            "P1",
+            "P2"
+          ],
+          "reviews": [
+            "P1",
+            "P2"
+          ],
+          "acceptance": [
+            {
+              "id": "P3-AC1",
+              "check": "command",
+              "command": "node --test"
+            },
+            {
+              "id": "P3-AC2",
+              "check": "review",
+              "question": "Do the integrated diffs satisfy REQ-1 and REQ-2 exactly, with no behaviour change outside them and no hollow assertions?"
+            }
+          ],
+          "permissions": [
+            "read",
+            "test"
+          ],
+          "budget": {
+            "max_turns": 40
+          }
+        }
+      ]
+    }
+  },
+  "gate_recheck": {
+    "exit": 0,
+    "report": {
+      "check": "gate",
+      "verdict": "PASS",
+      "errors": [],
+      "verified": [
+        "REQ-1-AC1",
+        "REQ-1-AC2",
+        "REQ-2-AC1",
+        "REQ-2-AC2",
+        "P3-AC1",
+        "P3-AC2"
+      ],
+      "unverified": [],
+      "open": [
+        "P3-F2",
+        "P3-F3",
+        "P3-F4",
+        "P3-F6",
+        "P3-F7",
+        "P3-F8"
+      ],
+      "minor": [
+        "P3-F2",
+        "P3-F3",
+        "P3-F4",
+        "P3-F6",
+        "P3-F7",
+        "P3-F8"
+      ],
+      "coverage": "6/6",
+      "head_checked": false,
+      "profile": "<run-project>\\alchemy-workspace.json"
+    }
+  },
+  "pr_md": "# Email length validation on `POST /users`, status filter on `POST /reports/orders`\n\nTwo independent changes, each with its own tests. Branch\n`alchemy/r1-email-and-report-status`, 6 commits on top of `d3b2f0a` (one per\nchange, two integration merges, two test-hardening commits), head `1205c14`.\nNot pushed; no pull request opened.\n\n| | |\n|:--|:--|\n| Base | `d3b2f0a` — 20 tests passing |\n| Head | `1205c14` — 31 tests passing |\n| Diff | 6 files, 192 insertions, 5 deletions |\n\n## What changed\n\n**(1) `POST /users` rejects an over-long email** — `src/users/service.js`\n\nA `MAX_EMAIL_LENGTH = 254` constant and one check in `register`, which throws\n`invalid(...)` and so returns 400, matching how every other rule in this\nservice reports bad input. The limit is measured on the **normalized** email —\nafter `normalizeEmail` trims and lowercases — because that is the value the\nstore persists and compares.\n\nNo code was added for the \"exactly one `@` with a non-empty part on each side\"\nhalf of the requirement, because the existing `EMAIL_PATTERN`\n(`/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/`, unchanged since before this branch) already\nrejects every such address: neither side may contain an `@`, and both must be\nnon-empty. A second parallel check would have been redundant validation on day\none. That half is now pinned by regression tests instead — see the caveat on\nthis in *Open items* below.\n\n**(2) `POST /reports/orders` accepts an optional `status`** —\n`src/orders/service.js`, `src/reports/routes.js`, `README.md`\n\n`orders.all(status)` now validates and filters: an absent status exports every\norder exactly as before, and any other value throws `invalid(...)` → 400. The\naccepted set is `STATUSES = Object.keys(TRANSITIONS)`, derived from the\nlifecycle table that already defined those five states, so the filter cannot\ndrift out of sync with the lifecycle and the reports subsystem never holds a\nstatus list of its own.\n\nThe reports handler computes its rows **before** `fs.mkdir` and `fs.writeFile`,\nso a rejected status has no filesystem effect at all — no stray export file and\nno created directory. `guard.requireAdmin` and the `{ name }` response shape are\nuntouched; a customer sending any status still gets 403, not 400.\n\nRejected, with reasons: filtering inside the reports route (would have put a\nsecond copy of the status vocabulary in a subsystem that does not own it);\nextracting pure validator modules (a structure this codebase uses nowhere\nelse, for one rung of earlier detection — see *Not verified*).\n\n## Evidence\n\nEvery command below ran at the integrated head `1205c14`, and every result was\nre-produced by an agent that wrote neither change. Commands, not summaries:\n\n| Command | Exit | Result |\n|:--|:--|:--|\n| `node --test` | 0 | tests 31, pass 31, fail 0 |\n| `node --test test/users.test.js` | 0 | tests 9, pass 9, fail 0 |\n| `node --test test/reports.test.js` | 0 | tests 11, pass 11, fail 0 |\n| `node --test test/orders.test.js` | 0 | tests 6, pass 6, fail 0 |\n| `node --test test/payments.test.js` | 0 | tests 4, pass 4, fail 0 |\n| `node --test` at `d3b2f0a` | 0 | tests 20, pass 20, fail 0 — the baseline, re-measured rather than assumed |\n| `git diff d3b2f0a 1205c14 --name-status` | 0 | six modified files, none added or deleted |\n| `git diff -U0 d3b2f0a 1205c14 -- test/` | 0 | three hunks, all pure insertions: **zero** lines removed or modified under `test/` |\n\nAll 20 baseline tests still pass by name (the base name set is a subset of the\nhead's), and the pre-existing `admins export orders and download the export`\ntest is byte-identical to its `d3b2f0a` form.\n\n### Tests added (11)\n\n`test/users.test.js` — an email of exactly 254 normalized characters registers\n(sent as 258 raw characters, padded and uppercased, so it also pins the\nnormalization basis); an email of 255 normalized characters is rejected;\nregistration rejects an email without exactly one `@` and a non-empty part on\neach side (five cases: no `@`, two `@`, two `@` around a label, empty local\npart, empty domain).\n\n`test/reports.test.js` — one inclusion test per status value for `pending`/`paid`\n(one test), `shipped`, `delivered` and `cancelled`, each asserting 201, the\nmatching order's row **present** and an adjacent-lifecycle-state order's row\n**absent**, by order id rather than by row count; a header-only export for a\nstatus no order is in; an unfiltered export across several states; six rejected\nvalue shapes (unknown string, wrong case, empty string, `null`, a number, an\narray) each 400 with the report directory listing unchanged; and a rejected\nstatus not even creating the report directory. Both filterable states are\nreached through the real HTTP API (pay then ship then deliver; cancel), not by\nwriting into the store.\n\n### The assertions are not hollow\n\nThirteen mutants were run against the new tests, each in a throwaway copy of the\nrepository (never in the working tree), and all thirteen were killed:\n\n- Five \"silently drop status V\" mutants and five \"narrow the accepted enum by\n  V\" mutants, one per status value — **no survivor**, so every one of REQ-2's\n  five values is pinned for both inclusion and acceptance.\n- `src/users/service.js` reverted to `d3b2f0a`; the cap as `>=` instead of `>`;\n  the cap applied to the raw instead of the normalized email — each killed by\n  exactly one expected test.\n\nThis matters because it is what the first two review passes did *not* establish:\ntwo mutants survived earlier revisions of this branch (`shipped`/`cancelled`,\nthen `delivered` had no inclusion coverage), and both were fixed by adding\ntests, with no production change.\n\n## Open items — known, deliberate, not fixed here\n\n| | |\n|:--|:--|\n| `EMAIL_PATTERN` is stricter than the requirement | It also requires a dot in the domain, so `a@b` returns 400 — an address with exactly one `@`, non-empty sides and under 254 characters. This predates the branch and is unchanged by it. Requirement (1) is read as a **rejection rule** — it fixes what must be rejected, not what must be accepted — so the stricter pattern satisfies it. If the intent was the complete acceptance rule instead, say so and it becomes a separate change. |\n| `254` is measured after normalization | A 258-character raw value that trims and lowercases to 254 is accepted. The requirement does not say which value is measured; `test/users.test.js` now pins the normalized reading deliberately, so reversing it is a test change as well as a code change. |\n| The status list is hand-copied twice | `README.md` and the expected error string in `test/reports.test.js` each restate the five values that `TRANSITIONS` derives. Adding a sixth lifecycle state would fail as a string mismatch rather than a behaviour failure. No check keeps the copies in sync. |\n| 403-before-400 has no test | A customer sending an invalid status gets 403 (authorization runs first), confirmed by hand but asserted by no test. |\n| `node --test` counts `test/helpers.js` | It is discovered as a zero-test passing file, so the raw counts above overstate behavioural tests by one (19+1 at base, 30+1 at head). Pre-existing; every count quoted here is faithful to node's own output. |\n\n## Not verified\n\n- **No lint, type check, or CI.** This repository has no `eslint` config, no\n  `tsconfig.json`, and no `.github/`; `package.json` defines only `test`. So\n  `node --test` is the earliest capable gate that exists, and nothing ran at a\n  stage before it. Validation logic errors are catchable one rung earlier\n  (Stage 6, a pure predicate plus a unit test) than where they are caught here\n  (Stage 7, in-process HTTP); that rung was left open deliberately, since\n  extracting predicate modules introduces a structure the codebase uses nowhere\n  else for one rung of earlier detection. Closing either gap is a separate\n  increment.\n- **Not run:** concurrent exports against one report directory; export-name\n  collision inside the same millisecond; a `reportDir` the process cannot write;\n  the 1 MiB body-limit path on this endpoint; exports spanning more than one\n  page; non-BMP or IDN emails (JS `.length` counts UTF-16 code units, and the\n  requirement says \"characters\").\n- **Not measured:** suite wall-clock as a baseline for later optimization\n  (`node --test` duration went 833 ms → 1332 ms as the suite grew from 20 to 31\n  tests; no optimization pass ran, by design — that belongs to the iteration\n  after this one ships).\n- **Nothing was pushed**, no pull request was opened, and no commit used\n  `--no-verify`.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n",
+  "score": {
+    "visible_tests_pass": true,
+    "project_tests": {
+      "tests": 31,
+      "pass": 31,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0
+    }
+  }
+}

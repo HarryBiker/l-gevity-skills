@@ -1,0 +1,142 @@
+{
+  "schema": "alchemy-pilot-score/1",
+  "fixture": "server-audit",
+  "node": "v24.19.0",
+  "visible_tests_pass": true,
+  "visible_tests": {
+    "pass": true,
+    "exit": 0,
+    "timed_out": false,
+    "counts": {
+      "tests": 19,
+      "pass": 19,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "failing": []
+  },
+  "project_tests_pass": true,
+  "project_tests": {
+    "pass": true,
+    "exit": 0,
+    "timed_out": false,
+    "counts": {
+      "tests": 31,
+      "pass": 31,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "failing": []
+  },
+  "defects": [
+    {
+      "id": "D01",
+      "category": "correctness",
+      "file": "src/lib/pagination.js",
+      "method": "hidden-test",
+      "fixed": false,
+      "evidence": "D01.test.js: exit 1, failing ['D01 totalPages counts a partially filled last page']"
+    },
+    {
+      "id": "D02",
+      "category": "correctness",
+      "file": "src/lib/money.js",
+      "method": "hidden-test",
+      "fixed": false,
+      "evidence": "D02.test.js: exit 1, failing ['D02 order totals are exact to the cent']"
+    },
+    {
+      "id": "D03",
+      "category": "correctness",
+      "file": "src/orders/service.js",
+      "method": "hidden-test",
+      "fixed": false,
+      "evidence": "D03.test.js: exit 1, failing ['D03 a shipped order cannot be cancelled']"
+    },
+    {
+      "id": "D04",
+      "category": "security",
+      "file": "src/orders/routes.js",
+      "method": "hidden-test",
+      "fixed": false,
+      "evidence": "D04.test.js: exit 1, failing [\"D04 a customer cannot read another customer's order\"]"
+    },
+    {
+      "id": "D05",
+      "category": "security",
+      "file": "src/auth/tokens.js",
+      "method": "static",
+      "fixed": false,
+      "evidence": "['src/auth/tokens.js'] match 'createHmac' without 'timingSafeEqual'"
+    },
+    {
+      "id": "D06",
+      "category": "security",
+      "file": "src/reports/routes.js",
+      "method": "hidden-test",
+      "fixed": false,
+      "evidence": "D06.test.js: exit 1, failing ['D06 report downloads cannot escape the report directory']"
+    },
+    {
+      "id": "D07",
+      "category": "dead-code",
+      "file": "src/http/respond.js",
+      "method": "static",
+      "fixed": false,
+      "evidence": "matches in ['src/http/respond.js']"
+    },
+    {
+      "id": "D08",
+      "category": "dead-code",
+      "file": "src/payments/providers.js",
+      "method": "static",
+      "fixed": false,
+      "evidence": "matches in ['src/payments/providers.js', 'src/payments/service.js']"
+    },
+    {
+      "id": "D09",
+      "category": "architecture",
+      "file": "src/users/routes.js",
+      "method": "static",
+      "fixed": false,
+      "evidence": "matches in ['src/users/routes.js']"
+    },
+    {
+      "id": "D10",
+      "category": "duplication",
+      "file": "src/payments/service.js",
+      "method": "static",
+      "fixed": false,
+      "evidence": "matches in ['src/payments/service.js']"
+    }
+  ],
+  "by_category": {
+    "correctness": {
+      "fixed": 0,
+      "total": 3
+    },
+    "security": {
+      "fixed": 0,
+      "total": 3
+    },
+    "dead-code": {
+      "fixed": 0,
+      "total": 2
+    },
+    "architecture": {
+      "fixed": 0,
+      "total": 1
+    },
+    "duplication": {
+      "fixed": 0,
+      "total": 1
+    }
+  },
+  "defects_fixed": 0,
+  "defects_total": 10,
+  "result_unmodified": true
+}
