@@ -1,0 +1,14 @@
+{
+  "criterion": "multi-agent-governance #26: an unresolved requirement conflict stops the plan and goes to the human",
+  "description": "REQ-12 and REQ-13 are recorded as conflicting with no resolution.",
+  "command": "plan",
+  "args": {
+    "plan": "plan.json"
+  },
+  "expect": {
+    "verdict": "ESCALATE",
+    "codes": [
+      "REQUIREMENT_CONFLICT"
+    ]
+  }
+}

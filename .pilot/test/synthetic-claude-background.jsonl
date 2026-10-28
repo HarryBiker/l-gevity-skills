@@ -1,0 +1,13 @@
+{"type": "synthetic_fixture_note", "note": "SYNTHETIC: hand-written to exercise .pilot/pilot_analysis.py. It proves the stream parser only; it is not a recorded run and proves nothing about the methodology.", "_t": 0.0}
+{"_t": 0.5, "type": "system", "subtype": "init", "model": "synthetic-model", "tools": ["Agent"], "skills": []}
+{"_t": 0.8, "type": "assistant", "parent_tool_use_id": null, "message": {"content": [{"type": "text", "text": "**Execution:** multi-agent \u2014 two independent packages"}]}}
+{"_t": 1.0, "type": "assistant", "parent_tool_use_id": null, "message": {"content": [{"type": "tool_use", "id": "bg1", "name": "Agent", "input": {"subagent_type": "alchemy-implementer", "description": "orders", "prompt": "...", "run_in_background": true}}]}}
+{"_t": 1.1, "type": "user", "parent_tool_use_id": null, "message": {"content": [{"type": "tool_result", "tool_use_id": "bg1", "content": "Async agent launched successfully.\nagentId: agentA1 (use it to check progress)", "is_error": false}]}}
+{"_t": 2.0, "type": "assistant", "parent_tool_use_id": null, "message": {"content": [{"type": "tool_use", "id": "bg2", "name": "Agent", "input": {"subagent_type": "alchemy-implementer", "description": "payments", "prompt": "...", "run_in_background": true}}]}}
+{"_t": 2.1, "type": "user", "parent_tool_use_id": null, "message": {"content": [{"type": "tool_result", "tool_use_id": "bg2", "content": "Async agent launched successfully.\nagentId: agentB2", "is_error": false}]}}
+{"_t": 3.0, "type": "assistant", "parent_tool_use_id": "bg1", "message": {"content": [{"type": "tool_use", "id": "bg1_s", "name": "Skill", "input": {"skill": "alchemy-orchestrate"}}]}}
+{"_t": 10.0, "type": "user", "parent_tool_use_id": null, "message": {"content": [{"type": "text", "text": "<task-notification>\n<task-id>agentA1</task-id>\n<status>completed</status>\n</task-notification>"}]}}
+{"_t": 12.0, "type": "user", "parent_tool_use_id": null, "message": {"content": [{"type": "text", "text": "<task-notification>\n<task-id>agentB2</task-id>\n<status>completed</status>\n</task-notification>"}]}}
+{"_t": 13.0, "type": "assistant", "parent_tool_use_id": null, "message": {"content": [{"type": "tool_use", "id": "fg3", "name": "Agent", "input": {"subagent_type": "alchemy-analyst", "description": "review", "prompt": "..."}}]}}
+{"_t": 20.0, "type": "user", "parent_tool_use_id": null, "message": {"content": [{"type": "tool_result", "tool_use_id": "fg3", "content": "no blocking findings", "is_error": false}]}}
+{"_t": 21.0, "type": "result", "subtype": "success", "is_error": false, "num_turns": 5, "total_cost_usd": 0.5}

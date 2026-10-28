@@ -151,6 +151,35 @@ Solid edges are the primary acyclic core path. Dashed edges are conditional
 companion paths or explicit rework loops; their labels identify which applies.
 Rework must carry the failed decision record back to the named gate.
 
+## Execution Strategy
+
+Dispatch decides which engineering questions a change must answer; execution
+decides whether one agent or several answer them. It is a second, independent
+decision taken after dispatch, never a fifth dispatch state:
+
+```text
+Dispatch:   SKIP | DIRECT | ADAPTIVE | FULL      (unchanged)
+Execution:  single-agent | multi-agent           (new, independent)
+```
+
+`SKIP` and `DIRECT` always execute `single-agent` and load nothing more.
+`ADAPTIVE`, `FULL`, and `audit` select `multi-agent` only when the work changes
+or audits code and at least two parts are independent (different subsystems,
+disjoint files, no ordering between them), or a high-risk change needs a
+reviewer that did not write it. The number of gates or skills on the route is
+never a reason. The project's `alchemy-workspace.json` can set
+`execution.multi_agent` to `off`, and a runtime that cannot launch agents falls
+back to `single-agent` with the limitation reported.
+
+On `multi-agent` the router loads `alchemy-orchestrate`, which composes agents
+from the skills the route selected, checks the plan, launches the agents
+through the runtime, checks every hand-off against the workspace and its
+evidence, integrates, has a separate agent verify, bounds correction, and gates
+completion before a human-approved pull request. The gates, verdicts, and
+hand-offs above are unchanged: orchestration decides who executes a stage,
+never what the stage decides. The normative rules live in
+[ALCHEMY-MULTI-AGENT.md](./ALCHEMY-MULTI-AGENT.md).
+
 ## Entry Paths
 
 ### New capability or design
@@ -323,6 +352,10 @@ increment's meaning or invalidate its verification.
     increment, iteration; every other skill's structural, cross-cutting,
     change, or cycle term names which primitive it specializes and never
     redefines one.
+18. Execution is decided after dispatch and apart from it. `SKIP` and `DIRECT`
+    stay `single-agent`; `multi-agent` requires independent parts or a
+    high-risk change needing an independent reviewer, and loads
+    `alchemy-orchestrate` without changing any gate, verdict, or hand-off.
 
 ## Complexity Assessment
 
@@ -389,6 +422,9 @@ following:
   without restarting the pipeline or treating acceptance as impact proof.
 - Route material verification design through the Test Strategy two-pass
   handshake without changing the core qualification or gate sequence.
+- Report `Execution` on every routed result; keep `SKIP` and `DIRECT`
+  `single-agent`, select `multi-agent` only from independence or risk, and
+  fall back to `single-agent` when the profile or the runtime disallows it.
 - Route an increment that changes persisted or serialized data shape through the
   Evolutionary Database Design two-pass handshake, with its Transition pass
   preceding the Test Strategy Portfolio pass, without changing the core

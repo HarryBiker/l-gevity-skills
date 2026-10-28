@@ -1,0 +1,14 @@
+{
+  "criterion": "multi-agent-governance #6: write sets are literal paths so overlap stays decidable",
+  "description": "P1 declares src/**/*.js; only a trailing /** is accepted (src/orders/** next to it is valid).",
+  "command": "plan",
+  "args": {
+    "plan": "plan.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "INVALID_WRITE_SET"
+    ]
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #50: a failed criterion fails the gate",
+  "description": "REQ-13-AC1 is recorded as failed.",
+  "command": "gate",
+  "args": {
+    "plan": "plan.json",
+    "ledger": "ledger.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "CRITERION_FAILED"
+    ]
+  }
+}

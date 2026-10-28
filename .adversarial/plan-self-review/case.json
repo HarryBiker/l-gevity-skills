@@ -1,0 +1,14 @@
+{
+  "criterion": "multi-agent-governance #11: a verifier never reviews a package it owns",
+  "description": "agent-a owns implement package P1 and also the verify package P2 that reviews it.",
+  "command": "plan",
+  "args": {
+    "plan": "plan.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "SELF_REVIEW"
+    ]
+  }
+}

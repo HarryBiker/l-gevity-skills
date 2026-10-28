@@ -1,0 +1,13 @@
+{
+  "criterion": "multi-agent-governance #19: a protected path with approved_by: human passes",
+  "description": "Same protected path as plan-protected-path, but the package carries approved_by: human.",
+  "command": "plan",
+  "args": {
+    "plan": "plan.json",
+    "profile": "profile.json"
+  },
+  "expect": {
+    "verdict": "PASS",
+    "codes": []
+  }
+}

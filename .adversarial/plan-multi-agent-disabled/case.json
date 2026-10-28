@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #23: a profile that turns multi-agent execution off is obeyed",
+  "description": "The project profile sets execution.multi_agent off; the plan still declares multi-agent with three owners.",
+  "command": "plan",
+  "args": {
+    "plan": "plan.json",
+    "profile": "profile.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "MODE_MISMATCH"
+    ]
+  }
+}

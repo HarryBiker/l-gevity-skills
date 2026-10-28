@@ -1,0 +1,14 @@
+{
+  "criterion": "multi-agent-governance #9: the package graph is acyclic",
+  "description": "P1 depends on P2 and P2 depends on P1, so neither can ever start.",
+  "command": "plan",
+  "args": {
+    "plan": "plan.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "CYCLE"
+    ]
+  }
+}

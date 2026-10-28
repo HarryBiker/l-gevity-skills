@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #38: integration-ready means no blocking blocker remains",
+  "description": "P1 is integration-ready while it lists a blocking blocker on a pending migration.",
+  "command": "handoff",
+  "args": {
+    "plan": "plan.json",
+    "handoff": "handoff.json"
+  },
+  "expect": {
+    "verdict": "REJECT",
+    "codes": [
+      "BLOCKER_IGNORED"
+    ]
+  }
+}

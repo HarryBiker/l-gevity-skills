@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #45: a malformed hand-off is rejected, not guessed at",
+  "description": "The hand-off declares alchemy-handoff/0 and gives attempt as a string.",
+  "command": "handoff",
+  "args": {
+    "plan": "plan.json",
+    "handoff": "handoff.json"
+  },
+  "expect": {
+    "verdict": "REJECT",
+    "codes": [
+      "SCHEMA"
+    ]
+  }
+}

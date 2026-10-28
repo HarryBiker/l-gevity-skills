@@ -1,0 +1,13 @@
+{
+  "criterion": "multi-agent-governance #47: a single-agent run still passes the same gate",
+  "description": "Single-agent plan, independent review off: the lead verifies its own criterion with passing evidence at head.",
+  "command": "gate",
+  "args": {
+    "plan": "plan.json",
+    "ledger": "ledger.json"
+  },
+  "expect": {
+    "verdict": "PASS",
+    "codes": []
+  }
+}

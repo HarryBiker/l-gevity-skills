@@ -1,0 +1,30 @@
+{
+  "request": "Run alchemy-orchestrate on this: agent-a returned the hand-off .alchemy/runs/r1/handoff-P1.json for package P1 of the plan .alchemy/runs/r1/plan.json. Check it before the lead integrates it.",
+  "skills": ["alchemy-orchestrate"],
+  "expect": [
+    {
+      "id": "loads-orchestration",
+      "criterion": "handoff-check #1: a hand-off is checked under the orchestration contract",
+      "check": "guidance_includes",
+      "skills": ["alchemy-orchestrate"]
+    },
+    {
+      "id": "rejects-handoff",
+      "criterion": "handoff-check #1: a hand-off whose evidence contradicts its claim is rejected",
+      "check": "text_matches",
+      "pattern": "\\bREJECT\\b"
+    },
+    {
+      "id": "names-contradiction",
+      "criterion": "handoff-check #1: the rejection names the failing evidence, not the summary",
+      "check": "text_matches",
+      "pattern": "CLAIM_CONTRADICTS_EVIDENCE|exit[_ ]code[^.\\n]{0,40}\\b1\\b"
+    },
+    {
+      "id": "reads-primary-artifact",
+      "criterion": "handoff-check #2: the reviewer inspects the changed file, not only the summary",
+      "check": "text_matches",
+      "pattern": "billing\\.js[^\\n]{0,200}(no|not|never|without|does not|doesn't|lacks|missing)|(no|not|never|without|does not|doesn't|lacks|missing)[^\\n]{0,200}billing\\.js"
+    }
+  ]
+}

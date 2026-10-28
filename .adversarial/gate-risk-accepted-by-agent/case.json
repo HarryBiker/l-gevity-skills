@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #57: only the human accepts risk",
+  "description": "Major finding F4 is marked accepted-risk by agent-b, the owner of the package it concerns.",
+  "command": "gate",
+  "args": {
+    "plan": "plan.json",
+    "ledger": "ledger.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "RISK_NOT_ACCEPTED_BY_HUMAN"
+    ]
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "criterion": "multi-agent-governance #46: a gate passes on evidence at head, resolved findings, and human-only deferrals",
+  "description": "Three criteria verified at head, one deferred by the human, a blocking finding resolved with passing evidence, a minor finding left open, and a dispute decided on the only passing evidence.",
+  "command": "gate",
+  "args": {
+    "plan": "plan.json",
+    "ledger": "ledger.json"
+  },
+  "expect": {
+    "verdict": "PASS",
+    "codes": []
+  }
+}

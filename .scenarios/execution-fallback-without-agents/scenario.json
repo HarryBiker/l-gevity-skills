@@ -1,0 +1,32 @@
+{
+  "request": "Run alchemy on this: two independent changes, implement and verify both. In src/orders, validate that every order line has a positive integer quantity before pricing. Separately, in src/shipping, compute the label weight from the line quantities instead of the number of lines. Both need tests.",
+  "skills": ["alchemy", "alchemy-orchestrate"],
+  "expect": [
+    {
+      "id": "routes-adaptive",
+      "criterion": "execution-strategy #2: independent multi-subsystem work routes adaptively",
+      "check": "field_in",
+      "field": "Dispatch",
+      "values": ["ADAPTIVE", "DIRECT"]
+    },
+    {
+      "id": "reports-execution",
+      "criterion": "execution-strategy #2: the router reports its execution decision",
+      "check": "field_present",
+      "field": "Execution"
+    },
+    {
+      "id": "falls-back-single",
+      "criterion": "execution-strategy #3: without a way to launch agents the run falls back to single-agent",
+      "check": "field_in",
+      "field": "Execution",
+      "values": ["single-agent"]
+    },
+    {
+      "id": "names-limitation",
+      "criterion": "execution-strategy #3: the fallback names the runtime limitation",
+      "check": "text_matches",
+      "pattern": "(cannot|can't|unable to|no (tool|way) to) (launch|spawn|start|delegate)|(launch|spawn)\\w* (no|any) (sub-?)?agents?|no agent.?(launch|spawn)"
+    }
+  ]
+}

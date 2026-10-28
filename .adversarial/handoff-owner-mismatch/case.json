@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #44: only the package owner returns its hand-off",
+  "description": "agent-b returns the hand-off for P1, which agent-a owns.",
+  "command": "handoff",
+  "args": {
+    "plan": "plan.json",
+    "handoff": "handoff.json"
+  },
+  "expect": {
+    "verdict": "REJECT",
+    "codes": [
+      "OWNER_MISMATCH"
+    ]
+  }
+}

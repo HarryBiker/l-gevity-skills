@@ -1,0 +1,186 @@
+{
+  "schema": "alchemy-skill-contracts/1",
+  "fields": {
+    "capability": "The capability a package holding this skill exercises (SKILL.md section 3). One agent may hold several.",
+    "stage": "Route position: a gate letter, a qualification stage, a companion, or lead.",
+    "inputs": "Decision artifacts that must be accepted before the skill runs.",
+    "outputs": "The decision record the skill returns.",
+    "parallel": "per-subject: independent instances may run concurrently on disjoint subjects; none: one instance per run.",
+    "writes": "What a package holding the skill may change. Anything but none needs an exclusive write set.",
+    "exclusive": "Shared files a writer must own alone; packages touching them are serialized.",
+    "verify": "The independent check another agent runs on this skill's output.",
+    "completion": "Decisions that let dependents start.",
+    "failure": "Decisions that stop dependents and route back or escalate."
+  },
+  "skills": {
+    "alchemy": {
+      "capability": "lead", "stage": "router",
+      "inputs": ["objective"], "outputs": ["dispatch, route, execution decision, decision trail"],
+      "parallel": "none", "writes": "none", "exclusive": [],
+      "verify": "Every routed stage was loaded and recorded; skipped stages carry a rationale",
+      "completion": ["Proceed"], "failure": ["Redesign", "Drop", "Defer"]
+    },
+    "alchemy-orchestrate": {
+      "capability": "lead", "stage": "execution",
+      "inputs": ["dispatch and route from alchemy", "requirement and criterion IDs"], "outputs": ["plan, hand-off verdicts, ledger, gate result"],
+      "parallel": "none", "writes": "none", "exclusive": [],
+      "verify": "check_orchestration.py plan, handoff, and gate on the records",
+      "completion": ["PASS", "ACCEPT"], "failure": ["FAIL", "REJECT", "STALE", "RETRY", "ESCALATE"]
+    },
+    "requirements-grounding": {
+      "capability": "lead", "stage": "qualification",
+      "inputs": ["objective", "authoritative sources"], "outputs": ["grounded requirement set, evidence map, confirmation queue"],
+      "parallel": "per-subject", "writes": "none", "exclusive": [],
+      "verify": "Each requirement cites an authoritative source or is marked provisional",
+      "completion": ["GROUNDED", "PROVISIONAL"], "failure": ["NOT-GROUNDED"]
+    },
+    "functionality-complexity-tradeoff": {
+      "capability": "architecture", "stage": "M",
+      "inputs": ["grounded requirement or existing functionality"], "outputs": ["worth decision per candidate"],
+      "parallel": "per-subject", "writes": "none", "exclusive": [],
+      "verify": "The cited usage, cost, and evidence exist and support the verdict",
+      "completion": ["BUILD", "BUILD-minimal", "KEEP", "SIMPLIFY", "QUARANTINE"],
+      "failure": ["NEGOTIATE", "DEFER", "DROP", "DEPRECATE", "DELETE", "OBSOLETE"]
+    },
+    "requirements-topology": {
+      "capability": "lead", "stage": "qualification",
+      "inputs": ["requirements that passed M"], "outputs": ["atomic typed requirement graph with stable IDs"],
+      "parallel": "none", "writes": "none", "exclusive": [],
+      "verify": "Graph is acyclic, every node has verification, no orphans or stale references",
+      "completion": ["STABLE"], "failure": ["NEEDS-REFACTOR", "BLOCKED"]
+    },
+    "implementation-readiness": {
+      "capability": "lead", "stage": "qualification",
+      "inputs": ["requirement graph or one bounded requirement"], "outputs": ["smallest coherent increment, verification obligations, blockers"],
+      "parallel": "none", "writes": "none", "exclusive": [],
+      "verify": "Unresolved requirements cannot change the increment's meaning or verification",
+      "completion": ["READY", "PARTLY-READY"], "failure": ["NOT-READY"]
+    },
+    "architecture-guidelines": {
+      "capability": "architecture", "stage": "A",
+      "inputs": ["admitted increment"], "outputs": ["first-principles design record, interface contracts"],
+      "parallel": "per-subject", "writes": "none", "exclusive": [],
+      "verify": "Design record checked against the increment's requirements and the existing boundaries",
+      "completion": ["Proceed", "Simplify"], "failure": ["Split", "Inline", "Reject", "Defer"]
+    },
+    "morphogenetic-architecture": {
+      "capability": "architecture", "stage": "L",
+      "inputs": ["design record from A"], "outputs": ["placement or topology decision record"],
+      "parallel": "per-subject", "writes": "none", "exclusive": [],
+      "verify": "scripts/check_topology_report.py on the record; position legality re-derived",
+      "completion": ["PLACE", "KEEP", "DECLARE-RUNTIME-CYCLE"], "failure": ["DEFER"]
+    },
+    "structural-simplification": {
+      "capability": "architecture", "stage": "C",
+      "inputs": ["design or topology candidate"], "outputs": ["four structural deltas and a decision"],
+      "parallel": "per-subject", "writes": "none", "exclusive": [],
+      "verify": "The D, K, P, n deltas are recounted from the code or the candidate",
+      "completion": ["Proceed"], "failure": ["Redesign", "Reject"]
+    },
+    "architecture-as-code": {
+      "capability": "architecture", "stage": "E",
+      "inputs": ["final L acceptance", "passing readiness in a full pass"], "outputs": ["architecture config rules"],
+      "parallel": "none", "writes": "rule-files", "exclusive": ["the assembled architecture configuration"],
+      "verify": "The project's architecture lint runs on the integrated head and fails on a deliberate violation",
+      "completion": ["Add config", "Update config"], "failure": ["Reject rule", "Defer", "Blocked"]
+    },
+    "architecture-as-code-javascript": {
+      "capability": "engineering", "stage": "E",
+      "inputs": ["architecture-as-code decision"], "outputs": ["rule files and assembler changes"],
+      "parallel": "none", "writes": "rule-files", "exclusive": ["the assembled architecture configuration"],
+      "verify": "The assembled lint config runs clean on the integrated head",
+      "completion": ["Update assembler"], "failure": ["Blocked"]
+    },
+    "architecture-as-code-python": {
+      "capability": "engineering", "stage": "E",
+      "inputs": ["architecture-as-code decision"], "outputs": ["rule files and assembler changes"],
+      "parallel": "none", "writes": "rule-files", "exclusive": ["the assembled architecture configuration"],
+      "verify": "The assembled import contracts run clean on the integrated head",
+      "completion": ["Update assembler"], "failure": ["Blocked"]
+    },
+    "defect-shift-left": {
+      "capability": "verification", "stage": "H",
+      "inputs": ["accepted architecture and selected checks"], "outputs": ["per-gap stage placement rows"],
+      "parallel": "per-subject", "writes": "pipeline-config", "exclusive": ["CI workflow files"],
+      "verify": "The placed check runs at its stage and blocks on a deliberate violation",
+      "completion": ["Proceed"], "failure": ["Reject"]
+    },
+    "ci-cd-reliability-architecture": {
+      "capability": "verification", "stage": "H",
+      "inputs": ["check placement from H"], "outputs": ["pipeline reliability decisions"],
+      "parallel": "none", "writes": "pipeline-config", "exclusive": ["CI workflow files"],
+      "verify": "The pipeline run on the integrated head shows the gate and its retention",
+      "completion": ["Proceed", "Add gate", "Promote"], "failure": ["Block", "Rollback"]
+    },
+    "test-strategy": {
+      "capability": "verification", "stage": "companion",
+      "inputs": ["readiness obligations, then final A/L/C/E"], "outputs": ["risk-driven evidence portfolio"],
+      "parallel": "per-subject", "writes": "tests", "exclusive": [],
+      "verify": "Each selected test fails when the behavior it claims is broken",
+      "completion": ["ADEQUATE"], "failure": ["PARTIAL", "NOT-ADEQUATE", "DEFER"]
+    },
+    "evolutionary-database-design": {
+      "capability": "architecture", "stage": "companion",
+      "inputs": ["admitted increment that changes data shape"], "outputs": ["compatibility and transition record"],
+      "parallel": "none", "writes": "code", "exclusive": ["schema and migration files"],
+      "verify": "Old and new code versions pass against the expanded schema",
+      "completion": ["COMPATIBLE", "STAGED"], "failure": ["BREAKING", "DEFER"]
+    },
+    "requirements-traceability": {
+      "capability": "lead", "stage": "companion",
+      "inputs": ["passing readiness and admitted criterion IDs"], "outputs": ["trace links and evidence state"],
+      "parallel": "none", "writes": "none", "exclusive": [],
+      "verify": "Every criterion links executed evidence on the integrated head",
+      "completion": ["TRACEABLE"], "failure": ["PARTIAL", "BLOCKED"]
+    },
+    "system-optimization": {
+      "capability": "optimization", "stage": "Y",
+      "inputs": ["stable measured baseline from the previous iteration"], "outputs": ["constraint and improvement decision"],
+      "parallel": "per-subject", "writes": "none", "exclusive": [],
+      "verify": "The named constraint is visible in the cited measurement",
+      "completion": ["Simplify", "Stabilize", "Optimize", "Automate"], "failure": ["Defer", "Reject"]
+    },
+    "push-out": {
+      "capability": "optimization", "stage": "triad",
+      "inputs": ["named recurring toil"], "outputs": ["target rank and move"],
+      "parallel": "per-subject", "writes": "none", "exclusive": [],
+      "verify": "The toil's current home and frequency are evidenced",
+      "completion": ["Standardize", "Platformize", "Self-service", "Document"], "failure": ["Keep manual"]
+    },
+    "bring-down": {
+      "capability": "optimization", "stage": "triad",
+      "inputs": ["named bespoke capability"], "outputs": ["bring-down move or no recommendation"],
+      "parallel": "per-subject", "writes": "none", "exclusive": [],
+      "verify": "The replacement capability covers the bespoke behavior's tests",
+      "completion": ["valid bring-down move"], "failure": ["no bring-down recommendation"]
+    },
+    "zero-copy-requirements": {
+      "capability": "lead", "stage": "companion",
+      "inputs": ["a fact, decision, or document to place"], "outputs": ["owning artifact per fact"],
+      "parallel": "per-subject", "writes": "none", "exclusive": [],
+      "verify": "No retained artifact is reconstructable from another",
+      "completion": ["Keep", "Generate", "Delete"], "failure": ["Defer"]
+    },
+    "dependency-lifecycle": {
+      "capability": "architecture", "stage": "companion",
+      "inputs": ["advisory, drift, abandonment, license change, or end-of-life"], "outputs": ["response with its ending guard"],
+      "parallel": "per-subject", "writes": "code", "exclusive": ["dependency manifests and lock files"],
+      "verify": "The project's tests pass on the changed manifest and the advisory no longer applies",
+      "completion": ["UPGRADE", "PIN", "PATCH", "ISOLATE", "REPLACE", "VENDOR", "ACCEPT", "REMOVE"], "failure": []
+    },
+    "observability-design": {
+      "capability": "verification", "stage": "companion",
+      "inputs": ["residual production risk from the Test Strategy portfolio"], "outputs": ["signal decision with actor and first action"],
+      "parallel": "per-subject", "writes": "code", "exclusive": [],
+      "verify": "The signal is emitted on the integrated head and its alert names an actionable owner",
+      "completion": ["ADD", "KEEP", "RETARGET", "DEMOTE", "DELETE"], "failure": ["UNOBSERVED"]
+    },
+    "continuous-improvement": {
+      "capability": "lead", "stage": "companion",
+      "inputs": ["recurring mistake with evidence"], "outputs": ["skill change decision"],
+      "parallel": "none", "writes": "none", "exclusive": [],
+      "verify": "A scenario or validator check fails without the change",
+      "completion": ["replace", "add", "delete", "cross-reference"], "failure": ["no change"]
+    }
+  }
+}

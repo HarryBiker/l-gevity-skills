@@ -1,0 +1,14 @@
+{
+  "criterion": "multi-agent-governance #17: merge, deploy, push, and pull_request never appear in a plan",
+  "description": "P1 asks for read, edit, test, and merge.",
+  "command": "plan",
+  "args": {
+    "plan": "plan.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "PERMISSION_EXCEEDS"
+    ]
+  }
+}

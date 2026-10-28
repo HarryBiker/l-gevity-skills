@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #63: rejecting a finding needs evidence that it is wrong, not its raiser's evidence",
+  "description": "F3 is a major finding marked rejected with no resolution; the only evidence it carries is E8, which its raiser cited for it.",
+  "command": "gate",
+  "args": {
+    "plan": "plan.json",
+    "ledger": "ledger.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "UNSUPPORTED_RESOLUTION"
+    ]
+  }
+}

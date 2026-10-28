@@ -1,0 +1,12 @@
+{
+  "criterion": "multi-agent-governance #2: independent write packages run in one wave under a third-owner verifier",
+  "description": "Two implement packages with disjoint write sets and no dependency path, reviewed by a verify package owned by a third agent.",
+  "command": "plan",
+  "args": {
+    "plan": "plan.json"
+  },
+  "expect": {
+    "verdict": "PASS",
+    "codes": []
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "criterion": "multi-agent-governance #22: the declared mode matches the owners the plan names",
+  "description": "The plan declares single-agent but assigns packages to agent-a and agent-b.",
+  "command": "plan",
+  "args": {
+    "plan": "plan.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "MODE_MISMATCH"
+    ]
+  }
+}

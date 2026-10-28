@@ -1,0 +1,34 @@
+{
+  "schema": "alchemy-plan/1",
+  "objective": "Move tax application out of reprice into priceOrder",
+  "requirements": ["REQ-9"],
+  "conflicts": [],
+  "base": {"commit": "b6e8d7f"},
+  "contracts_existing": [],
+  "execution": {
+    "mode": "multi-agent",
+    "strategy": "sequential",
+    "max_parallel_agents": 2,
+    "integration_owner": "lead",
+    "independent_review": true,
+    "merge_policy": "human-approval"
+  },
+  "packages": [
+    {
+      "id": "P1", "kind": "implement", "capabilities": ["engineering"], "skills": ["structural-simplification"],
+      "owner": "agent-a", "envelope": "implementer", "risk": "medium",
+      "requirements": ["REQ-9"], "writes": ["src/orders/"], "reads": ["src/"],
+      "depends_on": [], "produces": [], "consumes": [],
+      "acceptance": [{"id": "REQ-9-AC1", "check": "command", "command": "npm test"}],
+      "permissions": ["read", "edit", "test"]
+    },
+    {
+      "id": "P2", "kind": "verify", "capabilities": ["verification", "architecture"], "skills": ["structural-simplification"],
+      "owner": "agent-c", "envelope": "analyst", "risk": "low",
+      "requirements": ["REQ-9"], "writes": [], "reads": ["src/"],
+      "depends_on": ["P1"], "reviews": ["P1"],
+      "acceptance": [{"id": "P2-AC1", "check": "review", "question": "Does the change simplify pricing without changing totals?"}],
+      "permissions": ["read", "test"]
+    }
+  ]
+}

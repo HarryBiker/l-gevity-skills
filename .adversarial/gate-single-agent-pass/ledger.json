@@ -1,0 +1,27 @@
+{
+  "schema": "alchemy-ledger/1",
+  "head_commit": "c47e9aa",
+  "rework_cycles": {},
+  "evidence": [
+    {
+      "id": "E1",
+      "command": "npm test -- orders",
+      "exit_code": 0,
+      "commit": "c47e9aa",
+      "produced_by": "lead"
+    }
+  ],
+  "criteria": [
+    {
+      "id": "REQ-12-AC1",
+      "package": "P1",
+      "status": "verified",
+      "evidence": [
+        "E1"
+      ],
+      "verified_by": "lead"
+    }
+  ],
+  "findings": [],
+  "disputes": []
+}

@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #41: a failed package is re-run from its base within the retry budget",
+  "description": "P1's first attempt failed (the test process was killed); max_retries is 1.",
+  "command": "handoff",
+  "args": {
+    "plan": "plan.json",
+    "handoff": "handoff.json"
+  },
+  "expect": {
+    "verdict": "RETRY",
+    "codes": [
+      "AGENT_FAILED"
+    ]
+  }
+}

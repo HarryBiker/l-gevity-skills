@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #54: verifying evidence ran on the integrated head",
+  "description": "REQ-13-AC1 is verified by E11, which passed on the base commit, not on head c47e9aa.",
+  "command": "gate",
+  "args": {
+    "plan": "plan.json",
+    "ledger": "ledger.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "EVIDENCE_STALE"
+    ]
+  }
+}

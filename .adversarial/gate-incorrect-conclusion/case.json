@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #53: verified means evidence that exists and exited 0",
+  "description": "The verifier marks REQ-12-AC1 verified while citing E10, a check that exited 1.",
+  "command": "gate",
+  "args": {
+    "plan": "plan.json",
+    "ledger": "ledger.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "UNSUPPORTED_VERDICT"
+    ]
+  }
+}

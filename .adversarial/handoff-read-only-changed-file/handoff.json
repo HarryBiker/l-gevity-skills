@@ -1,0 +1,51 @@
+{
+  "schema": "alchemy-handoff/1",
+  "package": "P3",
+  "owner": "agent-c",
+  "status": "DONE",
+  "attempt": 1,
+  "base_commit": "3f9c2e1",
+  "head_commit": "8a1d4b0",
+  "requirements": [
+    "REQ-12",
+    "REQ-13"
+  ],
+  "decisions": [
+    {
+      "id": "D-4",
+      "summary": "Validate at the HTTP boundary",
+      "ref": "issue #42"
+    }
+  ],
+  "assumptions": [
+    "Order totals are integers in cents"
+  ],
+  "relied_on": [],
+  "changed_files": [
+    {
+      "path": "src/orders/validate.js",
+      "sha256": "16f6525cd063456ca4b6023335872814e7c089609ad59915288eba9dbf08d8ca"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "E5",
+      "criterion": "P3-AC1",
+      "command": "npm test",
+      "exit_code": 0,
+      "commit": "8a1d4b0",
+      "summary": "re-ran the full suite on the integrated diff"
+    }
+  ],
+  "claims": [
+    {
+      "text": "Both diffs meet REQ-12 and REQ-13",
+      "evidence": [
+        "E5"
+      ]
+    }
+  ],
+  "blockers": [],
+  "next_owner": "lead",
+  "integration_ready": true
+}

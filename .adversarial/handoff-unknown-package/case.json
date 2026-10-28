@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #43: a hand-off names a package the plan holds",
+  "description": "The hand-off names package P9, which the plan does not hold.",
+  "command": "handoff",
+  "args": {
+    "plan": "plan.json",
+    "handoff": "handoff.json"
+  },
+  "expect": {
+    "verdict": "REJECT",
+    "codes": [
+      "UNKNOWN_PACKAGE"
+    ]
+  }
+}

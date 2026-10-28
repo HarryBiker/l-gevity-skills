@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #37: a DONE package evidences every acceptance criterion",
+  "description": "P1 reports DONE but its only evidence is a lint run that names no criterion, so REQ-12-AC1 has none.",
+  "command": "handoff",
+  "args": {
+    "plan": "plan.json",
+    "handoff": "handoff.json"
+  },
+  "expect": {
+    "verdict": "REJECT",
+    "codes": [
+      "UNEVIDENCED_CRITERION"
+    ]
+  }
+}

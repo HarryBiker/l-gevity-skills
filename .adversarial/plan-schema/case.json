@@ -1,0 +1,14 @@
+{
+  "criterion": "multi-agent-governance #25: a reader rejects an unknown record version and a missing required field",
+  "description": "The plan declares alchemy-plan/2 and omits objective.",
+  "command": "plan",
+  "args": {
+    "plan": "plan.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "SCHEMA"
+    ]
+  }
+}

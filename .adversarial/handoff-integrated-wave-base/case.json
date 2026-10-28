@@ -1,0 +1,13 @@
+{
+  "criterion": "multi-agent-governance #64: a later wave may start from a head the lead integrated",
+  "description": "P1 started from 1d0e5b7, which the lead recorded in base.integrated after integrating the previous wave.",
+  "command": "handoff",
+  "args": {
+    "plan": "plan.json",
+    "handoff": "handoff.json"
+  },
+  "expect": {
+    "verdict": "ACCEPT",
+    "codes": []
+  }
+}

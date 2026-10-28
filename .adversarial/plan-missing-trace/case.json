@@ -1,0 +1,14 @@
+{
+  "criterion": "multi-agent-governance #24: every package traces to a requirement and an acceptance criterion",
+  "description": "P1 names no requirement ID and no acceptance criterion.",
+  "command": "plan",
+  "args": {
+    "plan": "plan.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "MISSING_TRACE"
+    ]
+  }
+}

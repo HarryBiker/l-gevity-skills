@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #33: a writer touches only its write set",
+  "description": "P1 changed src/billing/invoice.js, outside its write set src/orders/ and test/orders/.",
+  "command": "handoff",
+  "args": {
+    "plan": "plan.json",
+    "handoff": "handoff.json"
+  },
+  "expect": {
+    "verdict": "REJECT",
+    "codes": [
+      "SCOPE_VIOLATION"
+    ]
+  }
+}

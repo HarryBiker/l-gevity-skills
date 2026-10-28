@@ -1,0 +1,16 @@
+{
+  "criterion": "multi-agent-governance #30: the changed files in the workspace are the ones the hand-off describes",
+  "description": "P1's hand-off digests a correct validate.js, but the workspace holds a version that accepts every order.",
+  "command": "handoff",
+  "args": {
+    "plan": "plan.json",
+    "handoff": "handoff.json",
+    "root": "workspace"
+  },
+  "expect": {
+    "verdict": "REJECT",
+    "codes": [
+      "CLAIM_CONTRADICTS_WORKSPACE"
+    ]
+  }
+}

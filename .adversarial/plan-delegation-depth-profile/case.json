@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #14: a profile cannot raise the delegation depth above 1",
+  "description": "The project profile sets max_delegation_depth to 2 for an otherwise valid plan.",
+  "command": "plan",
+  "args": {
+    "plan": "plan.json",
+    "profile": "profile.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "DELEGATION"
+    ]
+  }
+}

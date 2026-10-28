@@ -1,0 +1,15 @@
+{
+  "criterion": "multi-agent-governance #59: an undecided disagreement goes to the human",
+  "description": "Both positions in dispute X1 stand after one exchange and the lead escalated it.",
+  "command": "gate",
+  "args": {
+    "plan": "plan.json",
+    "ledger": "ledger.json"
+  },
+  "expect": {
+    "verdict": "ESCALATE",
+    "codes": [
+      "DISPUTE_OPEN"
+    ]
+  }
+}

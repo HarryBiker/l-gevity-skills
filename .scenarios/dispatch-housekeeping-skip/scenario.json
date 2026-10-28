@@ -26,6 +26,19 @@
       "criterion": "adaptive-dispatch #1: a skip reads no route guidance",
       "check": "reads_exclude",
       "paths": [".claude/skills/alchemy/references/adaptive-route.md"]
+    },
+    {
+      "id": "stays-single-agent",
+      "criterion": "execution-strategy #1: SKIP and DIRECT execute single-agent",
+      "check": "field_in",
+      "field": "Execution",
+      "values": ["single-agent"]
+    },
+    {
+      "id": "loads-no-orchestration",
+      "criterion": "execution-strategy #1: SKIP and DIRECT never load orchestration",
+      "check": "reads_exclude",
+      "paths": [".claude/skills/alchemy-orchestrate/SKILL.md"]
     }
   ]
 }

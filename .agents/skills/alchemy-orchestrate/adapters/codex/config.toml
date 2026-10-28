@@ -1,0 +1,4 @@
+# Rendered by alchemy-orchestrate scripts/init_workspace.py from alchemy-workspace.json.
+# Codex reads a project .codex/config.toml only when the project is trusted.
+[agents]
+max_concurrent_threads_per_session = {{ execution.max_parallel_agents }}

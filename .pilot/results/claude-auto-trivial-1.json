@@ -1,0 +1,421 @@
+{
+  "schema": "alchemy-pilot-result/1",
+  "fixture": "server-audit",
+  "arm": "multi",
+  "runtime": "claude",
+  "runtime_version": "claude-code 2.1.293",
+  "model_requested": "claude-opus-5",
+  "model_reported": "claude-opus-5",
+  "objective": {
+    "name": "trivial",
+    "prompt": "/alchemy Rename the function paginate in src/lib/pagination.js to paginateList and update its references."
+  },
+  "workspace": {
+    "multi_agent": "auto",
+    "multi_agent_written_by_init": "auto",
+    "init_workspace_created": [
+      ".alchemy/runs/.gitignore",
+      ".claude/agents/alchemy-analyst.md",
+      ".claude/agents/alchemy-implementer.md",
+      ".claude/settings.json",
+      "alchemy-workspace.json"
+    ],
+    "failure_hook": null
+  },
+  "command": [
+    "claude",
+    "-p",
+    "/alchemy Rename the function paginate in src/lib/pagination.js to paginateList and update its references.",
+    "--output-format",
+    "stream-json",
+    "--verbose",
+    "--setting-sources",
+    "project",
+    "--strict-mcp-config",
+    "--no-session-persistence",
+    "--permission-mode",
+    "bypassPermissions",
+    "--forward-subagent-text",
+    "--model",
+    "claude-opus-5"
+  ],
+  "started_at": "2026-10-28T18:52:42+00:00",
+  "finished_at": "2026-10-28T18:53:08+00:00",
+  "wall_clock_seconds": 25.7,
+  "exit_code": 0,
+  "timed_out": false,
+  "result_event": true,
+  "metrics": {
+    "subtype": "success",
+    "is_error": false,
+    "duration_ms": 24353,
+    "duration_api_ms": 21915,
+    "num_turns": 5,
+    "total_cost_usd": 0.33579649999999994,
+    "usage": {
+      "input_tokens": 10,
+      "cache_creation_input_tokens": 22595,
+      "cache_read_input_tokens": 147293,
+      "output_tokens": 1446,
+      "output_tokens_details": {
+        "thinking_tokens": 199
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 22595,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "global",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 501,
+          "cache_read_input_tokens": 34530,
+          "cache_creation_input_tokens": 513,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 513
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard",
+      "fallback_credit": null
+    },
+    "modelUsage": {
+      "claude-opus-5": {
+        "inputTokens": 10,
+        "outputTokens": 1446,
+        "cacheReadInputTokens": 147293,
+        "cacheCreationInputTokens": 22595,
+        "webSearchRequests": 0,
+        "costUSD": 0.33579649999999994,
+        "contextWindow": 1000000,
+        "maxOutputTokens": 64000,
+        "thinkingTokens": 199,
+        "canonicalModel": "claude-opus-5",
+        "provider": "firstParty",
+        "costBasis": "list"
+      }
+    }
+  },
+  "tools_available": [
+    "Task",
+    "Bash",
+    "CronCreate",
+    "CronDelete",
+    "CronList",
+    "DesignSync",
+    "Edit",
+    "EnterWorktree",
+    "ExitWorktree",
+    "Glob",
+    "Grep",
+    "ListAgents",
+    "Monitor",
+    "NotebookEdit",
+    "PushNotification",
+    "Read",
+    "RemoteTrigger",
+    "ReportFindings",
+    "ScheduleWakeup",
+    "SendMessage",
+    "Skill",
+    "TaskStop",
+    "ToolSearch",
+    "WebSearch",
+    "Workflow",
+    "Write"
+  ],
+  "skills_available": [
+    "alchemy",
+    "alchemy-orchestrate",
+    "architecture-as-code",
+    "architecture-as-code-javascript",
+    "architecture-as-code-python",
+    "architecture-guidelines",
+    "bring-down",
+    "ci-cd-reliability-architecture",
+    "continuous-improvement",
+    "defect-shift-left",
+    "dependency-lifecycle",
+    "evolutionary-database-design",
+    "functionality-complexity-tradeoff",
+    "implementation-readiness",
+    "morphogenetic-architecture",
+    "observability-design",
+    "push-out",
+    "requirements-grounding",
+    "requirements-topology",
+    "requirements-traceability",
+    "structural-simplification",
+    "system-optimization",
+    "test-strategy",
+    "zero-copy-requirements",
+    "deep-research",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring"
+  ],
+  "tool_calls": {
+    "lead": {
+      "Bash": 4
+    },
+    "subagents": {}
+  },
+  "acceptance": {
+    "agent_launches": [],
+    "agent_launch_count": 0,
+    "parallel_overlap": false,
+    "review_after_implementation": false,
+    "review_launches": [],
+    "correction_after_review": false,
+    "correction_launches": [],
+    "skills_loaded_by_lead": [],
+    "skills_loaded_by_subagents": {},
+    "subagent_events_observed": 0,
+    "execution_line": "single-agent \u2014 one file set, no independent parts, no high-risk surface",
+    "execution_lines": [
+      "single-agent \u2014 one file set, no independent parts, no high-risk surface"
+    ],
+    "execution_mode": "single-agent",
+    "dispatch": "SKIP",
+    "orchestration_checks": [],
+    "injected_failure": {
+      "blocked_launches": 0,
+      "retried": false,
+      "retry_same_subagent_type": false,
+      "retry_tool_use_id": null
+    }
+  },
+  "injection": null,
+  "score": {
+    "schema": "alchemy-pilot-score/1",
+    "fixture": "server-audit",
+    "node": "v24.19.0",
+    "visible_tests_pass": true,
+    "visible_tests": {
+      "pass": true,
+      "exit": 0,
+      "timed_out": false,
+      "counts": {
+        "tests": 19,
+        "pass": 19,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "failing": []
+    },
+    "project_tests_pass": true,
+    "project_tests": {
+      "pass": true,
+      "exit": 0,
+      "timed_out": false,
+      "counts": {
+        "tests": 20,
+        "pass": 20,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "failing": []
+    },
+    "defects": [
+      {
+        "id": "D01",
+        "category": "correctness",
+        "file": "src/lib/pagination.js",
+        "method": "hidden-test",
+        "fixed": false,
+        "evidence": "D01.test.js: exit 1, failing ['D01 totalPages counts a partially filled last page']"
+      },
+      {
+        "id": "D02",
+        "category": "correctness",
+        "file": "src/lib/money.js",
+        "method": "hidden-test",
+        "fixed": false,
+        "evidence": "D02.test.js: exit 1, failing ['D02 order totals are exact to the cent']"
+      },
+      {
+        "id": "D03",
+        "category": "correctness",
+        "file": "src/orders/service.js",
+        "method": "hidden-test",
+        "fixed": false,
+        "evidence": "D03.test.js: exit 1, failing ['D03 a shipped order cannot be cancelled']"
+      },
+      {
+        "id": "D04",
+        "category": "security",
+        "file": "src/orders/routes.js",
+        "method": "hidden-test",
+        "fixed": false,
+        "evidence": "D04.test.js: exit 1, failing [\"D04 a customer cannot read another customer's order\"]"
+      },
+      {
+        "id": "D05",
+        "category": "security",
+        "file": "src/auth/tokens.js",
+        "method": "static",
+        "fixed": false,
+        "evidence": "['src/auth/tokens.js'] match 'createHmac' without 'timingSafeEqual'"
+      },
+      {
+        "id": "D06",
+        "category": "security",
+        "file": "src/reports/routes.js",
+        "method": "hidden-test",
+        "fixed": false,
+        "evidence": "D06.test.js: exit 1, failing ['D06 report downloads cannot escape the report directory']"
+      },
+      {
+        "id": "D07",
+        "category": "dead-code",
+        "file": "src/http/respond.js",
+        "method": "static",
+        "fixed": false,
+        "evidence": "matches in ['src/http/respond.js']"
+      },
+      {
+        "id": "D08",
+        "category": "dead-code",
+        "file": "src/payments/providers.js",
+        "method": "static",
+        "fixed": false,
+        "evidence": "matches in ['src/payments/providers.js', 'src/payments/service.js']"
+      },
+      {
+        "id": "D09",
+        "category": "architecture",
+        "file": "src/users/routes.js",
+        "method": "static",
+        "fixed": false,
+        "evidence": "matches in ['src/users/routes.js']"
+      },
+      {
+        "id": "D10",
+        "category": "duplication",
+        "file": "src/payments/service.js",
+        "method": "static",
+        "fixed": false,
+        "evidence": "matches in ['src/payments/service.js']"
+      }
+    ],
+    "by_category": {
+      "correctness": {
+        "fixed": 0,
+        "total": 3
+      },
+      "security": {
+        "fixed": 0,
+        "total": 3
+      },
+      "dead-code": {
+        "fixed": 0,
+        "total": 2
+      },
+      "architecture": {
+        "fixed": 0,
+        "total": 1
+      },
+      "duplication": {
+        "fixed": 0,
+        "total": 1
+      }
+    },
+    "defects_fixed": 0,
+    "defects_total": 10,
+    "result_unmodified": true
+  },
+  "objective_checks": [
+    {
+      "id": "old-name-gone",
+      "holds": true,
+      "evidence": "no match in 17 source files"
+    },
+    {
+      "id": "new-name-present",
+      "holds": true,
+      "evidence": "matches in ['src/lib/pagination.js', 'src/orders/service.js', 'src/users/routes.js']"
+    }
+  ],
+  "git": {
+    "fixture_commit": "6bf3dc1825e9dca657ef440547dc49fd5ca6e6ad",
+    "base_commit": "68a409976342aadb7c2ddb42900b550d137d467b",
+    "agent_commits": 0,
+    "files_changed": [
+      {
+        "path": "src/lib/pagination.js",
+        "added": "2",
+        "deleted": "2",
+        "status": "tracked"
+      },
+      {
+        "path": "src/orders/service.js",
+        "added": "2",
+        "deleted": "2",
+        "status": "tracked"
+      },
+      {
+        "path": "src/users/routes.js",
+        "added": "2",
+        "deleted": "2",
+        "status": "tracked"
+      }
+    ],
+    "fixture_files_changed": [
+      "src/lib/pagination.js",
+      "src/orders/service.js",
+      "src/users/routes.js"
+    ],
+    "fixture_files_changed_count": 3
+  },
+  "pr_md": {
+    "exists": false
+  },
+  "orchestration_artifacts": [],
+  "isolation": {
+    "forbidden_paths": [],
+    "answer_markers": [],
+    "clean": true
+  },
+  "stream": {
+    "file": "claude-auto-trivial-1.stream.jsonl",
+    "events": 19,
+    "non_json_lines": 0,
+    "census": {
+      "assistant": 7,
+      "rate_limit_event": 1,
+      "result/success": 1,
+      "system/init": 1,
+      "system/thinking_tokens": 5,
+      "user": 4
+    },
+    "collab_item_keys": null
+  },
+  "stderr_tail": "Ignoring 4 permissions.allow entries from .claude/settings.json: this workspace has not been trusted. Run Claude Code interactively here once and accept the trust dialog, or set projects[\"<run-project>\"].hasTrustDialogAccepted: true in ~\\.claude.json.\n",
+  "warnings": []
+}

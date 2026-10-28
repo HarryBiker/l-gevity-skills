@@ -1,0 +1,14 @@
+{
+  "criterion": "multi-agent-governance #13: delegation depth is 1; a delegated agent never delegates",
+  "description": "P1 sets may_delegate: true, so its agent could spawn further agents.",
+  "command": "plan",
+  "args": {
+    "plan": "plan.json"
+  },
+  "expect": {
+    "verdict": "FAIL",
+    "codes": [
+      "DELEGATION"
+    ]
+  }
+}
