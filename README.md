@@ -1,14 +1,17 @@
 ### THE AI ARCHITECT By [Patrick Savalle](https://github.com/patricksavalle)
 
-# ALCHEMY — a self-orchestrating multi-agent software development methodology
+# ALCHEMY — your self-orchestrating software engineering team
 
     One command: /alchemy (Claude Code), $alchemy (Codex), or just
     'do some alchemy'. Open-source, platform-agnostic, drop-in for any project.
 
-    ALCHEMY selects the engineering skills a change needs, decides whether one
-    agent or several should do the work, launches and coordinates those agents
-    itself, verifies their combined result against evidence, and stops at a
-    human-approved pull request. You never assemble a team.
+    Give it an objective and your coding agent works like a disciplined
+    engineering team: it decides what is worth building, designs it, splits the
+    work, brings in more agents only when that pays off, verifies everything
+    against evidence, and hands you a pull request to approve.
+
+    Under the hood it is a multi-agent software development methodology: the
+    agents supply the hands, ALCHEMY supplies the engineering judgment.
 
 > Skills define the engineering method. Agents execute responsibilities.
 > Orchestration coordinates execution. Evidence determines correctness.
