@@ -1,38 +1,63 @@
 ### THE AI ARCHITECT By [Patrick Savalle](https://github.com/patricksavalle)
 
+# ALCHEMY — a self-orchestrating multi-agent software development methodology
+
+    One command: /alchemy (Claude Code), $alchemy (Codex), or just
+    'do some alchemy'. Open-source, platform-agnostic, drop-in for any project.
+
+    ALCHEMY selects the engineering skills a change needs, decides whether one
+    agent or several should do the work, launches and coordinates those agents
+    itself, verifies their combined result against evidence, and stops at a
+    human-approved pull request. You never assemble a team.
+
+> Skills define the engineering method. Agents execute responsibilities.
+> Orchestration coordinates execution. Evidence determines correctness.
+> The runtime is interchangeable.
+
+## What ALCHEMY is
+
+Most agent skills teach an AI *how* to do specific tasks — write tests,
+scaffold boilerplate, format code. ALCHEMY teaches agents how to *think* about
+software at a structural level, and how to *work together* on it without
+losing that discipline:
+
+| Layer | What it decides | Where it lives |
+|:--|:--|:--|
+| **Method** | Is this worth building, is it well-designed, is it in the right place, is it as simple as it can be, are the rules enforced as code, are defects caught early, is the flow optimized | 24 composable skills and the seven A.L.C.H.E.M.Y. gates |
+| **Routing** | Which of those questions this change must answer, at which intensity | the [`alchemy`](./.agents/skills/alchemy/SKILL.md) router: `SKIP`, `DIRECT`, `ADAPTIVE`, `FULL` |
+| **Orchestration** | Who answers them: one agent or several, which packages, in which order, and what evidence makes an answer acceptable | [`alchemy-orchestrate`](./.agents/skills/alchemy-orchestrate/SKILL.md) and its deterministic checker |
+| **Runtime** | How agents are actually launched, isolated, and bounded | adapters for Claude Code, Codex, and Unstoppable |
+
+When you invoke `/alchemy`:
+
+- **A small change stays one agent.** A rename, a local fix, or a focused
+  question is routed cheaply and executed by the agent you are talking to, with
+  no orchestration overhead.
+- **Structural work is composed into a team on demand.** When a change has
+  independent parts, or a risky part that needs a reviewer who did not write
+  it, ALCHEMY derives the needed capabilities — architecture, engineering,
+  verification, security, optimization — from the skills its route selected,
+  plans owned work packages with disjoint files, and spawns the agents through
+  the runtime. Each agent loads only the skills its package needs.
+- **Evidence, not agents, decides.** Every hand-off is checked against the
+  workspace and its own test results; a separate agent verifies the integrated
+  result; disagreements are settled on evidence or by you, never by vote;
+  rework is bounded; and a gate blocks the pull request until every acceptance
+  criterion is verified or explicitly deferred by you.
+- **You keep the irreversible decisions.** Consequential plans, accepted risk,
+  pushing, opening the pull request, and merging stay yours.
+
+Single-agent execution remains the default and the baseline every multi-agent
+run is measured against. What is implemented and verified per runtime, the
+measured results, and the limits are in
+[section 2](#2-self-orchestrating-multi-agent-execution); the normative rules
+are in the [ALCHEMY Multi-Agent Methodology Specification](./ALCHEMY-MULTI-AGENT.md).
+
 ## Need advice or a review of any part of your DevOps project?
 
-# 'DO SOME ALCHEMY'
-
-    Open-source, platform-agnostic, drop-in for any project and any compatible
-    agent that you activate with /alchemy (Claude) or $alchemy (Codex).
-
-    Or just 'do some alchemy' in any context
-
-    The Alchemy router selects the right skill at the right intensity, automatically.
-    Super-efficient, no context bloating.
-    
-Most agent skills teach an AI *how* to do specific tasks — write tests,
-scaffold boilerplate, format code. L-GEVITY skills do something different.
-They teach an agent how to *think* about software at a structural level:
-the voice that asks whether a feature earns its complexity, whether a
-pipeline is truly idempotent, whether a structure can be simpler before
-it's optimized.
-
-Alchemy is the backbone for structural and architectural quality: is this
-worth building, is it well-designed, is it in the right place, is it as
-simple as it can be, are the rules enforced as code, are defects caught
-early, is the flow optimized. It is, in effect, the architect companion —
-not a security, accessibility, UX, API, or release reviewer. Those reviews
-live in their own companion skills, triggered independently alongside it.
-
-Alchemy also decides how the work is executed. For a small change it stays
-one agent. When a change has independent parts, or a risky part that needs a
-reviewer who did not write it, the same `/alchemy` command plans the work as
-owned packages, spawns the agents itself, checks every hand-off against the
-code and the test results, has a separate agent verify, and stops at a gated,
-human-approved pull request. You never assemble a team. See
-[section 2](#2-multi-agent-execution).
+ALCHEMY is the architect companion: structural and architectural quality, not
+a security, accessibility, UX, API, or release reviewer. Those reviews live in
+their own companion skills, triggered independently alongside it.
 
 <img width="1536" height="1024" alt="L-GEVITY A.L.C.H.E.M.Y." src="https://github.com/user-attachments/assets/2fb2f2c2-193b-4e50-a334-be6a72053ea4" />
 
@@ -85,9 +110,9 @@ Every other skill is invoked the same way, by name.
 
 ---
 
-## 2. Multi-agent execution
+## 2. Self-orchestrating multi-agent execution
 
-You use Alchemy exactly as before. Multi-agent execution is not a separate
+You use ALCHEMY exactly as before. Multi-agent execution is not a separate
 command and not a team you configure: it is a second decision the router takes
 after it has decided which engineering questions the change must answer.
 
