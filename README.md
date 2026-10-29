@@ -17,6 +17,8 @@
 > Orchestration coordinates execution. Evidence determines correctness.
 > The runtime is interchangeable.
 
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/9460a1e2-4734-4afd-83b1-a67e0be19a4c" />
+
 ## What ALCHEMY is
 
 Most agent skills teach an AI *how* to do specific tasks — write tests,
@@ -61,8 +63,6 @@ are in the [ALCHEMY Multi-Agent Methodology Specification](./ALCHEMY-MULTI-AGENT
 ALCHEMY is the architect companion: structural and architectural quality, not
 a security, accessibility, UX, API, or release reviewer. Those reviews live in
 their own companion skills, triggered independently alongside it.
-
-<img width="1536" height="1024" alt="L-GEVITY A.L.C.H.E.M.Y." src="https://github.com/user-attachments/assets/2fb2f2c2-193b-4e50-a334-be6a72053ea4" />
 
 ## 1. Start here
 
