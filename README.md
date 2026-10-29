@@ -1,391 +1,142 @@
-### THE AI ARCHITECT By [Patrick Savalle](https://github.com/patricksavalle)
-
 # ALCHEMY — your self-orchestrating software engineering team
 
-    One command: /alchemy (Claude Code), $alchemy (Codex), or just
-    'do some alchemy'. Open-source, platform-agnostic, drop-in for any project.
+The AI Architect by [Patrick Savalle](https://github.com/patricksavalle)
 
-    Give it an objective and your coding agent works like a disciplined
-    engineering team: it decides what is worth building, designs it, splits the
-    work, brings in more agents only when that pays off, verifies everything
-    against evidence, and hands you a pull request to approve.
+Give your coding agent an objective. ALCHEMY selects the engineering skills,
+decides whether one agent or a team should do the work, and checks the result
+against evidence before preparing a pull request for your approval.
 
-    Under the hood it is a multi-agent software development methodology: the
-    agents supply the hands, ALCHEMY supplies the engineering judgment.
-
-> Skills define the engineering method. Agents execute responsibilities.
-> Orchestration coordinates execution. Evidence determines correctness.
-> The runtime is interchangeable.
+Open-source and platform-agnostic. Start with `/alchemy` in Claude Code,
+`$alchemy` in Codex, or “do some alchemy.”
 
 <img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/9460a1e2-4734-4afd-83b1-a67e0be19a4c" />
 
-## What ALCHEMY is
+## The main concepts
 
-Most agent skills teach an AI *how* to do specific tasks — write tests,
-scaffold boilerplate, format code. ALCHEMY teaches agents how to *think* about
-software at a structural level, and how to *work together* on it without
-losing that discipline:
+ALCHEMY combines an engineering method with a team that scales to the task:
 
-| Layer | What it decides | Where it lives |
-|:--|:--|:--|
-| **Method** | Is this worth building, is it well-designed, is it in the right place, is it as simple as it can be, are the rules enforced as code, are defects caught early, is the flow optimized | 25 composable skills and the seven A.L.C.H.E.M.Y. gates |
-| **Routing** | Which of those questions this change must answer, at which intensity | the [`alchemy`](./.agents/skills/alchemy/SKILL.md) router: `SKIP`, `DIRECT`, `ADAPTIVE`, `FULL` |
-| **Orchestration** | Who answers them: one agent or several, which packages, in which order, and what evidence makes an answer acceptable | [`alchemy-orchestrate`](./.agents/skills/alchemy-orchestrate/SKILL.md) and its deterministic checker |
-| **Runtime** | How agents are actually launched, isolated, and bounded | adapters for Claude Code, Codex, and Unstoppable |
+- **Skills provide the method.** Each skill defines how to answer an engineering
+  question: whether a feature is worth building, where code belongs, how to
+  verify it, or what limits delivery. Use skills individually or let ALCHEMY
+  select them.
+- **Self-orchestration chooses the process.** The `alchemy` router selects the
+  questions a change needs to answer. `alchemy-orchestrate` assigns work,
+  orders dependencies, checks hand-offs, and verifies completion.
+- **The agent team scales on demand.** One agent is the default. Independent
+  work can run in parallel; high-risk work can get a separate reviewer. Each
+  agent loads only the skills it needs, within explicit concurrency and rework
+  limits. There is no standing team to configure.
+- **Evidence determines correctness.** Executed checks and independent review
+  support completion claims. Disagreements are resolved through evidence or
+  human decisions. You retain consequential approvals and accepted risk.
 
-When you invoke `/alchemy`:
+The method and orchestration are runtime-neutral. Adapters launch and isolate
+agents in Claude Code, Codex, or Unstoppable; support and enforcement differ
+by runtime. See [runtime support and evidence](#runtime-support-and-evidence).
 
-- **A small change stays one agent.** A rename, a local fix, or a focused
-  question is routed cheaply and executed by the agent you are talking to, with
-  no orchestration overhead.
-- **Structural work is composed into a team on demand.** When a change has
-  independent parts, or a risky part that needs a reviewer who did not write
-  it, ALCHEMY derives the needed capabilities — architecture, engineering,
-  verification, security, optimization — from the skills its route selected,
-  plans owned work packages with disjoint files, and spawns the agents through
-  the runtime. Each agent loads only the skills its package needs.
-- **Evidence, not agents, decides.** Every hand-off is checked against the
-  workspace and its own test results; a separate agent verifies the integrated
-  result; disagreements are settled on evidence or by you, never by vote;
-  rework is bounded; and a gate blocks the pull request until every acceptance
-  criterion is verified or explicitly deferred by you.
-- **You keep the irreversible decisions.** Consequential plans, accepted risk,
-  pushing, opening the pull request, and merging stay yours.
+[Get started](#get-started) · [Engineering workflow](#the-engineering-workflow) ·
+[Agent teams](#how-the-agent-team-works) · [Skills](#the-skill-library) ·
+[Architecture concepts](#architecture-concepts) · [Configuration](#configure-and-inspect-a-workspace)
 
-Single-agent execution remains the default and the baseline every multi-agent
-run is measured against. What is implemented and verified per runtime, the
-measured results, and the limits are in
-[section 2](#2-self-orchestrating-multi-agent-execution); the normative rules
-are in the [ALCHEMY Multi-Agent Methodology Specification](./ALCHEMY-MULTI-AGENT.md).
+## Get started
 
-## Need advice or a review of any part of your DevOps project?
-
-ALCHEMY is the architect companion: structural and architectural quality, not
-a security, accessibility, UX, API, or release reviewer. Those reviews live in
-their own companion skills, triggered independently alongside it.
-
-## 1. Start here
-
-### Install
-
-Prompt your coding agent:
+Ask your coding agent:
 
 > Install [l-gevity/l-gevity-skills](https://github.com/l-gevity/l-gevity-skills) into this project.
 
-The agent can inspect the repository, choose its installer, and verify the
-result. Use the same prompt later to update.
-
-### Use
-
-Start with natural language:
+The agent inspects the repository, chooses an installer, and verifies the
+result. Use the same prompt to update.
 
 ```text
 do some alchemy on this refactor
-```
 
-Or direct the router:
-
-```text
 /alchemy this auth refactor       # Claude Code
 $alchemy this auth refactor       # Codex
 /alchemy M should we build this?  # one focused gate
-/alchemy audit this PR            # expanded analysis
+/alchemy audit this PR            # structural audit
 /alchemy ?                        # help
 ```
 
-Alchemy runs a lightweight preflight, skips routine work, and loads only the
-skills the task needs. It then decides whether one agent or several should do
-the work and reports that decision on its own line:
-
-```text
-Dispatch:   ADAPTIVE
-Core route: M, A, L, C, E, H
-Companions: test-strategy
-Execution:  multi-agent — orders and shipping are independent; payments is high-risk
-```
-
-Every decision leads with four short plain-language blocks, what I found, why
-it matters, do this first, and what I did not check, and then the full record.
-The blocks name the record's verdict once, so its vocabulary is picked up on
-the way.
-
-Every other skill is invoked the same way, by name.
-
----
-
-## 2. Self-orchestrating multi-agent execution
-
-You use ALCHEMY exactly as before. Multi-agent execution is not a separate
-command and not a team you configure: it is a second decision the router takes
-after it has decided which engineering questions the change must answer.
-
-| Question | Decided by | Answers |
-|:--|:--|:--|
-| Which questions must this change answer? | `alchemy` dispatch | `SKIP`, `DIRECT`, `ADAPTIVE`, `FULL` — unchanged |
-| Who answers them? | `alchemy` execution decision | `single-agent` or `multi-agent` |
-| How is the work split, launched, checked, and closed? | [`alchemy-orchestrate`](./.agents/skills/alchemy-orchestrate/SKILL.md) | plan, agents, hand-off checks, gate |
-
-The normative rules are in the
-[ALCHEMY Multi-Agent Methodology Specification](./ALCHEMY-MULTI-AGENT.md).
-
-### How a request flows
-
-```mermaid
-flowchart TD
-    Objective(["/alchemy or $alchemy + objective"])
-    Dispatch{"Dispatch<br/>SKIP · DIRECT · ADAPTIVE · FULL"}
-    Exec{"Execution<br/>independent parts or high risk?"}
-    Single["One agent runs the route<br/>gates, tests, report"]
-    Plan["alchemy-orchestrate<br/>owned packages, waves, write sets"]
-    PlanCheck["Plan check<br/>conflicts · contracts · bounds"]
-    Approve1{{"Human approves<br/>consequential plans"}}
-    Agents["Agents spawned per wave<br/>each loads only its skills"]
-    Handoff["Hand-off check<br/>digests · evidence · scope · secrets"]
-    Integrate["Lead integrates<br/>runs verification"]
-    Review["Independent agent verifies<br/>diff, tests, re-run checks"]
-    Fix["Bounded correction<br/>then escalate"]
-    Gate["Gate<br/>every criterion verified or human-deferred"]
-    PR["Pull request<br/>verified and unverified lists"]
-    Merge{{"Human merges"}}
-
-    Objective --> Dispatch --> Exec
-    Exec -- "no, or SKIP / DIRECT,<br/>or multi_agent: off,<br/>or runtime cannot spawn" --> Single --> Gate
-    Exec -- "yes" --> Plan --> PlanCheck --> Approve1 --> Agents --> Handoff --> Integrate --> Review
-    Review -- "blocking finding" --> Fix --> Integrate
-    Review -- "clean" --> Gate
-    Gate --> PR --> Merge
-```
-
-### Three layers
-
-```text
-Methodology    alchemy router · gate and companion skills · governance        runtime-neutral
-Orchestration  alchemy-orchestrate · skill-contracts.json · check_orchestration.py   runtime-neutral
-Runtime        adapters for Claude Code · Codex · Unstoppable                   installed per project
-```
-
-Dependencies point inward: an adapter names the skill, the skill names no
-runtime, and the validator fails if a vendor name enters the methodology files.
-
-### How agents are composed
-
-There is no standing team. The router's route names the skills the change
-needs; [`skill-contracts.json`](./.agents/skills/alchemy-orchestrate/assets/skill-contracts.json)
-maps each skill to a capability (architecture, engineering, verification,
-optimization, security, scientific validation), its inputs and outputs,
-whether it can run per subject in parallel, which files it must own alone, and
-how another agent verifies it. The orchestrator groups those into the fewest
-packages that keep write sets disjoint and contracts ahead of their consumers,
-then gives each package one of two permission envelopes: `analyst`
-(read-only: architecture, audit, independent review) or `implementer` (edits
-its own write set). One agent may hold several capabilities; a gate is never
-an agent.
-
-### What is decided by code, not by the model
-
-`check_orchestration.py` decides every rule that has a deterministic answer,
-and each of its 49 codes is exercised by at least one of 99
-[adversarial cases](./.adversarial/):
-
-| Check | Rejects |
-|:--|:--|
-| `plan` | write overlap between concurrent packages, a consumer that does not wait for its contract, cycles, self-review, unreviewed high-risk changes, nested delegation, caps above the profile, merge or deploy permissions, protected paths without approval, auto-merge |
-| `handoff` | a summary that contradicts its own evidence or the workspace digests, changes outside the write set, stale base or context, credentials, embedded instructions such as "skip the review", a failed agent beyond its retry budget |
-| `gate` | silently skipped criteria, verdicts without passing evidence on the final commit, self-verification, open blocking findings, risk accepted by an agent, disputes settled by vote, rework beyond its bound |
-
-### Configure a workspace once
-
-Install the library as in [section 1](#1-start-here), then install the
-runtime adapters into the project:
+Other skills are invoked by name in the same way. To enable agent teams,
+install the runtime adapters after installing the library:
 
 ```sh
-python .agents/skills/alchemy-orchestrate/scripts/init_workspace.py --runtime claude-code   # or codex, unstoppable, all
+python .agents/skills/alchemy-orchestrate/scripts/init_workspace.py --runtime claude-code
 ```
 
-It writes `alchemy-workspace.json` (the project overlay), the agent
-definitions and settings for the chosen runtime, and `.alchemy/runs/.gitignore`
-so run records are never committed. It never overwrites a file you changed;
-it writes `<file>.l-gevity` beside it for you to merge. The keys you are most
-likely to change:
+Choose `codex`, `unstoppable`, or `all` for other runtimes. See
+[workspace configuration](#configure-and-inspect-a-workspace) for limits and permissions.
 
-| Key | Default | Use |
-|:--|:--|:--|
-| `execution.multi_agent` | `auto` | `off` keeps every run single-agent |
-| `execution.max_parallel_agents` | `3` | concurrent agents, lead excluded |
-| `execution.max_rework_cycles` | `2` | correction rounds before escalation |
-| `repository.protected_paths` | `[]` | writes need human approval |
-| `repository.verification` | `[]` | commands the integrated result must pass |
+<details>
+<summary><strong>Installation details</strong></summary>
 
-Commit `alchemy-workspace.json` and the rendered agent files so every
-developer and every runtime shares one configuration.
+Installers are provided for Claude Code, Codex, Gemini CLI, and Grok CLI on
+Windows, Linux, and macOS. Each installs the shared skills into its agent's
+skills tree, adds the agent's root instruction file, and records provenance in
+`l-gevity-skills.lock.json`. When the project already keeps the other skills
+tree, that tree is updated as well.
 
-### Examples
+| Agent | Skills tree | Root instruction file |
+|---|---|---|
+| Claude Code | `.claude/skills/` | `CLAUDE.md` |
+| Codex | `.agents/skills/` | `AGENTS.md` |
+| Gemini CLI | `.agents/skills/` | `GEMINI.md` |
+| Grok CLI | `.agents/skills/` | `GROK.md` |
 
-```text
-/alchemy Rename invoiceFor to buildInvoice and update its callers.
-```
+An existing root instruction file is preserved; the L-GEVITY version is written
+beside it with a `.l-gevity` suffix for manual merging. Locally added skills are
+not removed during updates. Set `L_GEVITY_SKILLS_REF` to pin a branch, tag, or
+commit.
 
-`SKIP`, `Execution: single-agent`, no orchestration loaded, no agent spawned.
+[Inspect the installer scripts](./.install/).
 
-```text
-/alchemy Audit this backend and fix what you find: correctness bugs, security
-defects, dead code, and architectural simplification. Keep the tests passing,
-verify, and write the pull request description.
-```
+</details>
 
-`ADAPTIVE`, `Execution: multi-agent`. The lead plans packages per subsystem,
-runs the plan check, spawns implementers per wave and an independent analyst
-to verify, checks each hand-off, integrates, gates, and writes the pull request
-description with what was and was not verified. It does not push or merge.
+## The engineering workflow
 
-A change across several repositories follows the same contract: shared
-interface contracts are `decide` packages that every consumer depends on, and
-each repository's writes are separate packages. This path has not yet been
-exercised end to end; see the limitations below.
+The router first chooses how much analysis the task needs:
 
-### What you approve
-
-| Moment | Human role |
+| Dispatch | When it applies |
 |:--|:--|
-| Consequential plan (crosses a subsystem boundary, writes a protected path, exceeds the agent budget) | approve or stop |
-| Accepted risk, deferred acceptance criterion, unresolved dispute | decide |
-| Push and pull-request creation | approve, per the profile |
-| Merge, deploy, destructive or external actions | always yours |
+| `SKIP` | Routine local work; no structural analysis. |
+| `DIRECT` | One focused question or gate. |
+| `ADAPTIVE` | Structural work; the smallest ordered set of relevant gates. |
+| `FULL` | Explicit `full` or `all` request; every justified stage, with skips recorded. |
 
-### Inspecting a run
+Focused commands stay focused. An audit starts from a read-only structural
+baseline; it does not automatically require a full traversal. Matching
+companion skills can run alongside any route.
 
-Run records live in `.alchemy/runs/<run-id>/`: `plan.json` (packages, owners,
-write sets, waves), `handoffs/<package>.json`, and `ledger.json` (criteria,
-evidence, findings, disputes). Re-check any of them yourself:
+### The seven gates
 
-```sh
-C=.agents/skills/alchemy-orchestrate/scripts/check_orchestration.py
-R=.alchemy/runs/<id>
-python $C plan    $R/plan.json                          --profile alchemy-workspace.json
-python $C handoff $R/handoffs/P1.json --plan $R/plan.json --profile alchemy-workspace.json --root .
-python $C gate    $R/ledger.json      --plan $R/plan.json --profile alchemy-workspace.json --root .
-```
+The name is **A.L.C.H.E.M.Y.**; execution follows **M → A → L → C → E → H → Y**.
+Value is checked before design, enforcement, or optimization.
 
-Your runtime's transcript shows which agents were spawned and which skills
-each loaded.
-
-### Runtime support
-
-Every row below is backed by a recorded run in [.pilot/results](./.pilot/results/);
-the acceptance facts in each result are extracted from the runtime's own event
-stream or saved sessions, not from the agent's summary.
-
-| Runtime | How agents are launched | Verified by real runs | Not verified |
-|:--|:--|:--|:--|
-| Claude Code | Native: the lead's Agent tool with `alchemy-implementer` (own git worktree) and `alchemy-analyst` (read-only) | A trivial `/alchemy` task stayed single-agent with no launch. Complex `/alchemy` objectives chose multi-agent unprompted and launched real agents. Two implementers ran in parallel in separate worktrees, the verifier started only after both finished, its two major findings were corrected in two bounded rework cycles, and the gate passed. Delegated agents loaded their own ALCHEMY skills. An injected agent crash was retried once. Independent reviewers drove corrections, and the gate held at `FAIL` for a decision only the human can make. | Cost and time of the completed parallel rerun, whose runner process died; its outcome is reconstructed from the run's own artifacts. |
-| Codex | Native: `spawn_agent` / `wait_agent`, with the custom agents in `.codex/agents/` | `codex exec` lists and spawns `alchemy-analyst`, which answers in the hand-off format. A `$alchemy` audit chose multi-agent unprompted. A depth-1 reviewer sub-agent, recovered from Codex's saved sessions, loaded its skills, found a money defect by executing a reproduction, and was re-run after the lead's correction. | Parallel implementers, and an injected failure. The reviewer ran as Codex's default agent type, not as `alchemy-analyst`. |
-| Unstoppable | Preconfigured workflow: the `alchemy-multi-agent` pipeline (plan, plan check, human approval, native sub-agents, cross-provider review, gate, human approval, pull request). In a chat, the Claude Code or Codex mechanism above. | The pipeline validates and runs from the CLI. In four runs, planning produced multi-wave plans that passed the plan check, the human checkpoint paused each run, and execution launched sub-agents into isolated worktrees. When execution could not finish, the lead escalated rather than claiming success: once for a repository defect, and twice when its turn ended with agents still running ([record](./.pilot/results/unstoppable-pipeline-runs.json)). | A complete pass through review, gate, and pull request. The run with foreground waves was stopped before execution finished. |
-| Other agents (Gemini CLI, Grok CLI) | None shipped | — | Fallback: single-agent, with the limitation reported |
-
-The adapter details, every mechanism, and every limitation are in the
-[adapters reference](./.agents/skills/alchemy-orchestrate/adapters/README.md).
-
-### Single agent or several: measured
-
-The pilot in [.pilot/](./.pilot/README.md) runs the normal `/alchemy` or
-`$alchemy` entrypoint on a small backend with ten seeded defects (correctness,
-security, dead code, layering, duplication), and scores the result with hidden
-tests. Only the profile differs between arms: `execution.multi_agent` is `off`
-for the baseline.
-
-| Run | Execution | Agents launched | Seeded defects fixed | Visible tests | Cost | Time |
-|:--|:--|:--|:--|:--|:--|:--|
-| Claude Code, trivial rename | single-agent (`SKIP`) | 0 | n/a | pass | $0.34 | 24 s |
-| Claude Code, audit, baseline (`off`) | single-agent | 0 | 9 / 10 | pass | $5.42 | 13 min |
-| Claude Code, audit | lead + 1 independent analyst | 1 | 10 / 10 | pass | $10.46 | 23 min |
-| Claude Code, audit, injected agent crash | lead + 2 parallel reviewers, crash retried | 3 (1 blocked) | 10 / 10 | pass | $21.22 | 42 min |
-| Claude Code, two independent features | 2 parallel implementers, then 1 verifier; the verifier was stopped by the headless background limit, so no `PR.md` | 3 | n/a (feature task) | pass | $10.46 | 23 min |
-| Same, rerun with the bounded wait | 2 parallel implementers, then 1 verifier; 2 major findings, 2 correction cycles, gate `PASS` | 3 or more | n/a (feature task) | pass, 31 / 31 | not captured¹ | not captured¹ |
-| Codex, audit (harness ran `--ephemeral`) | multi-agent chosen; spawns failed | 0 | 8 / 10 | pass | not reported | 6.5 min |
-| Codex, audit | lead + 1 reviewer sub-agent | 1 | 8 / 10 | pass | not reported | 5 min |
-
-What these runs do and do not show:
-
-- **Shown:** the decision, the delegation, skill loading, parallelism,
-  dependency order, bounded recovery, and the gate behave as specified.
-- **Not shown:** that multi-agent finds more defects in general. With one
-  fixture and one run per arm, multi-agent fixed one more seeded defect than
-  the baseline (10 vs 9) at roughly two to four times the cost.
-- **How to treat them:** as a reproducible smoke test of the behavior, not a
-  benchmark. Keep multi-agent where your own baseline shows it pays.
-
-¹ The runner process died mid-run while the Claude Code session finished; the
-row is reconstructed from the run's own git history, run records, and
-`PR.md` in
-[claude-multi-parallel-2.evidence.json](./.pilot/results/claude-multi-parallel-2.evidence.json),
-so cost and time were not captured.
-
-### Limitations and cost
-
-- **Cost.** A multi-agent run pays one context load per agent plus planning,
-  checking, and integration; keep it only where it beats the single-agent
-  baseline on your own work (the specification's quality model, §11).
-- **Enforcement varies by runtime.** Claude Code enforces read-only agents,
-  delegation depth 1, and the concurrency cap through its settings; Codex
-  enforces only the cap, and relies on instructions plus the hand-off check
-  for the rest; Codex agents share one working directory.
-- **Non-interactive runs must wait for their agents.** In headless and
-  pipeline runs, a lead whose turn ends while sub-agents still run loses them;
-  the adapters bound the background wait and launch waves in the foreground.
-  Interactive sessions are not affected.
-- **Permission rules are guardrails.** A deny rule matches command text, so it
-  is not a sandbox; the hand-off and gate checks are the backstop.
-- **Not exercised end to end:** cross-repository work, and the real
-  production backend the issues name (it is not in this repository; the pilot
-  uses a representative fixture).
-- **Gemini CLI and Grok CLI** install the skills but get no adapter; they run
-  single-agent.
-
----
-
-## 3. Where can this skill set help?
-
-Use L-GEVITY when a coding agent needs to decide not only how to implement a
-change, but whether it should exist, where it belongs, and what evidence proves
-it works.
-
-| I need help with… | Skills |
+| Gate | Question |
 |---|---|
-| Routing a design, refactor, or architecture audit through the smallest useful process | [`alchemy`](./.agents/skills/alchemy/SKILL.md) |
-| Deciding between one agent and several, delegating owned packages, and checking hand-offs, disagreements, and completion against evidence | [`alchemy-orchestrate`](./.agents/skills/alchemy-orchestrate/SKILL.md) |
-| Turning requests, evidence, obligations, or existing behavior into grounded requirements | [`requirements-grounding`](./.agents/skills/requirements-grounding/SKILL.md) |
-| Structuring requirements, resolving dependencies and conflicts, and finding a coherent delivery increment | [`requirements-topology`](./.agents/skills/requirements-topology/SKILL.md), [`implementation-readiness`](./.agents/skills/implementation-readiness/SKILL.md) |
-| Deciding whether proposed or existing functionality is worth its complexity | [`functionality-complexity-tradeoff`](./.agents/skills/functionality-complexity-tradeoff/SKILL.md) |
-| Designing subsystems and services, placing responsibilities, and untangling dependency topology | [`architecture-guidelines`](./.agents/skills/architecture-guidelines/SKILL.md), [`morphogenetic-architecture`](./.agents/skills/morphogenetic-architecture/SKILL.md) |
-| Measuring whether a refactor or restructuring actually simplifies the system | [`structural-simplification`](./.agents/skills/structural-simplification/SKILL.md) |
-| Encoding and enforcing architectural boundaries in JavaScript, TypeScript, or Python | [`architecture-as-code`](./.agents/skills/architecture-as-code/SKILL.md), [`architecture-as-code-javascript`](./.agents/skills/architecture-as-code-javascript/SKILL.md), [`architecture-as-code-python`](./.agents/skills/architecture-as-code-python/SKILL.md) |
-| Changing a database schema, event or message payload, API body, or file format without breaking the code versions that coexist during rollout and rollback | [`evolutionary-database-design`](./.agents/skills/evolutionary-database-design/SKILL.md) |
-| Designing a risk-driven test strategy and moving defect detection to the earliest capable stage | [`test-strategy`](./.agents/skills/test-strategy/SKILL.md), [`defect-shift-left`](./.agents/skills/defect-shift-left/SKILL.md) |
-| Designing or auditing reliable build, release, and deployment pipelines | [`ci-cd-reliability-architecture`](./.agents/skills/ci-cd-reliability-architecture/SKILL.md) |
-| Linking requirements to implementation, executed verification, operations, and outcome evidence | [`requirements-traceability`](./.agents/skills/requirements-traceability/SKILL.md) |
-| Moving recurring toil out of human memory and replacing bespoke code with reusable capabilities | [`push-out`](./.agents/skills/push-out/SKILL.md), [`bring-down`](./.agents/skills/bring-down/SKILL.md) |
-| Deciding which artifact owns a fact, decision, or document, and sweeping a tree for the documents no longer worth keeping | [`zero-copy-requirements`](./.agents/skills/zero-copy-requirements/SKILL.md) |
-| Deciding what to do about a dependency already in the tree when an advisory, drift, abandonment, or an end-of-life date names it | [`dependency-lifecycle`](./.agents/skills/dependency-lifecycle/SKILL.md) |
-| Choosing a datastore, identity provider, compute model, or region from the requirements instead of a template default, and re-checking that it still fits as they change | [`infrastructure-fit`](./.agents/skills/infrastructure-fit/SKILL.md) |
-| Designing what a change must emit to be detectable in production, and pruning the alerts and telemetry that no longer earn their keep | [`observability-design`](./.agents/skills/observability-design/SKILL.md) |
-| Finding bottlenecks, waste, and flow improvements across the software value stream | [`system-optimization`](./.agents/skills/system-optimization/SKILL.md) |
-| Improving the skill library itself when recurring agent mistakes expose a systemic gap | [`continuous-improvement`](./.agents/skills/continuous-improvement/SKILL.md) |
-
----
-
-## 4. Visual model
+| **M — Minimum** | Is the functionality worth its complexity? |
+| **A — Architecture** | Is the design minimal, modular, and purposeful? |
+| **L — Locality** | Is each subsystem in the right boundary? |
+| **C — Complexity** | Does the change measurably simplify the system? |
+| **E — Enforcement** | Can architectural rules be encoded as checks? |
+| **H — Hermetic** | Is each defect caught at the earliest capable stage? |
+| **Y — Yield** | What constraint actually limits flow? |
 
 ![The seven gates of A.L.C.H.E.M.Y. drawn as a heptagonal seal, with the execution order M, A, L, C, E, H, Y along the bottom](./alchemy-overview.svg)
 
-### A.L.C.H.E.M.Y. pipeline
+Requirements grounding, dependency analysis, and implementation readiness
+qualify work before design when needed. Yield uses the stable, measured
+baseline in the iteration after an increment ships, or examines an existing
+bottleneck. The DevOps improvement commands are available when requested:
 
-You don't need to know the ALCHEMY internals, and you don't have to use every stage or step, but here they are.
+| Command | Move |
+|---|---|
+| `/alchemy left` | Detect defects earlier. |
+| `/alchemy out` | Move recurring toil into durable systems. |
+| `/alchemy down` | Replace bespoke code with reusable capability. |
 
-This is truly more an architectural brain than just a skill set. 
-
-The adaptive preflight keeps the execution cheap, automatically. A focused request runs one gate;
-adaptive work runs the smallest ordered subset; only explicit full language
-walks the complete route.
+<details>
+<summary><strong>From requirements to measured outcomes</strong></summary>
 
 ```mermaid
 flowchart TD
@@ -428,10 +179,172 @@ flowchart TD
     Outcome -.->|"retrospective Minimum"| Req1
 ```
 
+Grounding keeps decision-relevant outcome hypotheses separate from acceptance
+criteria, avoiding confusing impact with completion. Traceability maintains
+versioned outcome measurements and freshness. Revisiting value after release
+returns current evidence to Minimum for a new worth decision.
+
+See the [pipeline design](./ALCHEMY-PIPELINE-DESIGN.md) for routing rules,
+requirements qualification, gate handshakes, and acceptance criteria.
+
+</details>
+
+A run reports its route and execution choice, for example:
+
+```text
+Dispatch:   ADAPTIVE
+Core route: M, A, L, C, E, H
+Companions: test-strategy
+Execution:  multi-agent — orders and shipping are independent; payments is high-risk
+Verdict:    Proceed | Redesign | Drop | Defer
+Next:       one concrete action
+```
+
+Decision records begin with four plain-language blocks: **What I found**,
+**Why it matters**, **Do this first**, and **What I did not check**. The full
+record follows; the introduction names its verdict once.
+
+## How the agent team works
+
+After selecting the engineering route, ALCHEMY chooses who executes it.
+`SKIP` and `DIRECT` stay single-agent. Larger routes add agents only when
+independent work or separate review justifies the coordination cost.
+
+The orchestrator groups responsibilities into the fewest work packages with
+non-overlapping file ownership. Shared contracts are decided before their
+consumers start. An **analyst** reads and reviews; an **implementer** edits its
+assigned files. One agent can hold several capabilities; a gate is a question,
+not an agent role.
+
+```mermaid
+flowchart TD
+    Objective(["/alchemy or $alchemy + objective"])
+    Dispatch{"Dispatch<br/>SKIP · DIRECT · ADAPTIVE · FULL"}
+    Exec{"Execution<br/>independent parts or high risk?"}
+    Single["One agent runs the route<br/>gates, tests, report"]
+    Plan["alchemy-orchestrate<br/>owned packages, waves, write sets"]
+    PlanCheck["Plan check<br/>conflicts · contracts · bounds"]
+    Approve1{{"Human approves<br/>consequential plans"}}
+    Agents["Agents spawned per wave<br/>each loads only its skills"]
+    Handoff["Hand-off check<br/>digests · evidence · scope · secrets"]
+    Integrate["Lead integrates<br/>runs verification"]
+    Review["Independent agent verifies<br/>diff, tests, re-run checks"]
+    Fix["Bounded correction<br/>then escalate"]
+    Gate["Gate<br/>every criterion verified or human-deferred"]
+    PR["Pull request<br/>verified and unverified lists"]
+    Merge{{"Human merges"}}
+
+    Objective --> Dispatch --> Exec
+    Exec -- "no, or SKIP / DIRECT,<br/>or multi_agent: off,<br/>or runtime cannot spawn" --> Single --> Gate
+    Exec -- "yes" --> Plan --> PlanCheck --> Approve1 --> Agents --> Handoff --> Integrate --> Review
+    Review -- "blocking finding" --> Fix --> Integrate
+    Review -- "clean" --> Gate
+    Gate --> PR --> Merge
+```
+
+The lead checks each hand-off, integrates the work, and runs verification.
+A separate agent reviews the integrated result. Corrections are bounded;
+unresolved findings escalate. The final gate requires every acceptance
+criterion to be verified or explicitly deferred by you.
+
+For example, renaming `invoiceFor` to `buildInvoice` stays with one agent.
+An audit spanning independent subsystems can use parallel implementers and an
+independent analyst, then prepare a pull-request description listing what was
+and was not verified. Cross-repository work uses shared `decide` packages for
+interfaces and separate write packages per repository; that path has not been
+exercised end to end.
+
+### Human decisions
+
+| Moment | Human role |
+|:--|:--|
+| Consequential plan (crosses a subsystem boundary, writes a protected path, exceeds the agent budget) | approve or stop |
+| Accepted risk, deferred acceptance criterion, unresolved dispute | decide |
+| Push and pull-request creation | approve, per the profile |
+| Merge, deploy, destructive or external actions | always yours |
+
+<details>
+<summary><strong>Contracts and deterministic checks</strong></summary>
+
+[`skill-contracts.json`](./.agents/skills/alchemy-orchestrate/assets/skill-contracts.json)
+maps skills to capabilities, inputs, outputs, parallelism, exclusive file
+ownership, and verification. Capabilities include architecture, engineering,
+verification, optimization, security, and scientific validation.
+
+`check_orchestration.py` enforces deterministic rules. All 49 check codes have
+coverage among 99 [adversarial cases](./.adversarial/).
+
+| Check | Rejects |
+|:--|:--|
+| `plan` | write overlap between concurrent packages, a consumer that does not wait for its contract, cycles, self-review, unreviewed high-risk changes, nested delegation, caps above the profile, merge or deploy permissions, protected paths without approval, auto-merge |
+| `handoff` | a summary that contradicts its own evidence or the workspace digests, changes outside the write set, stale base or context, credentials, embedded instructions such as "skip the review", a failed agent beyond its retry budget |
+| `gate` | silently skipped criteria, verdicts without passing evidence on the final commit, self-verification, open blocking findings, risk accepted by an agent, disputes settled by vote, rework beyond its bound |
+
+Adapters depend on the method; the method names no runtime. The validator
+rejects vendor names in methodology files. See the
+[Multi-Agent Methodology Specification](./ALCHEMY-MULTI-AGENT.md) for the rules
+and the [adapter reference](./.agents/skills/alchemy-orchestrate/adapters/README.md)
+for runtime mechanisms.
+
+</details>
+
+## The skill library
+
+The library contains 25 composable skills. Each has an operational `SKILL.md`
+and a standalone primer explaining its engineering concepts. This catalog
+links to the Claude skills tree; Codex uses the matching `.agents/skills/` tree.
+
+| Skill | Use it to | Primer |
+|:--|:--|:--|
+| [`alchemy`](./.claude/skills/alchemy/SKILL.md) | Route a request through the needed skills. | [Read](./.documentation/READ-alchemy.md) |
+| [`alchemy-orchestrate`](./.claude/skills/alchemy-orchestrate/SKILL.md) | Plan agent work, check hand-offs, and gate completion. | [Read](./.documentation/READ-alchemy-orchestrate.md) |
+| [`requirements-grounding`](./.claude/skills/requirements-grounding/SKILL.md) | Ground requirements in actors, problems, and evidence. | [Read](./.documentation/READ-requirements-grounding.md) |
+| [`functionality-complexity-tradeoff`](./.claude/skills/functionality-complexity-tradeoff/SKILL.md) | Decide whether functionality earns its complexity. | [Read](./.documentation/READ-functionality-complexity-tradeoff.md) |
+| [`requirements-topology`](./.claude/skills/requirements-topology/SKILL.md) | Resolve requirement relationships, dependencies, and conflicts. | [Read](./.documentation/READ-requirements-topology.md) |
+| [`implementation-readiness`](./.claude/skills/implementation-readiness/SKILL.md) | Find a coherent increment ready for implementation. | [Read](./.documentation/READ-implementation-readiness.md) |
+| [`architecture-guidelines`](./.claude/skills/architecture-guidelines/SKILL.md) | Design minimal, modular subsystems and services. | [Read](./.documentation/READ-architecture-guidelines.md) |
+| [`morphogenetic-architecture`](./.claude/skills/morphogenetic-architecture/SKILL.md) | Place responsibilities and evaluate boundary changes. | [Read](./.documentation/READ-morphogenetic-architecture.md) |
+| [`structural-simplification`](./.claude/skills/structural-simplification/SKILL.md) | Measure whether a restructuring simplifies the system. | [Read](./.documentation/READ-structural-simplification.md) |
+| [`architecture-as-code`](./.claude/skills/architecture-as-code/SKILL.md) | Encode and enforce dependency boundaries. | [Read](./.documentation/READ-architecture-as-code.md) |
+| [`architecture-as-code-javascript`](./.claude/skills/architecture-as-code-javascript/SKILL.md) | Enforce boundaries in JavaScript and TypeScript. | [Read](./.documentation/READ-architecture-as-code-javascript.md) |
+| [`architecture-as-code-python`](./.claude/skills/architecture-as-code-python/SKILL.md) | Enforce boundaries in Python. | [Read](./.documentation/READ-architecture-as-code-python.md) |
+| [`evolutionary-database-design`](./.claude/skills/evolutionary-database-design/SKILL.md) | Evolve schemas, events, APIs, and files across rollout and rollback. | [Read](./.documentation/READ-evolutionary-database-design.md) |
+| [`test-strategy`](./.claude/skills/test-strategy/SKILL.md) | Choose verification evidence from requirements and risk. | [Read](./.documentation/READ-test-strategy.md) |
+| [`defect-shift-left`](./.claude/skills/defect-shift-left/SKILL.md) | Detect defects at the earliest capable stage. | [Read](./.documentation/READ-defect-shift-left.md) |
+| [`ci-cd-reliability-architecture`](./.claude/skills/ci-cd-reliability-architecture/SKILL.md) | Design reliable build, release, and deployment pipelines. | [Read](./.documentation/READ-ci-cd-reliability-architecture.md) |
+| [`requirements-traceability`](./.claude/skills/requirements-traceability/SKILL.md) | Link requirements to implementation, verification, operations, and outcomes. | [Read](./.documentation/READ-requirements-traceability.md) |
+| [`observability-design`](./.claude/skills/observability-design/SKILL.md) | Make production failures detectable; prune unused alerts and telemetry. | [Read](./.documentation/READ-observability-design.md) |
+| [`infrastructure-fit`](./.claude/skills/infrastructure-fit/SKILL.md) | Choose infrastructure from requirements and reassess its fit. | [Read](./.documentation/READ-infrastructure-fit.md) |
+| [`dependency-lifecycle`](./.claude/skills/dependency-lifecycle/SKILL.md) | Respond to dependency advisories, drift, abandonment, and end of life. | [Read](./.documentation/READ-dependency-lifecycle.md) |
+| [`system-optimization`](./.claude/skills/system-optimization/SKILL.md) | Find bottlenecks, remove waste, and improve delivery flow. | [Read](./.documentation/READ-system-optimization.md) |
+| [`push-out`](./.claude/skills/push-out/SKILL.md) | Move recurring toil into durable systems. | [Read](./.documentation/READ-push-out.md) |
+| [`bring-down`](./.claude/skills/bring-down/SKILL.md) | Replace bespoke code with reusable capabilities. | [Read](./.documentation/READ-bring-down.md) |
+| [`zero-copy-requirements`](./.claude/skills/zero-copy-requirements/SKILL.md) | Assign facts to their owning artifacts and remove redundant documents. | [Read](./.documentation/READ-zero-copy-requirements.md) |
+| [`continuous-improvement`](./.claude/skills/continuous-improvement/SKILL.md) | Turn recurring agent mistakes into skill improvements. | [Read](./.documentation/READ-continuous-improvement.md) |
+
+ALCHEMY focuses on structural reasoning: requirements, architecture,
+verification strategy, delivery reliability, and improvement. Add your own
+skills and instructions for domain knowledge, coding conventions, framework
+recipes, security, accessibility, UX, API review, and release policy. Matching
+companions are selected independently of the core gates.
+
+## Architecture concepts
+
+### Four terms used throughout
+
+| Term | Meaning |
+|:--|:--|
+| **Subsystem** | A part of the system: where change lands. |
+| **Aspect** | One obligation and mechanism across declared subsystems: which dimension is touched. |
+| **Increment** | A bounded unit admitted to implementation: what changes. |
+| **Iteration** | A cycle that admits, implements, and measures an increment. The next cycle starts from that measured baseline. |
+
+`alchemy` defines these terms; each skill's local vocabulary specializes one.
+
 ### Three quality spaces
 
-Alchemy evaluates a change from three complementary directions instead of
-collapsing every dimension into one score.
+A change is evaluated separately for placement, structural complexity, and
+flow. These dimensions are not collapsed into one score.
 
 ```mermaid
 flowchart LR
@@ -446,53 +359,19 @@ flowchart LR
     Change --> Flow --> Evolution
 ```
 
-### Four change primitives
-
-Every stage describes change with the same four words. A **subsystem** is a
-part produced by decomposition — where change lands. An **aspect** is a
-property that holds across a declared set of subsystems, with one obligation
-and one mechanism — which dimension is touched. An **increment** is the bounded
-unit of change admitted to implementation — what changes. An **iteration** is
-one cycle that admits an increment, realizes it, and measures the resulting
-baseline; the next iteration on the same subject starts from that measured
-baseline. `alchemy` defines them; each skill's local term specializes exactly
-one.
-
 ### Living topology
 
-Functionally, "living" means the architecture is a standing hypothesis, not
-a diagram drawn once and trusted forever. Placement is cheap and mechanical,
-so it runs on every change; restructuring is expensive and evidence-gated,
-so it runs only when something is actually challenged. Every accepted
-restructuring ships with a predicted effect and a recheck date, so drift
-between the declared architecture and the running system surfaces as a
-defect instead of accumulating silently — the topology stays continuously
-accountable to the code, rather than describing what the code used to be.
+Architecture is a hypothesis checked against the code and running system.
+Each subsystem declares a **domain**, **abstraction tier**, and **layer**
+(such as UI, service, or data). Tier and layer constrain dependency direction;
+domains are labels without a ranking. These coordinates detect seven illegal
+dependency shapes mechanically, even in a new project without runtime history.
+`architecture-as-code` turns the decisions into permanent dependency rules.
 
-Every subsystem declares three coordinates: **domain**, **abstraction tier**,
-and **layer** (say UI, service, data). Those coordinates alone are enough to
-rule on whether a proposed dependency between two subsystems is legal — the
-same way a linter blocks an illegal import without running the program.
-Tier and layer have a direction (a UI subsystem may depend on a service, not
-the reverse); domain is just a label, with no ranking between domains. Seven
-illegal dependency shapes are caught this way, mechanically — no runtime
-data, no history, and no need for the rest of the repo to exist yet, so it
-works on day one of a greenfield project. The verdict ships as a permanent
-`architecture-as-code` rule that keeps enforcing that one dependency
-afterward.
-
-Changing the existing structure — merging or splitting subsystems — is
-different: it isn't decided by rule, it needs evidence that the current
-shape is actually causing problems (coupling, duplicated change, failure
-propagation). A competing design has to beat the current one on measured
-deltas, and the required proof scales with how hard the change is to undo —
-renaming a subsystem needs less justification than collapsing two services.
-If every measurement checks out except one that genuinely can't be taken yet,
-and the change is cheap to reverse, it can proceed **on probation**: a
-recorded expiry, a task to add the missing measurement, and a rollback path.
-A later measurement that contradicts the decision overrides the probation
-regardless. Every accepted restructuring also records what result it
-expects, checked again once that window closes.
+Restructuring needs evidence of problems such as coupling, duplicated change,
+or failure propagation. A candidate must improve on the current structure,
+with proof proportional to the difficulty of reversing it. Accepted changes
+record a predicted effect and a recheck window.
 
 ```mermaid
 flowchart LR
@@ -512,153 +391,149 @@ flowchart LR
     Homeostasis -- "window close re-enters audit" --> Fields
 ```
 
----
-
-## 5. Reference
-
-### The gates
-
-The mnemonic is **A.L.C.H.E.M.Y.**; the execution order is
-**M → A → L → C → E → H → Y** so value is tested before design is enforced or
-optimized.
-
-| Gate | Question |
-|---|---|
-| **M — Minimum** | Is the functionality worth its complexity? |
-| **A — Architecture** | Is the design minimal, modular, and purposeful? |
-| **L — Locality** | Is each subsystem in the right boundary? |
-| **C — Complexity** | Does the change measurably simplify the system? |
-| **E — Enforcement** | Can architectural rules be encoded as checks? |
-| **H — Hermetic** | Is each defect caught at the earliest capable stage? |
-| **Y — Yield** | What constraint actually limits flow? |
-
-The DevOps improvement moves complement the gates:
-
-| Command | Move |
-|---|---|
-| `/alchemy left` | Detect defects earlier. |
-| `/alchemy out` | Move recurring toil into durable systems. |
-| `/alchemy down` | Replace bespoke code with reusable capability. |
-
 <details>
-<summary><strong>How routing works</strong></summary>
+<summary><strong>Placement, restructuring, and probation</strong></summary>
 
-The [`alchemy`](./.agents/skills/alchemy/SKILL.md) skill classifies work before
-loading deeper instructions:
-
-- `SKIP` — routine local work needs no structural analysis.
-- `DIRECT` — one question maps to one skill.
-- `ADAPTIVE` — non-trivial work gets the smallest ordered route.
-- `FULL` — an explicit full audit traverses the complete pipeline.
-
-Its compact result reports the dispatch, route, companions, verdict, reason,
-and next action. Focused commands remain focused; use `full`, `all`, or `audit`
-when you want a broader trail.
-
-```text
-Dispatch:   SKIP | DIRECT | ADAPTIVE | FULL
-Core route: None | selected gates
-Companions: None | task-matched skills
-Execution:  single-agent | multi-agent
-Verdict:    Proceed | Redesign | Drop | Defer
-Next:       one concrete action
-```
-
-See [the pipeline design](./ALCHEMY-PIPELINE-DESIGN.md) for routing rules,
-requirements qualification, gate handshakes, and acceptance criteria.
-
-Locality starts with a **Rapid placement/static-edge scan** whose first check
-is position legality — mechanical, needing no observed field. It escalates
-**Rapid → Full** for **restructure · non-static evidence · broad scope · ambiguity**.
+Locality starts with a **Rapid placement/static-edge scan** of position
+legality. It escalates **Rapid → Full** for
+**restructure · non-static evidence · broad scope · ambiguity**.
 Rapid can return `PLACE`, `KEEP`, `DECLARE-RUNTIME-CYCLE`, or `DEFER`; Full can
 also return `MOVE`, `SPLIT`, `MERGE`, or `INTRODUCE-BOUNDARY`.
 
-Topology changes use one bounded **L candidate → C measurement → L acceptance**
-handshake. L re-enters once; **Gate E cannot run before** that acceptance.
-When the only missing proof is a field that cannot be measured yet, a High- or
-Medium-reversibility restructuring may be accepted **on probation** — expiry,
-instrumentation task, and reversal path recorded, with the recheck placed at
-Gate H.
+Topology changes follow **L candidate → C measurement → L acceptance**.
+L re-enters once; **Gate E cannot run before** that acceptance.
+
+If only an unobtainable measurement is missing, a sufficiently reversible
+change (High or Medium reversibility) may proceed **on probation**. It must
+record an expiry, an instrumentation task, and a reversal path, with a recheck
+at Gate H. Contradictory evidence overrides probation. The predicted effect
+is checked when its measurement window closes.
+
+</details>
+
+## Configure and inspect a workspace
+
+The [adapter installer](#get-started) writes `alchemy-workspace.json`, runtime
+agent definitions and settings, and `.alchemy/runs/.gitignore` to keep run
+records out of commits. It preserves edited files by writing a `.l-gevity`
+sibling for you to merge.
+
+| Key | Default | Use |
+|:--|:--|:--|
+| `execution.multi_agent` | `auto` | `off` keeps every run single-agent |
+| `execution.max_parallel_agents` | `3` | concurrent agents, lead excluded |
+| `execution.max_rework_cycles` | `2` | correction rounds before escalation |
+| `repository.protected_paths` | `[]` | writes need human approval |
+| `repository.verification` | `[]` | commands the integrated result must pass |
+
+Commit the workspace profile and rendered agent files so developers and
+runtimes share the configuration.
+
+<details>
+<summary><strong>Inspect and recheck a run</strong></summary>
+
+Run records live in `.alchemy/runs/<run-id>/`: `plan.json` (packages, owners,
+write sets, waves), `handoffs/<package>.json`, and `ledger.json` (criteria,
+evidence, findings, disputes). Re-check any of them yourself:
+
+```sh
+C=.agents/skills/alchemy-orchestrate/scripts/check_orchestration.py
+R=.alchemy/runs/<id>
+python $C plan    $R/plan.json                          --profile alchemy-workspace.json
+python $C handoff $R/handoffs/P1.json --plan $R/plan.json --profile alchemy-workspace.json --root .
+python $C gate    $R/ledger.json      --plan $R/plan.json --profile alchemy-workspace.json --root .
+```
+
+Your runtime's transcript shows which agents were spawned and which skills
+each loaded.
+
+</details>
+
+## Runtime support and evidence
+
+Single-agent execution is the baseline. Pilot runs demonstrate delegation,
+skill loading, parallel work, dependency order, bounded recovery, and gate
+checks, with different coverage per runtime. They do **not** establish that
+multi-agent execution is generally better: on one audit fixture it fixed
+10 of 10 seeded defects versus 9 of 10 at roughly two to four times the cost.
+
+<details>
+<summary><strong>Runtime support and unverified paths</strong></summary>
+
+Every row below is backed by a recorded run in [.pilot/results](./.pilot/results/);
+the acceptance facts in each result are extracted from the runtime's own event
+stream or saved sessions, not from the agent's summary.
+
+| Runtime | How agents are launched | Verified by real runs | Not verified |
+|:--|:--|:--|:--|
+| Claude Code | Native: the lead's Agent tool with `alchemy-implementer` (own git worktree) and `alchemy-analyst` (read-only) | A trivial `/alchemy` task stayed single-agent with no launch. Complex `/alchemy` objectives chose multi-agent unprompted and launched real agents. Two implementers ran in parallel in separate worktrees, the verifier started only after both finished, its two major findings were corrected in two bounded rework cycles, and the gate passed. Delegated agents loaded their own ALCHEMY skills. An injected agent crash was retried once. Independent reviewers drove corrections, and the gate held at `FAIL` for a decision only the human can make. | Cost and time of the completed parallel rerun, whose runner process died; its outcome is reconstructed from the run's own artifacts. |
+| Codex | Native: `spawn_agent` / `wait_agent`, with the custom agents in `.codex/agents/` | `codex exec` lists and spawns `alchemy-analyst`, which answers in the hand-off format. A `$alchemy` audit chose multi-agent unprompted. A depth-1 reviewer sub-agent, recovered from Codex's saved sessions, loaded its skills, found a money defect by executing a reproduction, and was re-run after the lead's correction. | Parallel implementers, and an injected failure. The reviewer ran as Codex's default agent type, not as `alchemy-analyst`. |
+| Unstoppable | Preconfigured workflow: the `alchemy-multi-agent` pipeline (plan, plan check, human approval, native sub-agents, cross-provider review, gate, human approval, pull request). In a chat, the Claude Code or Codex mechanism above. | The pipeline validates and runs from the CLI. In four runs, planning produced multi-wave plans that passed the plan check, the human checkpoint paused each run, and execution launched sub-agents into isolated worktrees. When execution could not finish, the lead escalated rather than claiming success: once for a repository defect, and twice when its turn ended with agents still running ([record](./.pilot/results/unstoppable-pipeline-runs.json)). | A complete pass through review, gate, and pull request. The run with foreground waves was stopped before execution finished. |
+| Other agents (Gemini CLI, Grok CLI) | None shipped | — | Fallback: single-agent, with the limitation reported |
+
+The adapter details, every mechanism, and every limitation are in the
+[adapters reference](./.agents/skills/alchemy-orchestrate/adapters/README.md).
 
 </details>
 
 <details>
-<summary><strong>What is included</strong></summary>
+<summary><strong>Pilot results, costs, and timings</strong></summary>
 
-The library contains 25 composable skills. Each has an operational `SKILL.md`
-and a primer: a standalone concept explainer that teaches the underlying
-engineering idea to developers, independent of the skill machinery.
+The pilot in [.pilot/](./.pilot/README.md) runs the normal `/alchemy` or
+`$alchemy` entrypoint on a small backend with ten seeded defects (correctness,
+security, dead code, layering, duplication), and scores the result with hidden
+tests. Only the profile differs between arms: `execution.multi_agent` is `off`
+for the baseline.
 
-| Skill | Primer |
-|---|---|
-| [`alchemy`](./.claude/skills/alchemy/SKILL.md) | [Read](./.documentation/READ-alchemy.md) |
-| [`alchemy-orchestrate`](./.claude/skills/alchemy-orchestrate/SKILL.md) | [Read](./.documentation/READ-alchemy-orchestrate.md) |
-| [`functionality-complexity-tradeoff`](./.claude/skills/functionality-complexity-tradeoff/SKILL.md) | [Read](./.documentation/READ-functionality-complexity-tradeoff.md) |
-| [`architecture-guidelines`](./.claude/skills/architecture-guidelines/SKILL.md) | [Read](./.documentation/READ-architecture-guidelines.md) |
-| [`morphogenetic-architecture`](./.claude/skills/morphogenetic-architecture/SKILL.md) | [Read](./.documentation/READ-morphogenetic-architecture.md) |
-| [`structural-simplification`](./.claude/skills/structural-simplification/SKILL.md) | [Read](./.documentation/READ-structural-simplification.md) |
-| [`architecture-as-code`](./.claude/skills/architecture-as-code/SKILL.md) | [Read](./.documentation/READ-architecture-as-code.md) |
-| [`architecture-as-code-javascript`](./.claude/skills/architecture-as-code-javascript/SKILL.md) | [Read](./.documentation/READ-architecture-as-code-javascript.md) |
-| [`architecture-as-code-python`](./.claude/skills/architecture-as-code-python/SKILL.md) | [Read](./.documentation/READ-architecture-as-code-python.md) |
-| [`defect-shift-left`](./.claude/skills/defect-shift-left/SKILL.md) | [Read](./.documentation/READ-defect-shift-left.md) |
-| [`ci-cd-reliability-architecture`](./.claude/skills/ci-cd-reliability-architecture/SKILL.md) | [Read](./.documentation/READ-ci-cd-reliability-architecture.md) |
-| [`system-optimization`](./.claude/skills/system-optimization/SKILL.md) | [Read](./.documentation/READ-system-optimization.md) |
-| [`push-out`](./.claude/skills/push-out/SKILL.md) | [Read](./.documentation/READ-push-out.md) |
-| [`bring-down`](./.claude/skills/bring-down/SKILL.md) | [Read](./.documentation/READ-bring-down.md) |
-| [`requirements-grounding`](./.claude/skills/requirements-grounding/SKILL.md) | [Read](./.documentation/READ-requirements-grounding.md) |
-| [`requirements-topology`](./.claude/skills/requirements-topology/SKILL.md) | [Read](./.documentation/READ-requirements-topology.md) |
-| [`implementation-readiness`](./.claude/skills/implementation-readiness/SKILL.md) | [Read](./.documentation/READ-implementation-readiness.md) |
-| [`requirements-traceability`](./.claude/skills/requirements-traceability/SKILL.md) | [Read](./.documentation/READ-requirements-traceability.md) |
-| [`test-strategy`](./.claude/skills/test-strategy/SKILL.md) | [Read](./.documentation/READ-test-strategy.md) |
-| [`evolutionary-database-design`](./.claude/skills/evolutionary-database-design/SKILL.md) | [Read](./.documentation/READ-evolutionary-database-design.md) |
-| [`continuous-improvement`](./.claude/skills/continuous-improvement/SKILL.md) | [Read](./.documentation/READ-continuous-improvement.md) |
-| [`zero-copy-requirements`](./.claude/skills/zero-copy-requirements/SKILL.md) | [Read](./.documentation/READ-zero-copy-requirements.md) |
-| [`dependency-lifecycle`](./.claude/skills/dependency-lifecycle/SKILL.md) | [Read](./.documentation/READ-dependency-lifecycle.md) |
-| [`observability-design`](./.claude/skills/observability-design/SKILL.md) | [Read](./.documentation/READ-observability-design.md) |
-| [`infrastructure-fit`](./.claude/skills/infrastructure-fit/SKILL.md) | [Read](./.documentation/READ-infrastructure-fit.md) |
+| Run | Execution | Agents launched | Seeded defects fixed | Visible tests | Cost | Time |
+|:--|:--|:--|:--|:--|:--|:--|
+| Claude Code, trivial rename | single-agent (`SKIP`) | 0 | n/a | pass | $0.34 | 24 s |
+| Claude Code, audit, baseline (`off`) | single-agent | 0 | 9 / 10 | pass | $5.42 | 13 min |
+| Claude Code, audit | lead + 1 independent analyst | 1 | 10 / 10 | pass | $10.46 | 23 min |
+| Claude Code, audit, injected agent crash | lead + 2 parallel reviewers, crash retried | 3 (1 blocked) | 10 / 10 | pass | $21.22 | 42 min |
+| Claude Code, two independent features | 2 parallel implementers, then 1 verifier; the verifier was stopped by the headless background limit, so no `PR.md` | 3 | n/a (feature task) | pass | $10.46 | 23 min |
+| Same, rerun with the bounded wait | 2 parallel implementers, then 1 verifier; 2 major findings, 2 correction cycles, gate `PASS` | 3 or more | n/a (feature task) | pass, 31 / 31 | not captured¹ | not captured¹ |
+| Codex, audit (harness ran `--ephemeral`) | multi-agent chosen; spawns failed | 0 | 8 / 10 | pass | not reported | 6.5 min |
+| Codex, audit | lead + 1 reviewer sub-agent | 1 | 8 / 10 | pass | not reported | 5 min |
 
-Grounding keeps **decision-relevant outcome hypotheses** separate from
-acceptance criteria, avoiding **confusing impact with completion**. Traceability
-maintains **versioned outcome measurements and freshness**. **Revisiting value after release**
-routes current evidence back to the Minimum gate for a bounded worth decision.
+What these runs do and do not show:
+
+- **Shown:** the decision, the delegation, skill loading, parallelism,
+  dependency order, bounded recovery, and the gate behave as specified.
+- **Not shown:** that multi-agent finds more defects in general. With one
+  fixture and one run per arm, multi-agent fixed one more seeded defect than
+  the baseline (10 vs 9) at roughly two to four times the cost.
+- **How to treat them:** as a reproducible smoke test of the behavior, not a
+  benchmark. Keep multi-agent where your own baseline shows it pays.
+
+¹ The runner process died mid-run while the Claude Code session finished; the
+row is reconstructed from the run's own git history, run records, and
+`PR.md` in
+[claude-multi-parallel-2.evidence.json](./.pilot/results/claude-multi-parallel-2.evidence.json),
+so cost and time were not captured.
 
 </details>
 
-<details>
-<summary><strong>Installation details</strong></summary>
+### Limits to account for
 
-Installers are provided for Claude Code, Codex, Gemini CLI, and Grok CLI on
-Windows, Linux, and macOS. Each installs the shared skills into its agent's
-skills tree, adds the agent's root instruction file, and records provenance in
-`l-gevity-skills.lock.json`. When the project already keeps the other skills
-tree, that tree is updated as well.
-
-| Agent | Skills tree | Root instruction file |
-|---|---|---|
-| Claude Code | `.claude/skills/` | `CLAUDE.md` |
-| Codex | `.agents/skills/` | `AGENTS.md` |
-| Gemini CLI | `.agents/skills/` | `GEMINI.md` |
-| Grok CLI | `.agents/skills/` | `GROK.md` |
-
-An existing root instruction file is preserved; the L-GEVITY version is written
-beside it with a `.l-gevity` suffix for manual merging. Locally added skills are
-not removed during updates. Set `L_GEVITY_SKILLS_REF` to pin a branch, tag, or
-commit.
-
-[Inspect the installer scripts](./.install/).
-
-</details>
-
-<details>
-<summary><strong>Scope</strong></summary>
-
-These skills cover structural reasoning: requirements, architecture,
-verification strategy, delivery reliability, and improvement. They do not
-replace project-specific domain knowledge, coding conventions, security rules,
-framework recipes, or release policy. Layer those on with your own skills and
-instructions.
-
-</details>
+- **Cost.** A multi-agent run pays one context load per agent plus planning,
+  checking, and integration; keep it only where it beats the single-agent
+  baseline on your own work (the specification's quality model, §11).
+- **Enforcement varies by runtime.** Claude Code enforces read-only agents,
+  delegation depth 1, and the concurrency cap through its settings; Codex
+  enforces only the cap, and relies on instructions plus the hand-off check
+  for the rest; Codex agents share one working directory.
+- **Non-interactive runs must wait for their agents.** In headless and
+  pipeline runs, a lead whose turn ends while sub-agents still run loses them;
+  the adapters bound the background wait and launch waves in the foreground.
+  Interactive sessions are not affected.
+- **Permission rules are guardrails.** A deny rule matches command text, so it
+  is not a sandbox; the hand-off and gate checks are the backstop.
+- **Not exercised end to end:** cross-repository work, and the real
+  production backend the issues name (it is not in this repository; the pilot
+  uses a representative fixture).
+- **Gemini CLI and Grok CLI** install the skills but get no adapter; they run
+  single-agent.
 
 ## Contributing
 
