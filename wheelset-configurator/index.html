@@ -153,6 +153,9 @@ h1, h2, h3, p { margin-top: 0; }
 .choice-button:hover { border-color: #808878; }
 .choice-button.is-selected { color: #fffefa; border-color: var(--ink); background: var(--ink); }
 .finish-options { display: flex; gap: 19px; flex-wrap: wrap; }
+.hub-choice select { width: 100%; min-height: 42px; padding: 0 12px; border: 1px solid #e0e0d8; border-radius: 2px; color: var(--ink); background: #fffefa; font: 500 10px var(--body); }
+.hub-choice select:focus-visible { outline: 2px solid #778a3b; outline-offset: 2px; }
+.hub-description { min-height: 14px; margin: 8px 0 0; color: #777a72; font-size: 9px; line-height: 1.55; }
 .finish-choice { min-height: 32px; padding: 0; display: inline-flex; align-items: center; gap: 8px; border: 0; background: transparent; font-size: 10px; }
 .finish-swatch { width: 17px; height: 17px; border: 1px solid rgba(25, 30, 25, .17); border-radius: 50%; background: #252a26; }
 .finish-silver .finish-swatch { background: #adb1a8; }
@@ -186,6 +189,7 @@ h1, h2, h3, p { margin-top: 0; }
 .summary-kicker { margin-bottom: 8px; color: #72776c; font-size: 8px; font-weight: 700; letter-spacing: .15em; }
 .summary-info h3 { margin: 0 0 8px; font: 700 25px/1.1 var(--display); letter-spacing: -.06em; }
 .summary-spec { margin: 0; color: #686e63; font-size: 10px; }
+.summary-hub { margin: 6px 0 0; color: #686e63; font-size: 9px; line-height: 1.5; }
 .summary-total { margin-top: 18px; padding-top: 15px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #d8d9cf; }
 .summary-total span { color: #72776c; font-size: 8px; font-weight: 700; letter-spacing: .12em; }
 .summary-total strong { font: 700 18px var(--display); letter-spacing: -.04em; }
@@ -498,8 +502,21 @@ h1, h2, h3, p { margin-top: 0; }
               <legend><span class="option-number">04</span> Naaf afwerking</legend>
               <div class="finish-options" id="finish-choices" role="group" aria-label="Naaf afwerking"></div>
             </fieldset>
+            <fieldset class="option-group">
+              <legend><span class="option-number">05</span> Interne versnellingsnaaf</legend>
+              <div class="hub-choice">
+                <select id="internal-hub" aria-label="Kies een interne versnellingsnaaf">
+                  <option value="standard">Standaard naaf (geen interne versnellingen)</option>
+                  <option value="nexus5">Shimano Nexus 5</option>
+                  <option value="alfine11">Shimano Alfine 11</option>
+                  <option value="rohloff">Rohloff SPEEDHUB 500/14</option>
+                  <option value="enviolo">enviolo Utility</option>
+                </select>
+                <p class="hub-description" id="hub-description">Standaard naaf, afgestemd op je wielset en gekozen aandrijving.</p>
+              </div>
+            </fieldset>
             <fieldset class="option-group extra-group">
-              <legend><span class="option-number">05</span> Jouw extra <span class="optional-note">optioneel</span></legend>
+              <legend><span class="option-number">06</span> Jouw extra <span class="optional-note">optioneel</span></legend>
               <label class="extra-option">
                 <input type="checkbox" id="premium-hubs">
                 <span class="custom-checkbox" aria-hidden="true"></span>
@@ -525,9 +542,10 @@ h1, h2, h3, p { margin-top: 0; }
               <p class="summary-kicker" id="summary-category">ROAD / ALLROUND</p>
               <h3 id="summary-title">Racefiets<br>wielset</h3>
               <p class="summary-spec" id="summary-spec">700C · 35 mm · Mat zwart</p>
+              <p class="summary-hub" id="summary-hub">Standaard naaf</p>
             </div>
             <div class="summary-total"><span>INDICATIEVE PRIJS</span><strong id="summary-price">€ 1.290</strong></div>
-            <p class="summary-disclaimer">Indicatie voor jouw configuratie; definitieve specificaties en prijs stemmen we persoonlijk met je af.</p>
+            <p class="summary-disclaimer" id="summary-disclaimer">Indicatieve wielsetprijs. Een interne versnellingsnaaf en eventuele aanpassingen zijn niet inbegrepen; compatibiliteit en meerprijs stemmen we persoonlijk met je af.</p>
             <button class="button button-dark summary-button" id="save-configuration" type="button">Bewaar jouw configuratie <span aria-hidden="true">↗</span></button>
           </aside>
         </div>
@@ -672,7 +690,30 @@ const state = {
   size: "700C",
   profile: "35 mm",
   finish: "Mat zwart",
+  internalHub: "standard",
   premiumHubs: false,
+};
+const internalHubs = {
+  standard: {
+    name: "Standaard naaf",
+    description: "Standaard naaf, afgestemd op je wielset en gekozen aandrijving.",
+  },
+  nexus5: {
+    name: "Shimano Nexus 5",
+    description: "5 interne versnellingen. Een compacte keuze voor stadsfietsen en e-bikes.",
+  },
+  alfine11: {
+    name: "Shimano Alfine 11",
+    description: "11 interne versnellingen voor een breed bereik bij dagelijks en sportief gebruik.",
+  },
+  rohloff: {
+    name: "Rohloff SPEEDHUB 500/14",
+    description: "14 interne versnellingen met een breed bereik voor intensief en avontuurlijk gebruik.",
+  },
+  enviolo: {
+    name: "enviolo Utility",
+    description: "Traploos variabele versnelling voor comfortabel stads- en utiliteitsgebruik.",
+  },
 };
 
 const categoryButtons = [...document.querySelectorAll("[data-category]")];
@@ -843,6 +884,18 @@ function renderFinishes() {
   }));
 }
 
+function renderInternalHub() {
+  const hub = internalHubs[state.internalHub];
+  document.querySelector("#internal-hub").value = state.internalHub;
+  document.querySelector("#hub-description").textContent = hub.description;
+  document.querySelector("#summary-hub").textContent =
+    state.internalHub === "standard" ? hub.name : `Interne versnellingsnaaf: ${hub.name}`;
+  document.querySelector("#summary-disclaimer").textContent =
+    state.internalHub === "standard"
+      ? "Indicatieve wielsetprijs. Definitieve specificaties stemmen we persoonlijk met je af."
+      : "Indicatieve wielsetprijs; de gekozen interne versnellingsnaaf en eventuele aanpassingen zijn niet inbegrepen. Compatibiliteit en meerprijs stemmen we persoonlijk met je af.";
+}
+
 function setCategory(category) {
   if (!Object.hasOwn(configurations, category)) return;
   const categoryChanged = category !== state.category;
@@ -888,6 +941,7 @@ function render() {
     render();
   });
   renderFinishes();
+  renderInternalHub();
   document.querySelector("#category-count").textContent =
     `${config.name.toLocaleUpperCase("nl-NL")} — 0${Object.keys(configurations).indexOf(state.category) + 1}/0${Object.keys(configurations).length}`;
   document.querySelector("#summary-category").textContent = config.category;
@@ -914,6 +968,7 @@ function downloadConfiguration() {
     `Wielmaat: ${state.size}`,
     `Velgprofiel: ${state.profile}`,
     `Naaf afwerking: ${state.finish}`,
+    `Interne versnellingsnaaf: ${internalHubs[state.internalHub].name}`,
     `Performance naven: ${state.premiumHubs ? "Ja" : "Nee"}`,
     "",
     `Indicatieve prijs: ${formatPrice(priceForConfiguration())}`,
@@ -939,6 +994,10 @@ document.querySelector("#premium-hubs").addEventListener("change", (event) => {
   render();
 });
 document.querySelector("#save-configuration").addEventListener("click", downloadConfiguration);
+document.querySelector("#internal-hub").addEventListener("change", (event) => {
+  state.internalHub = event.currentTarget.value;
+  renderInternalHub();
+});
 document.querySelector("#current-year").textContent = String(new Date().getFullYear());
 
 const menuToggle = document.querySelector(".menu-toggle");
