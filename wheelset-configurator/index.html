@@ -1,0 +1,974 @@
+<!doctype html>
+<html lang="nl">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f5f4ef">
+    <meta name="description" content="Stel jouw wielset samen en bereken de ideale fiets-overbrenging voor racefiets, gravel, MTB, velomobiel, e-bike of speedpedelec met Etappe Cycling.">
+    <title>Jouw rit. Jouw wielen. — Etappe Cycling</title>
+    <style>
+:root {
+  color-scheme: light;
+  --paper: #f5f4ef;
+  --ink: #1c211e;
+  --muted: #777a72;
+  --line: #deded5;
+  --accent: #d3ed6a;
+  --orange: #e8794c;
+  --display: "Segoe UI", Arial, sans-serif;
+  --body: "Segoe UI", Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 88px; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--body); -webkit-font-smoothing: antialiased; }
+button, a { color: inherit; font: inherit; }
+a { text-decoration: none; }
+button { cursor: pointer; }
+.site-header { height: 82px; padding: 0 7.2%; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(28, 33, 30, .11); position: relative; z-index: 4; }
+.wordmark { display: inline-flex; gap: 10px; align-items: center; flex-shrink: 0; }
+.brand-mark { width: 35px; height: 35px; fill: none; stroke: var(--ink); stroke-width: 1.25; }
+.brand-mark circle:nth-child(2) { fill: var(--ink); }
+.wordmark-text { display: flex; flex-direction: column; font: 800 17px/.9 var(--display); letter-spacing: -.055em; }
+.wordmark-text > span { margin-top: 5px; font: 500 8px/1 var(--body); letter-spacing: .24em; text-transform: uppercase; }
+.main-nav { display: flex; gap: clamp(24px, 3.2vw, 48px); align-items: center; margin-left: 6%; }
+.main-nav a, .header-cta { font-size: 11px; font-weight: 600; }
+.main-nav a { transition: opacity .2s ease; }
+.main-nav a:hover, .text-link:hover { opacity: .58; }
+.header-cta { border: 1px solid var(--ink); border-radius: 2px; padding: 13px 17px; transition: background .2s ease, color .2s ease; }
+.header-cta:hover { color: var(--paper); background: var(--ink); }
+.header-cta span { padding-left: 12px; }
+.menu-toggle, .mobile-nav { display: none; }
+.hero { position: relative; min-height: 660px; height: min(750px, calc(100svh - 82px)); max-height: 790px; padding: 8.5% 7.2% 5.2%; display: grid; grid-template-columns: 1fr 1fr; align-items: center; overflow: hidden; }
+.hero-copy { position: relative; z-index: 1; padding-bottom: 10px; }
+.eyebrow { margin: 0; display: flex; align-items: center; gap: 9px; font-size: 9px; line-height: 1.4; font-weight: 700; letter-spacing: .17em; text-transform: uppercase; }
+.eyebrow-dot, .summary-dot { width: 7px; height: 7px; flex: 0 0 7px; border-radius: 50%; background: #91aa31; }
+h1, h2, h3, p { margin-top: 0; }
+.hero h1 { margin: 27px 0 19px; font: 600 clamp(60px, 7.1vw, 100px)/.98 var(--display); letter-spacing: -.09em; }
+.hero h1 span { color: #788b44; font-weight: 500; font-style: italic; }
+.hero-description { max-width: 360px; color: #696c65; font-size: 14px; line-height: 1.8; }
+.hero-actions { display: flex; gap: 25px; align-items: center; margin-top: 30px; }
+.button { min-height: 49px; padding: 0 19px; display: inline-flex; justify-content: center; align-items: center; gap: 20px; border: 0; border-radius: 2px; font-size: 10px; font-weight: 700; transition: transform .2s ease, background .2s ease; }
+.button:hover { transform: translateY(-2px); }
+.button-dark { color: var(--paper); background: var(--ink); }
+.button-dark:hover { background: #343c32; }
+.button-light { color: var(--ink); background: var(--accent); }
+.button-light:hover { background: #def77a; }
+.text-link { font-size: 10px; font-weight: 600; transition: opacity .2s ease; }
+.text-link span { padding-left: 7px; }
+.hero-footnote { display: flex; align-items: center; gap: 12px; margin-top: 58px; color: var(--muted); font-size: 10px; }
+.avatar-stack { display: flex; padding-left: 2px; }
+.avatar-stack span { width: 24px; height: 24px; display: grid; place-items: center; margin-left: -3px; border: 2px solid var(--paper); border-radius: 50%; color: var(--ink); background: #d8d6ca; font-size: 7px; font-weight: 700; }
+.avatar-stack span:nth-child(2) { background: #d9e3b2; }
+.avatar-stack span:nth-child(3) { color: white; background: var(--ink); }
+.hero-visual { position: relative; justify-self: end; width: min(100%, 520px); aspect-ratio: 1 / 1; overflow: hidden; background: #d9d8cc; }
+.hero-visual::before { content: ""; position: absolute; z-index: 0; inset: 14% 12%; background: radial-gradient(ellipse at 48% 49%, #f0eee3 0%, #e8e5d7 44%, #d7d4c6 73%, transparent 74%); }
+.visual-topline { position: absolute; z-index: 2; top: 21px; right: 24px; left: 24px; display: flex; justify-content: space-between; font-size: 7px; font-weight: 700; letter-spacing: .16em; }
+.hero-wheel { position: absolute; z-index: 1; top: 50%; left: 50%; width: 92%; height: auto; overflow: visible; transform: translate(-50%, -48%) rotate(-14deg); filter: drop-shadow(20px 24px 12px rgba(27, 31, 28, .22)); }
+.tire { fill: url(#tire); stroke: #111512; stroke-width: 3; }
+.tire-edge { fill: none; stroke: #5e635c; stroke-width: 1.6; }
+.rim { fill: none; stroke: url(#rim); stroke-width: 9; }
+.rim-inner { fill: none; stroke: #282e2a; stroke-width: 2; }
+.spokes line, .summary-spokes line { stroke: #59615a; stroke-width: 1.15; opacity: .88; }
+.hub-outer { fill: #303632; stroke: #838a7e; stroke-width: 2; }
+.hub-inner { fill: #bbc0b1; }
+.hub-core { fill: #333a34; }
+.orbit { position: absolute; border: 1px solid rgba(42, 48, 41, .15); border-radius: 50%; transform: rotate(-24deg); }
+.orbit-one { width: 140%; height: 36%; left: -18%; top: 34%; }
+.orbit-two { width: 134%; height: 50%; left: -13%; top: 25%; transform: rotate(38deg); }
+.visual-label { position: absolute; z-index: 2; display: flex; justify-content: space-between; font-size: 7px; font-weight: 700; letter-spacing: .12em; }
+.label-top { top: 19%; left: 8%; gap: 13px; writing-mode: vertical-rl; }
+.label-top span { color: #777a72; }
+.label-bottom { right: 23px; bottom: 21px; left: 23px; }
+.visual-badge { position: absolute; z-index: 2; right: 8%; bottom: 18%; width: 67px; height: 67px; display: flex; flex-direction: column; justify-content: space-between; padding: 12px; border-radius: 50%; color: var(--ink); background: var(--accent); font-size: 8px; line-height: 1.25; font-weight: 800; letter-spacing: .08em; }
+.badge-arrow { align-self: flex-end; font-size: 14px; }
+.hero-index { position: absolute; right: 7.2%; bottom: 27px; display: flex; align-items: center; gap: 12px; font-size: 7px; font-weight: 700; letter-spacing: .16em; }
+.index-line { width: 55px; height: 1px; background: #b7b7ac; }
+.section-pad { padding-right: 11%; padding-left: 11%; }
+.discipline-section { padding-top: 122px; padding-bottom: 124px; }
+.section-heading { display: grid; grid-template-columns: 1fr 1fr; align-items: end; column-gap: 30px; }
+.section-heading .eyebrow { grid-column: 1 / -1; margin-bottom: 27px; }
+.section-heading h2, .configurator-heading h2 { margin: 0; font: 600 clamp(38px, 4.5vw, 58px)/1.07 var(--display); letter-spacing: -.075em; }
+.section-intro { max-width: 300px; margin: 0 0 5px; color: var(--muted); font-size: 12px; line-height: 1.8; }
+.discipline-grid { margin-top: 47px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.discipline-card { min-width: 0; padding: 0; display: flex; flex-direction: column; overflow: hidden; text-align: left; border: 0; background: #e6e5dc; transition: transform .25s ease; }
+.discipline-card:hover { transform: translateY(-5px); }
+.card-number { position: absolute; z-index: 1; padding: 17px; color: rgba(31, 36, 31, .75); font-size: 7px; font-weight: 700; letter-spacing: .14em; }
+.card-art { position: relative; height: 230px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.discipline-road .card-art { background: #dfddd0; }
+.discipline-gravel .card-art { background: #d7dbca; }
+.discipline-mtb .card-art { background: #cdd1c5; }
+.discipline-velomobile .card-art { background: #e0dcd2; }
+.discipline-ebike .card-art { background: #dce1d1; }
+.discipline-speedpedelec .card-art { background: #d3d8d1; }
+.art-wheel { position: absolute; width: 119px; height: 119px; border: 5px solid #222824; border-radius: 50%; box-shadow: inset 0 0 0 3px #8c9383, 0 4px 8px rgba(0,0,0,.1); }
+.art-wheel::before, .velo-wheel::before { content: ""; position: absolute; inset: 9px; border: 1px solid rgba(38, 45, 37, .52); border-radius: 50%; }
+.art-wheel::after { content: ""; position: absolute; inset: 50% 7px auto; height: 1px; background: rgba(38, 45, 37, .58); transform: rotate(45deg); box-shadow: 0 0 0 0 transparent; }
+.art-wheel:first-child { transform: translate(-39px, 9px) scale(.93); }
+.art-wheel:nth-child(2) { transform: translate(42px, -6px) scale(1.03); }
+.art-line { position: absolute; width: 155px; height: 70px; border-top: 2px solid rgba(44, 49, 42, .65); transform: rotate(-34deg) translateY(-19px); }
+.gravel-sun { position: absolute; top: 49px; right: 33px; width: 32px; height: 32px; border-radius: 50%; background: #e5a56d; }
+.mountain-shape { position: absolute; right: -15px; bottom: -3px; left: -15px; height: 90px; background: #abb3a0; clip-path: polygon(0 90%, 32% 4%, 50% 57%, 69% 12%, 100% 85%, 100% 100%, 0 100%); }
+.discipline-mtb .art-wheel { z-index: 1; }
+.velo-shell { position: absolute; top: 72px; left: 28%; width: 50%; height: 68px; border-radius: 60% 48% 26% 25%; background: #a7af8e; transform: skewX(-17deg); box-shadow: inset -11px -9px rgba(42, 50, 37, .12); }
+.velo-wheel { position: absolute; z-index: 1; top: 119px; left: 32%; width: 43px; height: 43px; border: 4px solid #29302a; border-radius: 50%; }
+.velo-wheel-back { left: 66%; transform: scale(1.2); }
+.electric-motor { position: absolute; z-index: 2; top: 50%; left: 50%; width: 43px; height: 43px; display: grid; place-items: center; border: 2px solid #414a38; border-radius: 50%; color: #353d31; background: #d3ed6a; font-size: 19px; transform: translate(-50%, -50%); }
+.speed-art .art-wheel { width: 98px; height: 98px; }
+.speed-bolt { position: absolute; z-index: 2; right: 21%; top: 26%; color: #74833e; font-size: 43px; line-height: 1; transform: rotate(12deg); }
+.card-bottom { min-height: 81px; padding: 15px 16px; display: flex; align-items: center; justify-content: space-between; }
+.card-bottom > span:first-child { display: flex; flex-direction: column; gap: 6px; }
+.card-bottom strong { font: 700 14px var(--display); letter-spacing: -.04em; }
+.card-bottom small { color: #777a72; font-size: 9px; }
+.card-arrow { font-size: 16px; transition: transform .2s ease; }
+.discipline-card:hover .card-arrow { transform: translate(2px, -2px); }
+.manifesto { position: relative; min-height: 482px; padding-top: 98px; padding-bottom: 84px; overflow: hidden; color: var(--paper); background: #202621; }
+.manifesto-mark { position: absolute; top: -80px; right: 9%; color: rgba(245, 244, 239, .04); font: 500 440px/.9 Georgia, serif; }
+.manifesto-content { position: relative; z-index: 1; max-width: 930px; }
+.eyebrow-light { color: #bdc3b3; }
+.eyebrow-light .eyebrow-dot { background: var(--accent); }
+.manifesto h2 { margin: 30px 0 32px; font: 500 clamp(36px, 4.7vw, 62px)/1.13 var(--display); letter-spacing: -.07em; }
+.manifesto h2 span { color: #99a58d; }
+.manifesto-bottom { display: flex; align-items: end; justify-content: space-between; gap: 30px; }
+.manifesto-bottom p { max-width: 340px; margin: 0; color: #b4b9ae; font-size: 12px; line-height: 1.8; }
+.manifesto-orbit { position: absolute; right: -120px; bottom: -310px; width: 600px; height: 600px; border: 1px solid rgba(225, 233, 209, .12); border-radius: 50%; }
+.manifesto-orbit::before, .manifesto-orbit::after { position: absolute; inset: 26px; border: 1px solid rgba(225, 233, 209, .1); border-radius: 50%; content: ""; }
+.manifesto-orbit::after { inset: 55px; }
+.manifesto-index { position: absolute; right: 8%; bottom: 27px; color: #9da59a; font-size: 7px; font-weight: 700; letter-spacing: .16em; }
+.configurator-section { padding-top: 113px; padding-bottom: 112px; }
+.configurator-heading { text-align: center; }
+.configurator-heading .eyebrow { justify-content: center; margin-bottom: 22px; }
+.configurator-heading h2 { font-size: clamp(36px, 4.2vw, 54px); }
+.configurator-heading > p:last-child { margin: 13px 0 0; color: var(--muted); font-size: 12px; }
+.configurator { max-width: 1020px; margin: 48px auto 0; display: grid; grid-template-columns: 1.1fr .9fr; background: #fffefa; border: 1px solid #e6e5dd; }
+.builder { padding: 31px 38px 30px; }
+.builder-progress, .summary-top { display: flex; align-items: center; justify-content: space-between; padding-bottom: 18px; border-bottom: 1px solid var(--line); font-size: 8px; font-weight: 700; letter-spacing: .14em; }
+.builder-progress > span:last-child { color: var(--muted); }
+.progress-number { color: #8d994e; }
+.option-group { min-width: 0; margin: 0; padding: 23px 0 20px; border: 0; border-bottom: 1px solid var(--line); }
+.option-group legend { width: 100%; margin-bottom: 15px; padding: 0; font-size: 11px; font-weight: 700; }
+.option-number { padding-right: 11px; color: #92958b; font-size: 9px; }
+.choice-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.choice-button { min-height: 38px; padding: 0 13px; border: 1px solid #e0e0d8; border-radius: 2px; background: #fffefa; font-size: 10px; transition: color .2s ease, border-color .2s ease, background .2s ease; }
+.choice-button:hover { border-color: #808878; }
+.choice-button.is-selected { color: #fffefa; border-color: var(--ink); background: var(--ink); }
+.finish-options { display: flex; gap: 19px; flex-wrap: wrap; }
+.finish-choice { min-height: 32px; padding: 0; display: inline-flex; align-items: center; gap: 8px; border: 0; background: transparent; font-size: 10px; }
+.finish-swatch { width: 17px; height: 17px; border: 1px solid rgba(25, 30, 25, .17); border-radius: 50%; background: #252a26; }
+.finish-silver .finish-swatch { background: #adb1a8; }
+.finish-bronze .finish-swatch { background: #95754f; }
+.finish-choice.is-selected .finish-swatch { outline: 2px solid #86934b; outline-offset: 3px; }
+.finish-choice.is-selected .finish-label { font-weight: 700; }
+.extra-group { border-bottom: 0; padding-bottom: 9px; }
+.optional-note { margin-left: 6px; color: #8d9087; font-size: 9px; font-weight: 400; }
+.extra-option { min-height: 42px; display: flex; gap: 11px; align-items: center; cursor: pointer; }
+.extra-option input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.custom-checkbox { width: 17px; height: 17px; flex: 0 0 17px; display: grid; place-items: center; border: 1px solid #c9cabe; border-radius: 2px; }
+.extra-option input:checked + .custom-checkbox { border-color: var(--ink); background: var(--ink); }
+.extra-option input:checked + .custom-checkbox::after { content: "✓"; color: white; font-size: 11px; }
+.extra-option input:focus-visible + .custom-checkbox { outline: 2px solid #829247; outline-offset: 3px; }
+.extra-copy { display: flex; flex-direction: column; gap: 4px; }
+.extra-copy strong { font-size: 10px; }
+.extra-copy small { color: var(--muted); font-size: 9px; }
+.extra-price { margin-left: auto; font-size: 10px; font-weight: 600; }
+.build-summary { padding: 31px 32px 28px; display: flex; flex-direction: column; background: #efefe7; }
+.summary-top { padding-bottom: 15px; border-color: #d8d9cf; }
+.summary-dot { width: 6px; height: 6px; flex-basis: 6px; }
+.summary-wheel-wrap { position: relative; height: 222px; display: grid; place-items: center; overflow: hidden; }
+.summary-wheel { width: 198px; height: 198px; transform: rotate(-14deg); }
+.summary-tire { fill: #252a26; stroke: #101411; stroke-width: 2; }
+.summary-rim { fill: none; stroke: #989e90; stroke-width: 6; }
+.summary-rim-inner { fill: none; stroke: #485047; stroke-width: 1.5; }
+.summary-hub { fill: #959b8e; stroke: #303630; stroke-width: 2; }
+.summary-hub-hole { fill: #303630; }
+.summary-wheel-caption { position: absolute; right: 1px; bottom: 9px; color: #777d71; font-size: 7px; font-weight: 700; letter-spacing: .12em; writing-mode: vertical-rl; }
+.summary-info { padding-top: 18px; border-top: 1px solid #d8d9cf; }
+.summary-kicker { margin-bottom: 8px; color: #72776c; font-size: 8px; font-weight: 700; letter-spacing: .15em; }
+.summary-info h3 { margin: 0 0 8px; font: 700 25px/1.1 var(--display); letter-spacing: -.06em; }
+.summary-spec { margin: 0; color: #686e63; font-size: 10px; }
+.summary-total { margin-top: 18px; padding-top: 15px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #d8d9cf; }
+.summary-total span { color: #72776c; font-size: 8px; font-weight: 700; letter-spacing: .12em; }
+.summary-total strong { font: 700 18px var(--display); letter-spacing: -.04em; }
+.summary-disclaimer { margin: 12px 0 17px; color: #777a72; font-size: 9px; line-height: 1.6; }
+.summary-button { width: 100%; justify-content: space-between; }
+.configurator-note { max-width: 1020px; margin: 17px auto 0; display: flex; align-items: center; gap: 9px; color: #777a72; font-size: 9px; }
+.configurator-note .eyebrow-dot { width: 6px; height: 6px; flex-basis: 6px; }
+.site-footer { min-height: 94px; padding: 20px 7.2%; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--line); }
+.footer-wordmark .brand-mark { width: 30px; height: 30px; }
+.footer-wordmark .wordmark-text { font-size: 15px; }
+.footer-note { color: var(--muted); font: italic 12px Georgia, serif; }
+.footer-top, .footer-copyright { color: #777a72; font-size: 8px; font-weight: 700; letter-spacing: .12em; }
+.footer-top span { padding-left: 8px; color: var(--ink); }
+.toast { position: fixed; z-index: 10; right: 24px; bottom: 24px; max-width: min(360px, calc(100vw - 48px)); padding: 14px 18px; border-left: 3px solid var(--accent); color: var(--paper); background: var(--ink); box-shadow: 0 8px 28px rgba(0, 0, 0, .13); font-size: 11px; line-height: 1.55; opacity: 0; pointer-events: none; transform: translateY(9px); transition: opacity .2s ease, transform .2s ease; }
+.toast.is-visible { opacity: 1; transform: translateY(0); }
+
+.gearing-section { padding-top: 105px; padding-bottom: 110px; background: #e9e9df; }
+.gearing-heading { max-width: 760px; margin: 0 auto 38px; text-align: center; }
+.gearing-heading .eyebrow { justify-content: center; margin-bottom: 19px; }
+.gearing-heading h2 { margin: 0; font: 600 clamp(38px, 4.2vw, 54px)/1.07 var(--display); letter-spacing: -.075em; }
+.gearing-heading > p:last-child { max-width: 560px; margin: 13px auto 0; color: var(--muted); font-size: 12px; line-height: 1.8; }
+.gearing-calculator { max-width: 1020px; margin: 0 auto; display: grid; grid-template-columns: 1.1fr .9fr; background: #fffefa; border: 1px solid #deded5; }
+.gearing-inputs { padding: 30px 36px; }
+.gearing-inputs-top { margin-bottom: 22px; display: flex; justify-content: space-between; gap: 12px; color: #777a72; font-size: 8px; font-weight: 700; letter-spacing: .14em; }
+.gearing-preset { margin: 0 0 21px; padding: 0; border: 0; }
+.gearing-preset legend, .gearing-field label { margin-bottom: 9px; display: block; font-size: 10px; font-weight: 700; }
+.gearing-preset select, .gearing-field input, .gearing-field select { width: 100%; height: 42px; padding: 0 12px; border: 1px solid #deded5; border-radius: 2px; color: var(--ink); background: #fffefa; font: 500 11px var(--body); }
+.gearing-preset select:focus-visible, .gearing-field input:focus-visible, .gearing-field select:focus-visible { outline: 2px solid #778a3b; outline-offset: 2px; }
+.gearing-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 17px 14px; }
+.gearing-field { min-width: 0; }
+.gearing-field label span { color: #777a72; font-weight: 400; }
+.gearing-field input { font-variant-numeric: tabular-nums; }
+.gearing-help { margin: 6px 0 0; color: #777a72; font-size: 8px; line-height: 1.5; }
+.gearing-results { padding: 30px 31px; display: flex; flex-direction: column; background: #202621; color: var(--paper); }
+.gearing-results-top { padding-bottom: 17px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(245,244,239,.18); color: #d3d8cb; font-size: 8px; font-weight: 700; letter-spacing: .14em; }
+.gearing-results-top .eyebrow-dot { background: var(--accent); }
+.gearing-results h3 { margin: 22px 0 6px; font: 600 23px/1.1 var(--display); letter-spacing: -.05em; }
+.gearing-result-caption { margin: 0 0 16px; color: #b4b9ae; font-size: 9px; line-height: 1.6; }
+.gearing-result-list { margin: 0; padding: 0; list-style: none; }
+.gearing-result { min-height: 65px; padding: 11px 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-top: 1px solid rgba(245,244,239,.16); }
+.gearing-result-label { display: flex; flex-direction: column; gap: 4px; }
+.gearing-result-label strong { font-size: 10px; }
+.gearing-result-label small { color: #b4b9ae; font-size: 8px; }
+.gearing-result-value { text-align: right; white-space: nowrap; font: 700 18px var(--display); letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+.gearing-result-value small { display: block; margin-top: 3px; color: #b4b9ae; font: 500 8px var(--body); letter-spacing: 0; }
+.gearing-advice { margin: 15px 0 0; padding: 12px; border-left: 2px solid var(--accent); color: #d2d7c9; background: rgba(245,244,239,.06); font-size: 9px; line-height: 1.65; }
+.gearing-error { min-height: 14px; margin: 12px 0 0; color: #ffbf9d; font-size: 9px; }
+.gearing-note { max-width: 1020px; margin: 16px auto 0; color: #777a72; font-size: 9px; line-height: 1.6; }
+:focus-visible { outline: 2px solid #778a3b; outline-offset: 3px; }
+@media (min-width: 1500px) { .hero { padding-right: 11%; padding-left: 11%; } }
+@media (max-width: 1000px) {
+  .site-header { padding-right: 5%; padding-left: 5%; }
+  .hero { min-height: 590px; padding-right: 5%; padding-left: 5%; }
+  .hero h1 { font-size: clamp(58px, 7.3vw, 78px); }
+  .section-pad { padding-right: 7%; padding-left: 7%; }
+  .discipline-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .card-art { height: 245px; }
+  .configurator { grid-template-columns: 1fr .88fr; }
+  .builder { padding-right: 27px; padding-left: 27px; }
+  .build-summary { padding-right: 24px; padding-left: 24px; }
+  .gearing-calculator { grid-template-columns: 1fr .88fr; }
+  .gearing-inputs { padding-right: 27px; padding-left: 27px; }
+  .gearing-results { padding-right: 24px; padding-left: 24px; }
+}
+@media (max-width: 700px) {
+  html { scroll-padding-top: 68px; }
+  .site-header { height: 68px; padding: 0 20px; }
+  .brand-mark { width: 31px; height: 31px; }
+  .wordmark-text { font-size: 15px; }
+  .main-nav, .header-cta { display: none; }
+  .menu-toggle { width: 40px; height: 40px; padding: 11px 9px; display: flex; flex-direction: column; justify-content: center; gap: 5px; border: 0; background: transparent; }
+  .menu-toggle span { height: 1.5px; width: 22px; background: var(--ink); }
+  .mobile-nav:not([hidden]) { position: absolute; z-index: 3; top: 68px; right: 0; left: 0; padding: 9px 20px 18px; display: flex; flex-direction: column; border-bottom: 1px solid var(--line); background: var(--paper); }
+  .mobile-nav a { padding: 13px 0; border-bottom: 1px solid var(--line); font-size: 12px; }
+  .hero { height: auto; min-height: 0; max-height: none; padding: 70px 20px 62px; display: flex; flex-direction: column; align-items: stretch; }
+  .hero h1 { margin-top: 23px; font-size: clamp(63px, 13vw, 87px); }
+  .hero-description { max-width: 330px; font-size: 13px; }
+  .hero-actions { gap: 17px; align-items: flex-start; flex-direction: column; margin-top: 25px; }
+  .hero-footnote { margin-top: 27px; }
+  .hero-visual { width: 100%; max-width: 470px; margin: 43px auto 0; }
+  .hero-index { right: 20px; bottom: 20px; }
+  .section-pad { padding-right: 20px; padding-left: 20px; }
+  .discipline-section { padding-top: 82px; padding-bottom: 84px; }
+  .section-heading { grid-template-columns: 1fr; row-gap: 17px; }
+  .section-heading .eyebrow { margin-bottom: 5px; }
+  .section-heading h2 { font-size: 47px; }
+  .section-intro { max-width: 360px; font-size: 11px; }
+  .discipline-grid { margin-top: 30px; gap: 10px; }
+  .card-art { height: clamp(142px, 41vw, 210px); }
+  .card-number { padding: 12px; font-size: 6px; }
+  .art-wheel { width: 92px; height: 92px; border-width: 4px; }
+  .art-wheel:first-child { transform: translate(-31px, 8px) scale(.93); }
+  .art-wheel:nth-child(2) { transform: translate(30px, -5px) scale(1.02); }
+  .velo-shell { top: 42%; height: 48px; }
+  .velo-wheel { top: 69%; width: 32px; height: 32px; }
+  .card-bottom { min-height: 68px; padding: 12px 10px; }
+  .card-bottom strong { font-size: 11px; }
+  .card-bottom small { font-size: 8px; }
+  .manifesto { min-height: 0; padding-top: 75px; padding-bottom: 80px; }
+  .manifesto h2 { margin: 24px 0; font-size: clamp(35px, 8.1vw, 48px); }
+  .manifesto h2 br { display: none; }
+  .manifesto-bottom { align-items: flex-start; flex-direction: column; gap: 20px; }
+  .manifesto-bottom p { font-size: 11px; }
+  .manifesto-index { right: 20px; font-size: 6px; }
+  .configurator-section { padding-top: 79px; padding-bottom: 78px; }
+  .configurator-heading h2 { font-size: 39px; }
+  .configurator { margin-top: 33px; grid-template-columns: 1fr; }
+  .gearing-section { padding-top: 77px; padding-bottom: 78px; }
+  .gearing-heading { margin-bottom: 28px; }
+  .gearing-heading h2 { font-size: 39px; }
+  .gearing-calculator { grid-template-columns: 1fr; }
+  .gearing-inputs { padding: 23px 19px 24px; }
+  .gearing-fields { gap: 15px 10px; }
+  .gearing-field label { min-height: 25px; font-size: 9px; }
+  .gearing-results { padding: 24px 20px; }
+  .gearing-results h3 { font-size: 21px; }
+  .gearing-result { min-height: 61px; }
+  .builder { padding: 23px 19px 16px; }
+  .option-group { padding-top: 19px; padding-bottom: 17px; }
+  .choice-row { gap: 7px; }
+  .choice-button { min-height: 36px; padding: 0 10px; font-size: 9px; }
+  .finish-options { gap: 13px; }
+  .finish-choice { font-size: 9px; }
+  .extra-copy small { max-width: 205px; font-size: 8px; }
+  .build-summary { padding: 24px 20px 21px; }
+  .summary-wheel-wrap { height: 204px; }
+  .summary-wheel { width: 176px; height: 176px; }
+  .configurator-note { align-items: flex-start; line-height: 1.6; }
+  .configurator-note .eyebrow-dot { margin-top: 4px; }
+  .site-footer { padding: 22px 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px 10px; }
+  .footer-note { justify-self: end; font-size: 10px; }
+  .footer-copyright { justify-self: end; font-size: 7px; }
+  .footer-top { font-size: 7px; }
+}
+@media (max-width: 370px) {
+  .discipline-grid { grid-template-columns: 1fr; }
+  .card-art { height: 210px; }
+  .choice-button { padding: 0 8px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+}
+    </style>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="wordmark" href="#home" aria-label="Etappe Cycling, naar de startpagina">
+        <svg class="brand-mark" viewBox="0 0 42 42" aria-hidden="true">
+          <circle cx="21" cy="21" r="17.5"></circle>
+          <circle cx="21" cy="21" r="3"></circle>
+          <path d="M21 3.5v14.7M37.5 21H24M21 38.5V24M4.5 21H18"></path>
+        </svg>
+        <span class="wordmark-text">Etappe<span>cycling</span></span>
+      </a>
+      <nav class="main-nav" aria-label="Hoofdnavigatie">
+        <a href="#disciplines">Disciplines</a>
+        <a href="#verhaal">Onze aanpak</a>
+        <a href="#configurator">Wielset samenstellen</a>
+        <a href="#overbrenging">Overbrenging</a>
+      </nav>
+      <a class="header-cta" href="#configurator">Vind jouw wielset <span aria-hidden="true">↗</span></a>
+      <button class="menu-toggle" type="button" aria-label="Menu openen" aria-expanded="false" aria-controls="mobile-nav">
+        <span></span><span></span>
+      </button>
+    </header>
+
+    <nav class="mobile-nav" id="mobile-nav" aria-label="Mobiele navigatie" hidden>
+      <a href="#disciplines">Disciplines</a>
+      <a href="#verhaal">Onze aanpak</a>
+      <a href="#configurator">Wielset samenstellen</a>
+      <a href="#overbrenging">Overbrengingscalculator</a>
+    </nav>
+
+    <main>
+      <section class="hero" id="home">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="eyebrow-dot"></span> Gemaakt voor jouw volgende etappe</p>
+          <h1>Jouw rit.<br>Jouw <span>wielen.</span></h1>
+          <p class="hero-description">Van strak asfalt tot onverhard avontuur. Stel de wielset samen die past bij hoe jij fietst.</p>
+          <div class="hero-actions">
+            <a class="button button-dark" href="#configurator">Stel jouw wielset samen <span aria-hidden="true">↗</span></a>
+            <a class="text-link" href="#disciplines">Ontdek de disciplines <span aria-hidden="true">↓</span></a>
+          </div>
+          <div class="hero-footnote">
+            <div class="avatar-stack" aria-hidden="true"><span>E</span><span>C</span><span>↗</span></div>
+            <span>Elk detail begint bij jouw rit.</span>
+          </div>
+        </div>
+        <div class="hero-visual" aria-label="Illustratie van een op maat gemaakte wielset">
+          <div class="visual-topline"><span>ETAPPE / CUSTOM WHEELS</span><span>001 — 006</span></div>
+          <div class="orbit orbit-one"></div>
+          <div class="orbit orbit-two"></div>
+          <svg class="hero-wheel" viewBox="0 0 520 520" role="img" aria-labelledby="wheel-title">
+            <title id="wheel-title">Donkere fietswielillustratie met fijne spaken</title>
+            <defs>
+              <linearGradient id="tire" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#343936"></stop>
+                <stop offset=".48" stop-color="#141816"></stop>
+                <stop offset="1" stop-color="#454a45"></stop>
+              </linearGradient>
+              <linearGradient id="rim" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#c5c7b9"></stop>
+                <stop offset=".36" stop-color="#737a70"></stop>
+                <stop offset=".72" stop-color="#343a35"></stop>
+                <stop offset="1" stop-color="#b0b3a5"></stop>
+              </linearGradient>
+            </defs>
+            <circle class="tire" cx="260" cy="260" r="226"></circle>
+            <circle class="tire-edge" cx="260" cy="260" r="214"></circle>
+            <circle class="rim" cx="260" cy="260" r="203"></circle>
+            <circle class="rim-inner" cx="260" cy="260" r="193"></circle>
+            <g class="spokes" id="hero-spokes"></g>
+            <circle class="hub-outer" cx="260" cy="260" r="22"></circle>
+            <circle class="hub-inner" cx="260" cy="260" r="9"></circle>
+            <circle class="hub-core" cx="260" cy="260" r="3"></circle>
+          </svg>
+          <div class="visual-label label-top"><span>01</span> MADE TO MOVE</div>
+          <div class="visual-label label-bottom"><span>DESIGNED AROUND YOU</span><span>ETAPPE CYCLING ®</span></div>
+          <div class="visual-badge"><span>YOUR<br>RIDE</span><span class="badge-arrow" aria-hidden="true">↗</span></div>
+        </div>
+        <div class="hero-index"><span>01</span><span class="index-line"></span><span>SCROLL TO EXPLORE</span></div>
+      </section>
+
+      <section class="discipline-section section-pad" id="disciplines">
+        <div class="section-heading">
+          <p class="eyebrow"><span class="eyebrow-dot"></span> Eén passie, elke ondergrond</p>
+          <h2>Waar brengt<br>jouw rit je?</h2>
+          <p class="section-intro">Iedere rit is anders. Begin bij de discipline die bij je past — de rest stel je zelf samen.</p>
+        </div>
+        <div class="discipline-grid">
+          <button class="discipline-card discipline-road" type="button" data-category="road" aria-label="Kies racefiets">
+            <span class="card-number">01 / ROAD</span>
+            <span class="card-art road-art" aria-hidden="true"><span class="art-wheel"></span><span class="art-wheel"></span><span class="art-line"></span></span>
+            <span class="card-bottom"><span><strong>Racefiets</strong><small>Voor elke klim en sprint</small></span><span class="card-arrow" aria-hidden="true">↗</span></span>
+          </button>
+          <button class="discipline-card discipline-gravel" type="button" data-category="gravel" aria-label="Kies gravel">
+            <span class="card-number">02 / GRAVEL</span>
+            <span class="card-art gravel-art" aria-hidden="true"><span class="art-wheel"></span><span class="art-wheel"></span><span class="gravel-sun"></span></span>
+            <span class="card-bottom"><span><strong>Gravel</strong><small>Waar de weg ophoudt</small></span><span class="card-arrow" aria-hidden="true">↗</span></span>
+          </button>
+          <button class="discipline-card discipline-mtb" type="button" data-category="mtb" aria-label="Kies mountainbike">
+            <span class="card-number">03 / MTB</span>
+            <span class="card-art mtb-art" aria-hidden="true"><span class="art-wheel"></span><span class="art-wheel"></span><span class="mountain-shape"></span></span>
+            <span class="card-bottom"><span><strong>Mountainbike</strong><small>Gemaakt voor ruig terrein</small></span><span class="card-arrow" aria-hidden="true">↗</span></span>
+          </button>
+          <button class="discipline-card discipline-velomobile" type="button" data-category="velomobile" aria-label="Kies velomobiel">
+            <span class="card-number">04 / VELOMOBILE</span>
+            <span class="card-art velo-art" aria-hidden="true"><span class="velo-wheel"></span><span class="velo-shell"></span><span class="velo-wheel velo-wheel-back"></span></span>
+            <span class="card-bottom"><span><strong>Velomobiel</strong><small>Jouw machine, jouw setup</small></span><span class="card-arrow" aria-hidden="true">↗</span></span>
+          </button>
+          <button class="discipline-card discipline-ebike" type="button" data-category="ebike" aria-label="Kies e-bike">
+            <span class="card-number">05 / E-BIKE</span>
+            <span class="card-art ebike-art" aria-hidden="true"><span class="art-wheel"></span><span class="art-wheel"></span><span class="art-line"></span><span class="electric-motor">ϟ</span></span>
+            <span class="card-bottom"><span><strong>E-bike</strong><small>Comfort en kracht in balans</small></span><span class="card-arrow" aria-hidden="true">↗</span></span>
+          </button>
+          <button class="discipline-card discipline-speedpedelec" type="button" data-category="speedpedelec" aria-label="Kies speedpedelec">
+            <span class="card-number">06 / SPEEDPEDELEC</span>
+            <span class="card-art speed-art" aria-hidden="true"><span class="art-wheel"></span><span class="art-wheel"></span><span class="art-line"></span><span class="speed-bolt">↯</span></span>
+            <span class="card-bottom"><span><strong>Speedpedelec</strong><small>Stabiel op hogere snelheid</small></span><span class="card-arrow" aria-hidden="true">↗</span></span>
+          </button>
+        </div>
+      </section>
+
+      <section class="manifesto section-pad" id="verhaal">
+        <div class="manifesto-mark" aria-hidden="true">“</div>
+        <div class="manifesto-content">
+          <p class="eyebrow eyebrow-light"><span class="eyebrow-dot"></span> Niet zomaar een set wielen</p>
+          <h2>Geen twee ritten zijn hetzelfde.<br><span>Waarom je wielen dan wel?</span></h2>
+          <div class="manifesto-bottom">
+            <p>Jij kent jouw rit het best. Kies de details die ertoe doen en bouw stap voor stap een wielset die helemaal van jou voelt.</p>
+            <a class="button button-light" href="#configurator">Ontdek de configurator <span aria-hidden="true">↗</span></a>
+          </div>
+        </div>
+        <div class="manifesto-orbit" aria-hidden="true"></div>
+        <span class="manifesto-index">ETAPPE / SINCE YOUR FIRST RIDE</span>
+      </section>
+
+      <section class="configurator-section section-pad" id="configurator">
+        <div class="configurator-heading">
+          <p class="eyebrow"><span class="eyebrow-dot"></span> Jouw keuze, jouw wielset</p>
+          <h2>Begin met de basis.</h2>
+          <p>Jij kiest de richting. Wij laten zien wat erbij past.</p>
+        </div>
+        <div class="configurator">
+          <div class="builder">
+            <div class="builder-progress">
+              <span><span class="progress-number">01</span> JOUW CONFIGURATIE</span>
+              <span id="category-count">RACEFIETS — 01/06</span>
+            </div>
+            <fieldset class="option-group">
+              <legend><span class="option-number">01</span> Kies je discipline</legend>
+              <div class="choice-row category-choices" role="group" aria-label="Discipline">
+                <button class="choice-button is-selected" type="button" data-category="road" aria-pressed="true">Racefiets</button>
+                <button class="choice-button" type="button" data-category="gravel" aria-pressed="false">Gravel</button>
+                <button class="choice-button" type="button" data-category="mtb" aria-pressed="false">MTB</button>
+                <button class="choice-button" type="button" data-category="velomobile" aria-pressed="false">Velomobiel</button>
+                <button class="choice-button" type="button" data-category="ebike" aria-pressed="false">E-bike</button>
+                <button class="choice-button" type="button" data-category="speedpedelec" aria-pressed="false">Speedpedelec</button>
+              </div>
+            </fieldset>
+            <fieldset class="option-group">
+              <legend><span class="option-number">02</span> Wielmaat</legend>
+              <div class="choice-row" id="size-choices" role="group" aria-label="Wielmaat"></div>
+            </fieldset>
+            <fieldset class="option-group">
+              <legend><span class="option-number">03</span> Velgprofiel</legend>
+              <div class="choice-row" id="profile-choices" role="group" aria-label="Velgprofiel"></div>
+            </fieldset>
+            <fieldset class="option-group">
+              <legend><span class="option-number">04</span> Naaf afwerking</legend>
+              <div class="finish-options" id="finish-choices" role="group" aria-label="Naaf afwerking"></div>
+            </fieldset>
+            <fieldset class="option-group extra-group">
+              <legend><span class="option-number">05</span> Jouw extra <span class="optional-note">optioneel</span></legend>
+              <label class="extra-option">
+                <input type="checkbox" id="premium-hubs">
+                <span class="custom-checkbox" aria-hidden="true"></span>
+                <span class="extra-copy"><strong>Performance naven</strong><small>Een upgrade voor wie net dat beetje meer zoekt.</small></span>
+                <span class="extra-price">+ € 130</span>
+              </label>
+            </fieldset>
+          </div>
+          <aside class="build-summary" aria-live="polite">
+            <div class="summary-top"><span>JOUW OPBOUW</span><span class="summary-dot"></span></div>
+            <div class="summary-wheel-wrap" aria-hidden="true">
+              <svg class="summary-wheel" viewBox="0 0 320 320">
+                <circle class="summary-tire" cx="160" cy="160" r="139"></circle>
+                <circle class="summary-rim" cx="160" cy="160" r="128"></circle>
+                <circle class="summary-rim-inner" cx="160" cy="160" r="119"></circle>
+                <g class="summary-spokes" id="summary-spokes"></g>
+                <circle class="summary-hub" cx="160" cy="160" r="16"></circle>
+                <circle class="summary-hub-hole" cx="160" cy="160" r="5"></circle>
+              </svg>
+              <span class="summary-wheel-caption">ETAPPE / 01</span>
+            </div>
+            <div class="summary-info">
+              <p class="summary-kicker" id="summary-category">ROAD / ALLROUND</p>
+              <h3 id="summary-title">Racefiets<br>wielset</h3>
+              <p class="summary-spec" id="summary-spec">700C · 35 mm · Mat zwart</p>
+            </div>
+            <div class="summary-total"><span>INDICATIEVE PRIJS</span><strong id="summary-price">€ 1.290</strong></div>
+            <p class="summary-disclaimer">Indicatie voor jouw configuratie; definitieve specificaties en prijs stemmen we persoonlijk met je af.</p>
+            <button class="button button-dark summary-button" id="save-configuration" type="button">Bewaar jouw configuratie <span aria-hidden="true">↗</span></button>
+          </aside>
+        </div>
+        <p class="configurator-note"><span class="eyebrow-dot"></span> Een eerste indruk, geen definitief advies. Jouw perfecte set begint met een goed gesprek.</p>
+      </section>
+      <section class="gearing-section section-pad" id="overbrenging">
+        <div class="gearing-heading">
+          <p class="eyebrow"><span class="eyebrow-dot"></span> Afgestemd op jouw rit</p>
+          <h2>Vind jouw ideale overbrenging.</h2>
+          <p>Vergelijk je klimverzet en topsnelheid. Kies een startpunt of vul je eigen tandwielen in; de uitkomst past zich direct aan jouw wielmaat en trapfrequentie aan.</p>
+        </div>
+        <div class="gearing-calculator">
+          <form class="gearing-inputs" id="gearing-form">
+            <div class="gearing-inputs-top"><span>02 / OVERBRENGING</span><span>DIRECTE BEREKENING</span></div>
+            <fieldset class="gearing-preset">
+              <legend>Kies een rijstijl als startpunt</legend>
+              <select id="gearing-riding-style" aria-label="Rijstijl">
+                <option value="climbing">Licht bergverzet</option>
+                <option value="allround" selected>Allround</option>
+                <option value="speed">Snelheid op vlak terrein</option>
+              </select>
+            </fieldset>
+            <div class="gearing-fields">
+              <div class="gearing-field">
+                <label for="gear-chainring">Kettingblad voor <span>(tanden)</span></label>
+                <input id="gear-chainring" type="number" min="20" max="70" step="1" value="50" required>
+              </div>
+              <div class="gearing-field">
+                <label for="gear-cassette-small">Kleinste krans achter <span>(tanden)</span></label>
+                <input id="gear-cassette-small" type="number" min="8" max="20" step="1" value="11" required>
+              </div>
+              <div class="gearing-field">
+                <label for="gear-cassette-large">Grootste krans achter <span>(tanden)</span></label>
+                <input id="gear-cassette-large" type="number" min="20" max="60" step="1" value="34" required>
+              </div>
+              <div class="gearing-field">
+                <label for="gear-cadence">Trapfrequentie <span>(omw/min)</span></label>
+                <input id="gear-cadence" type="number" min="30" max="160" step="1" value="85" required>
+              </div>
+              <div class="gearing-field">
+                <label for="gear-wheel">Wielmaat / band</label>
+                <select id="gear-wheel" required></select>
+              </div>
+              <div class="gearing-field">
+                <label for="gear-circumference">Wielomtrek <span>(mm, inclusief band)</span></label>
+                <input id="gear-circumference" type="number" min="1000" max="3000" step="1" value="2136" required>
+                <p class="gearing-help">Standaardmaat is een benadering; meet je belaste wiel voor meer nauwkeurigheid.</p>
+              </div>
+            </div>
+          </form>
+          <div class="gearing-results" aria-live="polite">
+            <div class="gearing-results-top"><span>JOUW VERZETTEN</span><span class="eyebrow-dot"></span></div>
+            <h3 id="gearing-result-title">Racefiets · allround</h3>
+            <p class="gearing-result-caption">Berekend met de opgegeven bandomtrek en cadans.</p>
+            <ul class="gearing-result-list">
+              <li class="gearing-result">
+                <span class="gearing-result-label"><strong>Lichtste verzet</strong><small id="gearing-low-detail">50 × 34 tanden · 1,47 : 1</small></span>
+                <span class="gearing-result-value" id="gearing-low-speed">—<small>km/u bij 85 rpm</small></span>
+              </li>
+              <li class="gearing-result">
+                <span class="gearing-result-label"><strong>Zwaarste verzet</strong><small id="gearing-high-detail">50 × 11 tanden · 4,55 : 1</small></span>
+                <span class="gearing-result-value" id="gearing-high-speed">—<small>km/u bij 85 rpm</small></span>
+              </li>
+              <li class="gearing-result">
+                <span class="gearing-result-label"><strong>Bereik cassette</strong><small>Verschil tussen lichtste en zwaarste verzet</small></span>
+                <span class="gearing-result-value" id="gearing-range">—<small>versnellingsbereik</small></span>
+              </li>
+            </ul>
+            <p class="gearing-advice" id="gearing-advice"></p>
+            <p class="gearing-error" id="gearing-error" role="status"></p>
+          </div>
+        </div>
+        <p class="gearing-note">De snelheden zijn theoretische benaderingen: echte snelheid hangt ook af van banddruk, belasting, terrein en meetnauwkeurigheid van de wielomtrek. Meet voor de nauwkeurigste uitkomst de omtrek van jouw belaste wiel.</p>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <a class="wordmark footer-wordmark" href="#home" aria-label="Etappe Cycling, terug naar boven">
+        <svg class="brand-mark" viewBox="0 0 42 42" aria-hidden="true"><circle cx="21" cy="21" r="17.5"></circle><circle cx="21" cy="21" r="3"></circle><path d="M21 3.5v14.7M37.5 21H24M21 38.5V24M4.5 21H18"></path></svg>
+        <span class="wordmark-text">Etappe<span>cycling</span></span>
+      </a>
+      <span class="footer-note">Elke rit begint ergens.</span>
+      <a class="footer-top" href="#home">TERUG NAAR BOVEN <span aria-hidden="true">↑</span></a>
+      <span class="footer-copyright">© <span id="current-year"></span> ETAPPE CYCLING</span>
+    </footer>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script>
+const configurations = {
+  road: {
+    name: "Racefiets",
+    category: "ROAD / ALLROUND",
+    basePrice: 1290,
+    sizes: ["700C"],
+    profiles: ["35 mm", "50 mm"],
+    profileSurcharge: 100,
+  },
+  gravel: {
+    name: "Gravel",
+    category: "GRAVEL / ADVENTURE",
+    basePrice: 1190,
+    sizes: ["700C", "650B"],
+    profiles: ["35 mm", "45 mm"],
+    profileSurcharge: 80,
+  },
+  mtb: {
+    name: "Mountainbike",
+    category: "MTB / TRAIL",
+    basePrice: 1190,
+    sizes: ["29 inch", "27.5 inch"],
+    profiles: ["28 mm", "35 mm"],
+    profileSurcharge: 70,
+  },
+  velomobile: {
+    name: "Velomobiel",
+    category: "VELOMOBIEL / CUSTOM",
+    basePrice: 1490,
+    sizes: ["20 inch", "26 inch"],
+    profiles: ["50 mm", "75 mm"],
+    profileSurcharge: 110,
+  },
+  ebike: {
+    name: "E-bike",
+    category: "E-BIKE / COMFORT",
+    basePrice: 1390,
+    sizes: ["28 inch", "27.5 inch"],
+    profiles: ["35 mm", "50 mm"],
+    profileSurcharge: 100,
+  },
+  speedpedelec: {
+    name: "Speedpedelec",
+    category: "SPEEDPEDELEC / PERFORMANCE",
+    basePrice: 1590,
+    sizes: ["28 inch"],
+    profiles: ["40 mm", "50 mm"],
+    profileSurcharge: 120,
+  },
+};
+
+const state = {
+  category: "road",
+  size: "700C",
+  profile: "35 mm",
+  finish: "Mat zwart",
+  premiumHubs: false,
+};
+
+const categoryButtons = [...document.querySelectorAll("[data-category]")];
+const sizeChoices = document.querySelector("#size-choices");
+const profileChoices = document.querySelector("#profile-choices");
+const finishChoices = document.querySelector("#finish-choices");
+const toast = document.querySelector("#toast");
+let toastTimeout;
+const gearWheel = document.querySelector("#gear-wheel");
+const gearInputs = {
+  chainring: document.querySelector("#gear-chainring"),
+  cassetteSmall: document.querySelector("#gear-cassette-small"),
+  cassetteLarge: document.querySelector("#gear-cassette-large"),
+  cadence: document.querySelector("#gear-cadence"),
+  circumference: document.querySelector("#gear-circumference"),
+};
+const gearingPresets = {
+  road: {
+    climbing: [34, 11, 36],
+    allround: [50, 11, 34],
+    speed: [52, 11, 30],
+  },
+  gravel: {
+    climbing: [40, 10, 44],
+    allround: [40, 10, 42],
+    speed: [42, 10, 36],
+  },
+  mtb: {
+    climbing: [30, 10, 51],
+    allround: [32, 10, 51],
+    speed: [34, 10, 45],
+  },
+  velomobile: {
+    climbing: [42, 11, 42],
+    allround: [50, 11, 36],
+    speed: [60, 11, 34],
+  },
+  ebike: {
+    climbing: [38, 11, 42],
+    allround: [42, 11, 36],
+    speed: [48, 11, 34],
+  },
+  speedpedelec: {
+    climbing: [42, 11, 42],
+    allround: [50, 11, 36],
+    speed: [55, 11, 32],
+  },
+};
+const gearCircumferences = {
+  road: { "700C": 2136 },
+  gravel: { "700C": 2200, "650B": 2140 },
+  mtb: { "29 inch": 2330, "27.5 inch": 2220 },
+  velomobile: { "20 inch": 1550, "26 inch": 2000 },
+  ebike: { "28 inch": 2200, "27.5 inch": 2180 },
+  speedpedelec: { "28 inch": 2200 },
+};
+
+function syncGearWheels() {
+  const wheels = gearCircumferences[state.category];
+  const currentCircumference = wheels[state.size] ?? Object.values(wheels)[0];
+  gearWheel.replaceChildren(...Object.entries(wheels).map(([size, circumference]) => {
+    const option = document.createElement("option");
+    option.value = String(circumference);
+    option.textContent = size;
+    option.selected = circumference === currentCircumference;
+    return option;
+  }));
+  gearInputs.circumference.value = currentCircumference;
+}
+
+function applyGearingPreset() {
+  const style = document.querySelector("#gearing-riding-style").value;
+  const preset = gearingPresets[state.category][style];
+  [gearInputs.chainring.value, gearInputs.cassetteSmall.value, gearInputs.cassetteLarge.value] = preset;
+  calculateGearing();
+}
+
+function calculateGearing() {
+  const values = Object.fromEntries(
+    Object.entries(gearInputs).map(([key, input]) => [key, Number(input.value)]),
+  );
+  const circumference = values.circumference;
+  const style = document.querySelector("#gearing-riding-style").value;
+  const error = document.querySelector("#gearing-error");
+  const controlsValid = Object.values(gearInputs).every((input) => input.validity.valid);
+  const cassetteValid = values.cassetteLarge > values.cassetteSmall;
+  if (!controlsValid || !cassetteValid || !Number.isFinite(circumference)) {
+    error.textContent = cassetteValid
+      ? "Vul geldige aantallen tanden en een trapfrequentie in."
+      : "De grootste cassettekrans moet meer tanden hebben dan de kleinste.";
+    document.querySelector("#gearing-low-detail").textContent = "Pas de invoer aan";
+    document.querySelector("#gearing-high-detail").textContent = "Pas de invoer aan";
+    document.querySelector("#gearing-low-speed").textContent = "—";
+    document.querySelector("#gearing-high-speed").textContent = "—";
+    document.querySelector("#gearing-range").textContent = "—";
+    document.querySelector("#gearing-advice").textContent = "";
+    return;
+  }
+  error.textContent = "";
+  const lowRatio = values.chainring / values.cassetteLarge;
+  const highRatio = values.chainring / values.cassetteSmall;
+  const speedAt = (ratio) => (values.cadence * ratio * circumference * 60) / 1000000;
+  const formatDecimal = (value, digits = 1) =>
+    new Intl.NumberFormat("nl-NL", { minimumFractionDigits: digits, maximumFractionDigits: digits }).format(value);
+  const formatSpeed = (speed) =>
+    new Intl.NumberFormat("nl-NL", { maximumFractionDigits: 1 }).format(speed);
+  const wheelName = gearWheel.selectedOptions[0].textContent;
+  const styleLabels = { climbing: "licht bergverzet", allround: "allround", speed: "vlak/snel" };
+  document.querySelector("#gearing-result-title").textContent =
+    `${configurations[state.category].name} · ${styleLabels[style]}`;
+  document.querySelector("#gearing-low-detail").textContent =
+    `${values.chainring} × ${values.cassetteLarge} tanden · ${formatDecimal(lowRatio, 2)} : 1`;
+  document.querySelector("#gearing-high-detail").textContent =
+    `${values.chainring} × ${values.cassetteSmall} tanden · ${formatDecimal(highRatio, 2)} : 1`;
+  document.querySelector("#gearing-low-speed").innerHTML =
+    `${formatSpeed(speedAt(lowRatio))}<small>km/u bij ${values.cadence} rpm</small>`;
+  document.querySelector("#gearing-high-speed").innerHTML =
+    `${formatSpeed(speedAt(highRatio))}<small>km/u bij ${values.cadence} rpm</small>`;
+  document.querySelector("#gearing-range").innerHTML =
+    `${Math.round((highRatio / lowRatio) * 100)}%<small>versnellingsbereik</small>`;
+  document.querySelector("#gearing-advice").textContent =
+    `Bij ${wheelName} draait het wiel ${formatDecimal(lowRatio, 2)}× per trapomwenteling in je lichtste verzet en ${formatDecimal(highRatio, 2)}× in je zwaarste. Een kleinere lichte verhouding helpt op steile klimmen; controleer of je bereik past bij jouw terrein.`;
+}
+
+function priceForConfiguration() {
+  const config = configurations[state.category];
+  const profileExtra = state.profile === config.profiles[1] ? config.profileSurcharge : 0;
+  const finishExtra = state.finish === "Brons" ? 85 : 0;
+  const hubExtra = state.premiumHubs ? 130 : 0;
+  return config.basePrice + profileExtra + finishExtra + hubExtra;
+}
+
+function formatPrice(price) {
+  return new Intl.NumberFormat("nl-NL", {
+    style: "currency",
+    currency: "EUR",
+    maximumFractionDigits: 0,
+  }).format(price);
+}
+
+function renderChoices(element, choices, selected, onSelect, className = "") {
+  element.replaceChildren(...choices.map((choice) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = `choice-button${className}`;
+    button.textContent = choice;
+    button.setAttribute("aria-pressed", String(choice === selected));
+    if (choice === selected) button.classList.add("is-selected");
+    button.addEventListener("click", () => onSelect(choice));
+    return button;
+  }));
+}
+
+function renderFinishes() {
+  finishChoices.replaceChildren(...["Mat zwart", "Zilver", "Brons"].map((finish) => {
+    const button = document.createElement("button");
+    const className = finish === "Mat zwart" ? "finish-dark" : `finish-${finish.toLowerCase()}`;
+    button.type = "button";
+    button.className = `finish-choice ${className}${state.finish === finish ? " is-selected" : ""}`;
+    button.setAttribute("aria-pressed", String(state.finish === finish));
+    button.innerHTML = `<span class="finish-swatch" aria-hidden="true"></span><span class="finish-label"></span>`;
+    button.querySelector(".finish-label").textContent = finish;
+    button.addEventListener("click", () => {
+      state.finish = finish;
+      render();
+    });
+    return button;
+  }));
+}
+
+function setCategory(category) {
+  if (!Object.hasOwn(configurations, category)) return;
+  const categoryChanged = category !== state.category;
+  state.category = category;
+  const config = configurations[category];
+  if (!config.sizes.includes(state.size)) state.size = config.sizes[0];
+  if (!config.profiles.includes(state.profile)) state.profile = config.profiles[0];
+  render();
+  if (categoryChanged) applyGearingPreset();
+}
+
+function createSpokes(group, center, radius, count) {
+  const lines = [];
+  for (let index = 0; index < count; index += 1) {
+    const angle = (index / count) * Math.PI * 2;
+    const innerRadius = radius * 0.1;
+    const outerRadius = radius * 0.95;
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("x1", String(center + Math.cos(angle) * innerRadius));
+    line.setAttribute("y1", String(center + Math.sin(angle) * innerRadius));
+    line.setAttribute("x2", String(center + Math.cos(angle) * outerRadius));
+    line.setAttribute("y2", String(center + Math.sin(angle) * outerRadius));
+    lines.push(line);
+  }
+  group.replaceChildren(...lines);
+}
+
+function render() {
+  const config = configurations[state.category];
+  categoryButtons.forEach((button) => {
+    const selected = button.dataset.category === state.category;
+    if (button.classList.contains("choice-button")) {
+      button.classList.toggle("is-selected", selected);
+      button.setAttribute("aria-pressed", String(selected));
+    }
+  });
+  renderChoices(sizeChoices, config.sizes, state.size, (size) => {
+    state.size = size;
+    render();
+  });
+  renderChoices(profileChoices, config.profiles, state.profile, (profile) => {
+    state.profile = profile;
+    render();
+  });
+  renderFinishes();
+  document.querySelector("#category-count").textContent =
+    `${config.name.toLocaleUpperCase("nl-NL")} — 0${Object.keys(configurations).indexOf(state.category) + 1}/0${Object.keys(configurations).length}`;
+  document.querySelector("#summary-category").textContent = config.category;
+  document.querySelector("#summary-title").innerHTML = `${config.name}<br>wielset`;
+  document.querySelector("#summary-spec").textContent = `${state.size} · ${state.profile} · ${state.finish}${state.premiumHubs ? " · Performance naven" : ""}`;
+  document.querySelector("#summary-price").textContent = formatPrice(priceForConfiguration());
+  syncGearWheels();
+  calculateGearing();
+}
+
+function announce(message) {
+  window.clearTimeout(toastTimeout);
+  toast.textContent = message;
+  toast.classList.add("is-visible");
+  toastTimeout = window.setTimeout(() => toast.classList.remove("is-visible"), 4500);
+}
+
+function downloadConfiguration() {
+  const config = configurations[state.category];
+  const summary = [
+    "ETAPPE CYCLING — JOUW WIELSET",
+    "",
+    `Discipline: ${config.name}`,
+    `Wielmaat: ${state.size}`,
+    `Velgprofiel: ${state.profile}`,
+    `Naaf afwerking: ${state.finish}`,
+    `Performance naven: ${state.premiumHubs ? "Ja" : "Nee"}`,
+    "",
+    `Indicatieve prijs: ${formatPrice(priceForConfiguration())}`,
+    "",
+    "Definitieve specificaties en prijs stemmen we persoonlijk met je af.",
+  ].join("\n");
+  const blob = new Blob([summary], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "etappe-wielset-configuratie.txt";
+  link.click();
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  announce("Je configuratie is opgeslagen. De indicatieve prijs en jouw keuzes staan in het bestand.");
+}
+
+categoryButtons.forEach((button) => {
+  button.addEventListener("click", () => setCategory(button.dataset.category));
+});
+
+document.querySelector("#premium-hubs").addEventListener("change", (event) => {
+  state.premiumHubs = event.currentTarget.checked;
+  render();
+});
+document.querySelector("#save-configuration").addEventListener("click", downloadConfiguration);
+document.querySelector("#current-year").textContent = String(new Date().getFullYear());
+
+const menuToggle = document.querySelector(".menu-toggle");
+const mobileNav = document.querySelector("#mobile-nav");
+menuToggle.addEventListener("click", () => {
+  const expanded = menuToggle.getAttribute("aria-expanded") === "true";
+  menuToggle.setAttribute("aria-expanded", String(!expanded));
+  menuToggle.setAttribute("aria-label", expanded ? "Menu openen" : "Menu sluiten");
+  mobileNav.hidden = expanded;
+});
+mobileNav.querySelectorAll("a").forEach((link) => {
+  link.addEventListener("click", () => {
+    mobileNav.hidden = true;
+    menuToggle.setAttribute("aria-expanded", "false");
+    menuToggle.setAttribute("aria-label", "Menu openen");
+  });
+});
+
+document.querySelector("#gearing-riding-style").addEventListener("change", applyGearingPreset);
+Object.values(gearInputs).forEach((input) => input.addEventListener("input", calculateGearing));
+gearWheel.addEventListener("change", () => {
+  gearInputs.circumference.value = gearWheel.value;
+  calculateGearing();
+});
+document.querySelector("#gearing-form").addEventListener("submit", (event) => event.preventDefault());
+
+createSpokes(document.querySelector("#hero-spokes"), 260, 203, 32);
+createSpokes(document.querySelector("#summary-spokes"), 160, 128, 28);
+render();
+applyGearingPreset();
+    </script>
+  </body>
+</html>
