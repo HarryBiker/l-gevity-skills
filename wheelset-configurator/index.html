@@ -7,6 +7,27 @@
     <meta name="description" content="Stel jouw wielset samen en bereken de ideale fiets-overbrenging voor racefiets, gravel, MTB, velomobiel, e-bike of speedpedelec met Etappe Cycling.">
     <title>Jouw rit. Jouw wielen. — Etappe Cycling</title>
     <style>
+@font-face {
+  font-family: "Etappe Horizon";
+  src: url("https://static.wixstatic.com/ufonts/c95226_5c5af9b53ee74dae93211d5171eb52b3/woff2/file.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Etappe Alfabet";
+  src: url("https://static.parastorage.com/fonts/v2/81cf67b7-ef0b-438b-b097-ba36f6380000/v1/alfabet.latin.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Etappe Alfabet";
+  src: url("https://static.parastorage.com/fonts/v2/43607f95-d640-451e-a405-0a01d27c6a43/v1/alfabet.latin.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
 :root {
   color-scheme: light;
   --paper: #f5f4ef;
@@ -15,8 +36,8 @@
   --line: #deded5;
   --accent: #d3ed6a;
   --orange: #e8794c;
-  --display: "Segoe UI", Arial, sans-serif;
-  --body: "Segoe UI", Arial, sans-serif;
+  --display: "Etappe Horizon", "Segoe UI", Arial, sans-serif;
+  --body: "Etappe Alfabet", "Segoe UI", Arial, sans-serif;
 }
 
 * { box-sizing: border-box; }
@@ -26,11 +47,8 @@ button, a { color: inherit; font: inherit; }
 a { text-decoration: none; }
 button { cursor: pointer; }
 .site-header { height: 82px; padding: 0 7.2%; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(28, 33, 30, .11); position: relative; z-index: 4; }
-.wordmark { display: inline-flex; gap: 10px; align-items: center; flex-shrink: 0; }
-.brand-mark { width: 35px; height: 35px; fill: none; stroke: var(--ink); stroke-width: 1.25; }
-.brand-mark circle:nth-child(2) { fill: var(--ink); }
-.wordmark-text { display: flex; flex-direction: column; font: 800 17px/.9 var(--display); letter-spacing: -.055em; }
-.wordmark-text > span { margin-top: 5px; font: 500 8px/1 var(--body); letter-spacing: .24em; text-transform: uppercase; }
+.wordmark { display: inline-flex; align-items: center; flex-shrink: 0; }
+.brand-logo { display: block; width: 86px; height: 62px; object-fit: contain; background: #fff; }
 .main-nav { display: flex; gap: clamp(24px, 3.2vw, 48px); align-items: center; margin-left: 6%; }
 .main-nav a, .header-cta { font-size: 11px; font-weight: 600; }
 .main-nav a { transition: opacity .2s ease; }
@@ -44,8 +62,8 @@ button { cursor: pointer; }
 .eyebrow { margin: 0; display: flex; align-items: center; gap: 9px; font-size: 9px; line-height: 1.4; font-weight: 700; letter-spacing: .17em; text-transform: uppercase; }
 .eyebrow-dot, .summary-dot { width: 7px; height: 7px; flex: 0 0 7px; border-radius: 50%; background: #91aa31; }
 h1, h2, h3, p { margin-top: 0; }
-.hero h1 { margin: 27px 0 19px; font: 600 clamp(60px, 7.1vw, 100px)/.98 var(--display); letter-spacing: -.09em; }
-.hero h1 span { color: #788b44; font-weight: 500; font-style: italic; }
+.hero h1 { margin: 27px 0 19px; font: 400 clamp(60px, 7.1vw, 100px)/.98 var(--display); letter-spacing: -.02em; }
+.hero h1 span { color: #788b44; font-weight: 400; font-style: normal; }
 .hero-description { max-width: 360px; color: #696c65; font-size: 14px; line-height: 1.8; }
 .hero-actions { display: flex; gap: 25px; align-items: center; margin-top: 30px; }
 .button { min-height: 49px; padding: 0 19px; display: inline-flex; justify-content: center; align-items: center; gap: 20px; border: 0; border-radius: 2px; font-size: 10px; font-weight: 700; transition: transform .2s ease, background .2s ease; }
@@ -88,7 +106,7 @@ h1, h2, h3, p { margin-top: 0; }
 .discipline-section { padding-top: 122px; padding-bottom: 124px; }
 .section-heading { display: grid; grid-template-columns: 1fr 1fr; align-items: end; column-gap: 30px; }
 .section-heading .eyebrow { grid-column: 1 / -1; margin-bottom: 27px; }
-.section-heading h2, .configurator-heading h2 { margin: 0; font: 600 clamp(38px, 4.5vw, 58px)/1.07 var(--display); letter-spacing: -.075em; }
+.section-heading h2, .configurator-heading h2 { margin: 0; font: 400 clamp(38px, 4.5vw, 58px)/1.07 var(--display); letter-spacing: -.02em; }
 .section-intro { max-width: 300px; margin: 0 0 5px; color: var(--muted); font-size: 12px; line-height: 1.8; }
 .discipline-grid { margin-top: 47px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
 .discipline-card { min-width: 0; padding: 0; display: flex; flex-direction: column; overflow: hidden; text-align: left; border: 0; background: #e6e5dc; transition: transform .25s ease; }
@@ -118,7 +136,7 @@ h1, h2, h3, p { margin-top: 0; }
 .speed-bolt { position: absolute; z-index: 2; right: 21%; top: 26%; color: #74833e; font-size: 43px; line-height: 1; transform: rotate(12deg); }
 .card-bottom { min-height: 81px; padding: 15px 16px; display: flex; align-items: center; justify-content: space-between; }
 .card-bottom > span:first-child { display: flex; flex-direction: column; gap: 6px; }
-.card-bottom strong { font: 700 14px var(--display); letter-spacing: -.04em; }
+.card-bottom strong { font: 700 14px var(--body); letter-spacing: -.02em; }
 .card-bottom small { color: #777a72; font-size: 9px; }
 .card-arrow { font-size: 16px; transition: transform .2s ease; }
 .discipline-card:hover .card-arrow { transform: translate(2px, -2px); }
@@ -127,7 +145,7 @@ h1, h2, h3, p { margin-top: 0; }
 .manifesto-content { position: relative; z-index: 1; max-width: 930px; }
 .eyebrow-light { color: #bdc3b3; }
 .eyebrow-light .eyebrow-dot { background: var(--accent); }
-.manifesto h2 { margin: 30px 0 32px; font: 500 clamp(36px, 4.7vw, 62px)/1.13 var(--display); letter-spacing: -.07em; }
+.manifesto h2 { margin: 30px 0 32px; font: 400 clamp(36px, 4.7vw, 62px)/1.13 var(--display); letter-spacing: -.02em; }
 .manifesto h2 span { color: #99a58d; }
 .manifesto-bottom { display: flex; align-items: end; justify-content: space-between; gap: 30px; }
 .manifesto-bottom p { max-width: 340px; margin: 0; color: #b4b9ae; font-size: 12px; line-height: 1.8; }
@@ -187,19 +205,18 @@ h1, h2, h3, p { margin-top: 0; }
 .summary-wheel-caption { position: absolute; right: 1px; bottom: 9px; color: #777d71; font-size: 7px; font-weight: 700; letter-spacing: .12em; writing-mode: vertical-rl; }
 .summary-info { padding-top: 18px; border-top: 1px solid #d8d9cf; }
 .summary-kicker { margin-bottom: 8px; color: #72776c; font-size: 8px; font-weight: 700; letter-spacing: .15em; }
-.summary-info h3 { margin: 0 0 8px; font: 700 25px/1.1 var(--display); letter-spacing: -.06em; }
+.summary-info h3 { margin: 0 0 8px; font: 400 25px/1.1 var(--display); letter-spacing: -.02em; }
 .summary-spec { margin: 0; color: #686e63; font-size: 10px; }
 .summary-hub { margin: 6px 0 0; color: #686e63; font-size: 9px; line-height: 1.5; }
 .summary-total { margin-top: 18px; padding-top: 15px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #d8d9cf; }
 .summary-total span { color: #72776c; font-size: 8px; font-weight: 700; letter-spacing: .12em; }
-.summary-total strong { font: 700 18px var(--display); letter-spacing: -.04em; }
+.summary-total strong { font: 700 18px var(--body); letter-spacing: -.02em; }
 .summary-disclaimer { margin: 12px 0 17px; color: #777a72; font-size: 9px; line-height: 1.6; }
 .summary-button { width: 100%; justify-content: space-between; }
 .configurator-note { max-width: 1020px; margin: 17px auto 0; display: flex; align-items: center; gap: 9px; color: #777a72; font-size: 9px; }
 .configurator-note .eyebrow-dot { width: 6px; height: 6px; flex-basis: 6px; }
 .site-footer { min-height: 94px; padding: 20px 7.2%; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--line); }
-.footer-wordmark .brand-mark { width: 30px; height: 30px; }
-.footer-wordmark .wordmark-text { font-size: 15px; }
+.footer-wordmark .brand-logo { width: 72px; height: 52px; }
 .footer-note { color: var(--muted); font: italic 12px Georgia, serif; }
 .footer-top, .footer-copyright { color: #777a72; font-size: 8px; font-weight: 700; letter-spacing: .12em; }
 .footer-top span { padding-left: 8px; color: var(--ink); }
@@ -209,7 +226,7 @@ h1, h2, h3, p { margin-top: 0; }
 .gearing-section { padding-top: 105px; padding-bottom: 110px; background: #e9e9df; }
 .gearing-heading { max-width: 760px; margin: 0 auto 38px; text-align: center; }
 .gearing-heading .eyebrow { justify-content: center; margin-bottom: 19px; }
-.gearing-heading h2 { margin: 0; font: 600 clamp(38px, 4.2vw, 54px)/1.07 var(--display); letter-spacing: -.075em; }
+.gearing-heading h2 { margin: 0; font: 400 clamp(38px, 4.2vw, 54px)/1.07 var(--display); letter-spacing: -.02em; }
 .gearing-heading > p:last-child { max-width: 560px; margin: 13px auto 0; color: var(--muted); font-size: 12px; line-height: 1.8; }
 .gearing-calculator { max-width: 1020px; margin: 0 auto; display: grid; grid-template-columns: 1.1fr .9fr; background: #fffefa; border: 1px solid #deded5; }
 .gearing-inputs { padding: 30px 36px; }
@@ -226,16 +243,20 @@ h1, h2, h3, p { margin-top: 0; }
 .gearing-results { padding: 30px 31px; display: flex; flex-direction: column; background: #202621; color: var(--paper); }
 .gearing-results-top { padding-bottom: 17px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(245,244,239,.18); color: #d3d8cb; font-size: 8px; font-weight: 700; letter-spacing: .14em; }
 .gearing-results-top .eyebrow-dot { background: var(--accent); }
-.gearing-results h3 { margin: 22px 0 6px; font: 600 23px/1.1 var(--display); letter-spacing: -.05em; }
+.gearing-results h3 { margin: 22px 0 6px; font: 400 23px/1.1 var(--display); letter-spacing: -.01em; }
 .gearing-result-caption { margin: 0 0 16px; color: #b4b9ae; font-size: 9px; line-height: 1.6; }
 .gearing-result-list { margin: 0; padding: 0; list-style: none; }
 .gearing-result { min-height: 65px; padding: 11px 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-top: 1px solid rgba(245,244,239,.16); }
 .gearing-result-label { display: flex; flex-direction: column; gap: 4px; }
 .gearing-result-label strong { font-size: 10px; }
 .gearing-result-label small { color: #b4b9ae; font-size: 8px; }
-.gearing-result-value { text-align: right; white-space: nowrap; font: 700 18px var(--display); letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+.gearing-result-value { text-align: right; white-space: nowrap; font: 700 18px var(--body); letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
 .gearing-result-value small { display: block; margin-top: 3px; color: #b4b9ae; font: 500 8px var(--body); letter-spacing: 0; }
 .gearing-advice { margin: 15px 0 0; padding: 12px; border-left: 2px solid var(--accent); color: #d2d7c9; background: rgba(245,244,239,.06); font-size: 9px; line-height: 1.65; }
+.hub-specs { margin-top: 17px; padding: 13px; display: grid; gap: 7px; border: 1px solid rgba(245,244,239,.2); color: #d2d7c9; background: rgba(245,244,239,.06); font-size: 9px; line-height: 1.5; }
+.hub-specs[hidden] { display: none; }
+.hub-specs strong { color: var(--paper); font-size: 10px; }
+.hub-specs a { width: fit-content; color: var(--accent); font-size: 8px; text-decoration: underline; text-underline-offset: 2px; }
 .gearing-error { min-height: 14px; margin: 12px 0 0; color: #ffbf9d; font-size: 9px; }
 .gearing-note { max-width: 1020px; margin: 16px auto 0; color: #777a72; font-size: 9px; line-height: 1.6; }
 :focus-visible { outline: 2px solid #778a3b; outline-offset: 3px; }
@@ -337,12 +358,7 @@ h1, h2, h3, p { margin-top: 0; }
   <body>
     <header class="site-header">
       <a class="wordmark" href="#home" aria-label="Etappe Cycling, naar de startpagina">
-        <svg class="brand-mark" viewBox="0 0 42 42" aria-hidden="true">
-          <circle cx="21" cy="21" r="17.5"></circle>
-          <circle cx="21" cy="21" r="3"></circle>
-          <path d="M21 3.5v14.7M37.5 21H24M21 38.5V24M4.5 21H18"></path>
-        </svg>
-        <span class="wordmark-text">Etappe<span>cycling</span></span>
+        <img class="brand-logo" src="https://static.wixstatic.com/media/463ab1_5631fbc1e0da4b0f8d30efaa9e10d350~mv2.jpg/v1/crop/x_16,y_8,w_333,h_242/fill/w_246,h_178,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Etappe%20Cycling%20(1)_edited.jpg" alt="Etappe Cycling" width="246" height="178" fetchpriority="high">
       </a>
       <nav class="main-nav" aria-label="Hoofdnavigatie">
         <a href="#disciplines">Disciplines</a>
@@ -615,6 +631,12 @@ h1, h2, h3, p { margin-top: 0; }
               </li>
             </ul>
             <p class="gearing-advice" id="gearing-advice"></p>
+            <div class="hub-specs" id="hub-specs" hidden aria-live="polite">
+              <strong>enviolo Utility</strong>
+              <span>Maximale koppelspecificatie: 120 Nm bij 180 kg toegestaan totaalgewicht (GVW).</span>
+              <span>Gemiddeld versnellingsbereik van de naaf: 400%.</span>
+              <a href="https://support.enviolo.com/hc/en-us/articles/19809857460882-Technical-Specifications-for-all-Enviolo-Hub-variants" target="_blank" rel="noopener noreferrer">Bron: enviolo Support — technische specificaties ↗</a>
+            </div>
             <p class="gearing-error" id="gearing-error" role="status"></p>
           </div>
         </div>
@@ -624,8 +646,7 @@ h1, h2, h3, p { margin-top: 0; }
 
     <footer class="site-footer">
       <a class="wordmark footer-wordmark" href="#home" aria-label="Etappe Cycling, terug naar boven">
-        <svg class="brand-mark" viewBox="0 0 42 42" aria-hidden="true"><circle cx="21" cy="21" r="17.5"></circle><circle cx="21" cy="21" r="3"></circle><path d="M21 3.5v14.7M37.5 21H24M21 38.5V24M4.5 21H18"></path></svg>
-        <span class="wordmark-text">Etappe<span>cycling</span></span>
+        <img class="brand-logo" src="https://static.wixstatic.com/media/463ab1_5631fbc1e0da4b0f8d30efaa9e10d350~mv2.jpg/v1/crop/x_16,y_8,w_333,h_242/fill/w_246,h_178,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Etappe%20Cycling%20(1)_edited.jpg" alt="Etappe Cycling" width="246" height="178" loading="lazy">
       </a>
       <span class="footer-note">Elke rit begint ergens.</span>
       <a class="footer-top" href="#home">TERUG NAAR BOVEN <span aria-hidden="true">↑</span></a>
@@ -712,7 +733,7 @@ const internalHubs = {
   },
   enviolo: {
     name: "enviolo Utility",
-    description: "Traploos variabele versnelling voor comfortabel stads- en utiliteitsgebruik.",
+    description: "Traploos variabele versnelling. Officiële specificatie: 120 Nm maximale koppelspecificatie bij 180 kg toegestaan totaalgewicht en 400% versnellingsbereik.",
   },
 };
 
@@ -888,6 +909,7 @@ function renderInternalHub() {
   const hub = internalHubs[state.internalHub];
   document.querySelector("#internal-hub").value = state.internalHub;
   document.querySelector("#hub-description").textContent = hub.description;
+  document.querySelector("#hub-specs").hidden = state.internalHub !== "enviolo";
   document.querySelector("#summary-hub").textContent =
     state.internalHub === "standard" ? hub.name : `Interne versnellingsnaaf: ${hub.name}`;
   document.querySelector("#summary-disclaimer").textContent =
